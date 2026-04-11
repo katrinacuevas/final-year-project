@@ -1,7 +1,7 @@
-// ------------------ IMPORTS ------------------
 import 'package:flutter/material.dart';
+import '../screens/password_screen.dart';
+import '../screens/phishing_screen.dart';
 
-// ------------------ DASHBOARD WIDGET ------------------
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
@@ -22,8 +22,18 @@ class DashboardScreen extends StatelessWidget {
               'Learning tasks',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
+            // password power card
             const SizedBox(height: 16),
-            _buildLearningTaskCard(
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PasswordPowerScreen(),
+                ),
+              );
+            },
+            child: _buildLearningTaskCard(
               icon: Icons.lock,
               iconColor: Colors.orange,
               title: 'Password Power',
@@ -32,18 +42,31 @@ class DashboardScreen extends StatelessWidget {
               totalLessons: 1,
               stars: 1,
               duration: '10 mins',
+              ),
             ),
+            // phishing detective card
             const SizedBox(height: 12),
-            _buildLearningTaskCard(
-              icon: Icons.search,
-              iconColor: Colors.grey,
-              title: 'Phishing Detective',
-              subtitle: 'Become an expert at spotting fake messages!',
-              progress: 3,
-              totalLessons: 6,
-              stars: 3,
-              duration: '20 mins',
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PhishingDetectiveScreen(),
+                  ),
+                );
+              },
+              child: _buildLearningTaskCard(
+                icon: Icons.search,
+                iconColor: Colors.grey,
+                title: 'Phishing Detective',
+                subtitle: 'Become an expert at spotting fake messages!',
+                progress: 3,
+                totalLessons: 6,
+                stars: 3,
+                duration: '20 mins',
+              ),
             ),
+            // baiting pro card
             const SizedBox(height: 12),
             _buildLearningTaskCard(
               icon: Icons.card_giftcard,
@@ -61,7 +84,6 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  // ------------------ WELCOME CARD ------------------
   Widget _buildWelcomeCard() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -147,7 +169,6 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  // ------------------ DAILY CHALLENGE CARD ------------------
   Widget _buildDailyChallengeCard() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -237,7 +258,6 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  // ------------------ LEARNING TASK CARD ------------------
   Widget _buildLearningTaskCard({
     required IconData icon,
     required Color iconColor,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/courses_screen.dart';
 import '../screens/achievements_screen.dart';
-// import '../screens/profile_screen.dart';
+import '../screens/profile_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -18,7 +18,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     const DashboardScreen(),
     const CoursesScreen(),
     const AchievementsScreen(),
-    // const ProfileScreen(),
+    const ProfileScreen(),
   ];
 
   @override

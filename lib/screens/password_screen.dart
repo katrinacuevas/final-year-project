@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// ------------------ PASSWORD POWER SCREEN ------------------
 class PasswordPowerScreen extends StatefulWidget {
   const PasswordPowerScreen({super.key});
 
@@ -9,7 +8,8 @@ class PasswordPowerScreen extends StatefulWidget {
 }
 
 class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
-  int _currentStep = 0; 
+  int _currentStep = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,13 +63,12 @@ class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
       case 3: return _LessonStep3(key: const ValueKey(3), onNext: () => setState(() => _currentStep = 4));
       case 4: return _LessonStep4(key: const ValueKey(4), onNext: () => setState(() => _currentStep = 5));
       case 5: return _QuizStep(key: const ValueKey(5), onComplete: () => setState(() => _currentStep = 6));
-      case 6: return _CompleteStep(key: const ValueKey(6), onDone: () => Navigator.pop(context));
+      case 6: return _BuildPasswordStep(key: const ValueKey(6), onComplete: () => setState(() => _currentStep = 7));
+      case 7: return _CompleteStep(key: const ValueKey(7), onDone: () => Navigator.pop(context));
       default: return const SizedBox();
     }
   }
 }
-
-// ------------------ SHARED WIDGETS ------------------
 
 class _ProgressBar extends StatelessWidget {
   final int current;
@@ -105,17 +104,20 @@ class _ProgressBar extends StatelessWidget {
 class _NextButton extends StatelessWidget {
   final VoidCallback onTap;
   final String label;
-  const _NextButton({required this.onTap, this.label = 'Next →'});
+  final bool enabled;
+  const _NextButton({required this.onTap, this.label = 'Next →', this.enabled = true});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: onTap,
+        onPressed: enabled ? onTap : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF1A2E45),
           foregroundColor: Colors.white,
+          disabledBackgroundColor: const Color(0xFFCDD8E3),
+          disabledForegroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           elevation: 0,
@@ -163,8 +165,6 @@ class _InfoCard extends StatelessWidget {
   }
 }
 
-// ------------------ STEP 0: INTRO ------------------
-
 class _IntroStep extends StatelessWidget {
   final VoidCallback onNext;
   const _IntroStep({super.key, required this.onNext});
@@ -178,18 +178,12 @@ class _IntroStep extends StatelessWidget {
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              color: Colors.orange.shade50,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: Colors.orange.shade50, shape: BoxShape.circle),
             child: const Text('🔒', style: TextStyle(fontSize: 72)),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Password Power!',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45)),
-          ),
+          const Text('Password Power!', textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
           const SizedBox(height: 12),
           const Text(
             'Learn how to create passwords so strong, even the sneakiest hackers can\'t crack them! 💪',
@@ -197,26 +191,14 @@ class _IntroStep extends StatelessWidget {
             style: TextStyle(fontSize: 15, color: Color(0xFF5A7A95), height: 1.5),
           ),
           const SizedBox(height: 28),
-          _InfoCard(
-            color: Colors.blue,
-            emoji: '📖',
-            title: 'What you\'ll learn',
-            body: 'Why passwords matter, what makes them weak or strong, and how to build one that\'s really hard to guess!',
-          ),
+          _InfoCard(color: Colors.blue, emoji: '📖', title: 'What you\'ll learn',
+            body: 'Why passwords matter, what makes them weak or strong, and how to build one that\'s really hard to guess!'),
           const SizedBox(height: 12),
-          _InfoCard(
-            color: Colors.green,
-            emoji: '⏱️',
-            title: '10 minutes',
-            body: '4 quick lessons + a mini quiz at the end. You can do it!',
-          ),
+          _InfoCard(color: Colors.green, emoji: '⏱️', title: '10 minutes',
+            body: '4 quick lessons + a quiz + build your very own password at the end!'),
           const SizedBox(height: 12),
-          _InfoCard(
-            color: Colors.amber,
-            emoji: '⭐',
-            title: 'Earn up to +100 XP',
-            body: 'Complete the quiz to earn your Password Master badge!',
-          ),
+          _InfoCard(color: Colors.amber, emoji: '⭐', title: 'Earn up to +100 XP',
+            body: 'Complete everything to earn your Password Master badge!'),
           const SizedBox(height: 32),
           _NextButton(onTap: onNext, label: '▶  Start Lesson'),
         ],
@@ -224,8 +206,6 @@ class _IntroStep extends StatelessWidget {
     );
   }
 }
-
-// ------------------ STEP 1: WHY PASSWORDS MATTER ------------------
 
 class _LessonStep1 extends StatelessWidget {
   final VoidCallback onNext;
@@ -252,17 +232,9 @@ class _LessonStep1 extends StatelessWidget {
               children: [
                 Text('🏠', style: TextStyle(fontSize: 56)),
                 SizedBox(height: 12),
-                Text(
-                  'Think of a password like the key to your house',
+                Text('Think of a password like the key to your house!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45)),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'You wouldn\'t leave your front door wide open, would you? Passwords protect everything inside your online accounts — your messages, photos, and private info.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Color(0xFF5A7A95), height: 1.5),
-                ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45)))
               ],
             ),
           ),
@@ -303,15 +275,15 @@ class _ScenarioCard extends StatelessWidget {
         children: [
           Text(emoji, style: const TextStyle(fontSize: 22)),
           const SizedBox(width: 12),
-          Expanded(child: Text(text, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isBad ? const Color(0xFFB03030) : const Color(0xFF1E8449)))),
-          Icon(isBad ? Icons.cancel : Icons.check_circle, color: isBad ? const Color(0xFFE74C3C) : const Color(0xFF2ECC71), size: 20),
+          Expanded(child: Text(text, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
+            color: isBad ? const Color(0xFFB03030) : const Color(0xFF1E8449)))),
+          Icon(isBad ? Icons.cancel : Icons.check_circle,
+            color: isBad ? const Color(0xFFE74C3C) : const Color(0xFF2ECC71), size: 20),
         ],
       ),
     );
   }
 }
-
-// ------------------ STEP 2: WEAK PASSWORDS ------------------
 
 class _LessonStep2 extends StatelessWidget {
   final VoidCallback onNext;
@@ -388,7 +360,8 @@ class _WeakPasswordTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(color: const Color(0xFFFFEBEB), borderRadius: BorderRadius.circular(8)),
-            child: Text(password, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFFB03030), fontFamily: 'monospace')),
+            child: Text(password, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800,
+              color: Color(0xFFB03030), fontFamily: 'monospace')),
           ),
           const SizedBox(width: 12),
           Expanded(child: Text(reason, style: const TextStyle(fontSize: 12, color: Color(0xFF5A7A95)))),
@@ -398,8 +371,6 @@ class _WeakPasswordTile extends StatelessWidget {
     );
   }
 }
-
-// ------------------ STEP 3: WHAT MAKES A STRONG PASSWORD ------------------
 
 class _LessonStep3 extends StatelessWidget {
   final VoidCallback onNext;
@@ -417,13 +388,17 @@ class _LessonStep3 extends StatelessWidget {
           const Text('The 4 Rules of a Strong Password 💪',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
           const SizedBox(height: 16),
-          _RuleCard(number: '1', emoji: '📏', color: Colors.blue, title: 'Make it LONG', body: 'At least 12 characters. Longer = much harder to crack. Think of a short sentence!'),
+          _RuleCard(number: '1', emoji: '📏', color: Colors.blue, title: 'Make it LONG',
+            body: 'At least 12 characters. Longer = much harder to crack!'),
           const SizedBox(height: 10),
-          _RuleCard(number: '2', emoji: '🔀', color: Colors.purple, title: 'Mix it UP', body: 'Use UPPER and lower case letters together, like "SuNsHiNe".'),
+          _RuleCard(number: '2', emoji: '🔀', color: Colors.purple, title: 'Mix it UP',
+            body: 'Use UPPER and lower case letters together, like "SuNsHiNe".'),
           const SizedBox(height: 10),
-          _RuleCard(number: '3', emoji: '🔢', color: Colors.orange, title: 'Add NUMBERS', body: 'Throw in some numbers — but not just "123" at the end!'),
+          _RuleCard(number: '3', emoji: '🔢', color: Colors.orange, title: 'Add NUMBERS',
+            body: 'Throw in some numbers — but not just "123" at the end!'),
           const SizedBox(height: 10),
-          _RuleCard(number: '4', emoji: '✨', color: Colors.green, title: 'Use SYMBOLS', body: 'Characters like ! @ # \$ % make it much stronger.'),
+          _RuleCard(number: '4', emoji: '✨', color: Colors.green, title: 'Use SYMBOLS',
+            body: 'Characters like ! @ # \$ % make it much stronger.'),
           const SizedBox(height: 20),
           Container(
             width: double.infinity,
@@ -435,12 +410,15 @@ class _LessonStep3 extends StatelessWidget {
             ),
             child: Column(
               children: [
-                const Text('✅ Strong Password Example', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E8449))),
+                const Text('✅ Strong Password Example',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E8449))),
                 const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                  child: const Text('Tr0pic@lFish!2024', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45), letterSpacing: 1)),
+                  child: const Text('Tr0pic@lFish!2024',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800,
+                      color: Color(0xFF1A2E45), letterSpacing: 1)),
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -501,7 +479,8 @@ class _RuleCard extends StatelessWidget {
           Container(
             width: 28, height: 28,
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            child: Center(child: Text(number, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13))),
+            child: Center(child: Text(number,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13))),
           ),
         ],
       ),
@@ -523,8 +502,6 @@ class _Tag extends StatelessWidget {
     );
   }
 }
-
-// ------------------ STEP 4: PASSPHRASE TRICK ------------------
 
 class _LessonStep4 extends StatelessWidget {
   final VoidCallback onNext;
@@ -554,7 +531,8 @@ class _LessonStep4 extends StatelessWidget {
             ),
             child: Column(
               children: [
-                const Text('Pick 3 random words you like:', style: TextStyle(fontSize: 14, color: Color(0xFF5A7A95))),
+                const Text('Pick 3 random words you like:',
+                  style: TextStyle(fontSize: 14, color: Color(0xFF5A7A95))),
                 const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -572,7 +550,9 @@ class _LessonStep4 extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(color: const Color(0xFFD5F5E3), borderRadius: BorderRadius.circular(12)),
-                  child: const Text('Fluffy\$Pizza!Rocket7', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45), letterSpacing: 0.5)),
+                  child: const Text('Fluffy\$Pizza!Rocket7',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800,
+                      color: Color(0xFF1A2E45), letterSpacing: 0.5)),
                 ),
                 const SizedBox(height: 10),
                 const Text('Add numbers & symbols between the words ✨',
@@ -581,13 +561,17 @@ class _LessonStep4 extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          const Text('Why is this great?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
+          const Text('Why is this great?',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
           const SizedBox(height: 10),
-          _InfoCard(color: Colors.green, emoji: '✅', title: 'Easy to remember', body: 'A funny image in your head — a fluffy cat eating pizza on a rocket!'),
+          _InfoCard(color: Colors.green, emoji: '✅', title: 'Easy to remember',
+            body: 'A funny image in your head — a fluffy cat eating pizza on a rocket!'),
           const SizedBox(height: 8),
-          _InfoCard(color: Colors.blue, emoji: '🔐', title: 'Very long', body: 'More characters = exponentially harder to crack.'),
+          _InfoCard(color: Colors.blue, emoji: '🔐', title: 'Very long',
+            body: 'More characters = exponentially harder to crack.'),
           const SizedBox(height: 8),
-          _InfoCard(color: Colors.orange, emoji: '🤫', title: 'Your secret', body: 'Nobody else would pick the same 3 random words as you!'),
+          _InfoCard(color: Colors.orange, emoji: '🤫', title: 'Your secret',
+            body: 'Nobody else would pick the same 3 random words as you!'),
           const SizedBox(height: 32),
           _NextButton(onTap: onNext, label: 'Take the Quiz! 🎯'),
         ],
@@ -620,8 +604,6 @@ class _WordBubble extends StatelessWidget {
   }
 }
 
-// ------------------ STEP 5: QUIZ ------------------
-
 class _QuizStep extends StatefulWidget {
   final VoidCallback onComplete;
   const _QuizStep({super.key, required this.onComplete});
@@ -632,7 +614,6 @@ class _QuizStep extends StatefulWidget {
 
 class _QuizStepState extends State<_QuizStep> {
   int _questionIndex = 0;
-  int _score = 0;
   int? _selectedAnswer;
   bool _answered = false;
 
@@ -679,7 +660,6 @@ class _QuizStepState extends State<_QuizStep> {
     setState(() {
       _selectedAnswer = index;
       _answered = true;
-      if (index == _questions[_questionIndex]['correct']) _score++;
     });
   }
 
@@ -706,7 +686,8 @@ class _QuizStepState extends State<_QuizStep> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Text('Quiz Time! 🎯', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
+            const Text('Quiz Time! 🎯',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(color: const Color(0xFFD5F5E3), borderRadius: BorderRadius.circular(20)),
@@ -752,19 +733,14 @@ class _QuizStepState extends State<_QuizStep> {
 
             if (_answered) {
               if (i == correct) {
-                bg = const Color(0xFFD5F5E3);
-                border = const Color(0xFF82E0AA);
+                bg = const Color(0xFFD5F5E3); border = const Color(0xFF82E0AA);
                 textColor = const Color(0xFF1E8449);
                 trailing = const Icon(Icons.check_circle, color: Color(0xFF2ECC71));
               } else if (i == _selectedAnswer) {
-                bg = const Color(0xFFFFEBEB);
-                border = const Color(0xFFFFAAAA);
+                bg = const Color(0xFFFFEBEB); border = const Color(0xFFFFAAAA);
                 textColor = const Color(0xFFB03030);
                 trailing = const Icon(Icons.cancel, color: Color(0xFFE74C3C));
               }
-            } else if (_selectedAnswer == i) {
-              bg = const Color(0xFFDEEAF8);
-              border = const Color(0xFF4A90D9);
             }
 
             return Padding(
@@ -786,14 +762,13 @@ class _QuizStepState extends State<_QuizStep> {
                         shape: BoxShape.circle,
                         color: _answered && i == correct ? const Color(0xFF2ECC71) : const Color(0xFFEFF4FB),
                       ),
-                      child: Center(child: Text(
-                        ['A', 'B', 'C', 'D'][i],
+                      child: Center(child: Text(['A', 'B', 'C', 'D'][i],
                         style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13,
-                          color: _answered && i == correct ? Colors.white : const Color(0xFF9AABBF)),
-                      )),
+                          color: _answered && i == correct ? Colors.white : const Color(0xFF9AABBF)))),
                     ),
                     const SizedBox(width: 12),
-                    Expanded(child: Text(opt, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textColor))),
+                    Expanded(child: Text(opt,
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textColor))),
                     if (trailing != null) trailing,
                   ]),
                 ),
@@ -820,7 +795,7 @@ class _QuizStepState extends State<_QuizStep> {
             const SizedBox(height: 20),
             _NextButton(
               onTap: _next,
-              label: _questionIndex < _questions.length - 1 ? 'Next Question →' : 'See Results! 🎉',
+              label: _questionIndex < _questions.length - 1 ? 'Next Question →' : 'Now build your own! 🛠️',
             ),
           ],
         ],
@@ -829,7 +804,269 @@ class _QuizStepState extends State<_QuizStep> {
   }
 }
 
-// ------------------ STEP 6: COMPLETE ------------------
+class _BuildPasswordStep extends StatefulWidget {
+  final VoidCallback onComplete;
+  const _BuildPasswordStep({super.key, required this.onComplete});
+
+  @override
+  State<_BuildPasswordStep> createState() => _BuildPasswordStepState();
+}
+
+class _BuildPasswordStepState extends State<_BuildPasswordStep> {
+  final TextEditingController _controller = TextEditingController();
+  bool _obscure = true;
+
+  bool get _hasLength => _controller.text.length >= 12;
+  bool get _hasUpper  => _controller.text.contains(RegExp(r'[A-Z]'));
+  bool get _hasLower  => _controller.text.contains(RegExp(r'[a-z]'));
+  bool get _hasNumber => _controller.text.contains(RegExp(r'[0-9]'));
+  bool get _hasSymbol => _controller.text.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=\[\]\\;~/`]'));
+
+  int get _score => [_hasLength, _hasUpper, _hasLower, _hasNumber, _hasSymbol].where((b) => b).length;
+
+  // only allow proceeding once password is strong enough (4+ rules)
+  bool get _canProceed => _score >= 4;
+
+  String get _strengthLabel {
+    if (_controller.text.isEmpty) return 'Start typing...';
+    if (_score <= 1) return 'Very Weak 😬';
+    if (_score == 2) return 'Weak 😕';
+    if (_score == 3) return 'Getting Better 🙂';
+    if (_score == 4) return 'Strong 💪';
+    return 'Super Strong! 🔥';
+  }
+
+  Color get _strengthColor {
+    if (_controller.text.isEmpty) return Colors.grey.shade300;
+    if (_score <= 1) return const Color(0xFFE74C3C);
+    if (_score == 2) return const Color(0xFFE67E22);
+    if (_score == 3) return const Color(0xFFF1C40F);
+    if (_score == 4) return const Color(0xFF2ECC71);
+    return const Color(0xFF27AE60);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // header
+          Row(children: [
+            const Text('🛠️', style: TextStyle(fontSize: 28)),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text('Build Your Own Password!',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
+            ),
+          ]),
+          const SizedBox(height: 6),
+          const Text('Use everything you\'ve learned to create a strong password. It needs to pass all 4 rules!',
+            style: TextStyle(fontSize: 14, color: Color(0xFF5A7A95), height: 1.4)),
+          const SizedBox(height: 20),
+
+          // input card
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 3))],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Type your password:',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1A2E45))),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _controller,
+                  obscureText: _obscure,
+                  onChanged: (_) => setState(() {}),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700,
+                    letterSpacing: 1.5, color: Color(0xFF1A2E45)),
+                  decoration: InputDecoration(
+                    hintText: 'e.g. Fluffy\$Pizza!Rocket7',
+                    hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade400,
+                      fontWeight: FontWeight.w400, letterSpacing: 0),
+                    filled: true,
+                    fillColor: const Color(0xFFEFF4FB),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF4A90D9), width: 2),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    suffixIcon: IconButton(
+                      icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey.shade500),
+                      onPressed: () => setState(() => _obscure = !_obscure),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // strength meter
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Strength:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF7A9BB5))),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 200),
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: _strengthColor),
+                      child: Text(_strengthLabel),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: _controller.text.isEmpty ? 0 : _score / 5,
+                    minHeight: 10,
+                    backgroundColor: Colors.grey.shade200,
+                    valueColor: AlwaysStoppedAnimation<Color>(_strengthColor),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // checklist
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 3))],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Rules checklist:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1A2E45))),
+                const SizedBox(height: 12),
+                _CheckRow(label: 'At least 12 characters long', passed: _hasLength),
+                const SizedBox(height: 8),
+                _CheckRow(label: 'Has UPPERCASE letters', passed: _hasUpper),
+                const SizedBox(height: 8),
+                _CheckRow(label: 'Has lowercase letters', passed: _hasLower),
+                const SizedBox(height: 8),
+                _CheckRow(label: 'Has numbers (0–9)', passed: _hasNumber),
+                const SizedBox(height: 8),
+                _CheckRow(label: 'Has symbols (! @ # \$ % etc.)', passed: _hasSymbol),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // hint
+          if (!_canProceed && _controller.text.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.amber.shade50,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.amber.shade200),
+              ),
+              child: Row(children: [
+                const Text('💡', style: TextStyle(fontSize: 20)),
+                const SizedBox(width: 10),
+                Expanded(child: Text(_getHint(),
+                  style: const TextStyle(fontSize: 13, color: Color(0xFF7A6020), height: 1.4))),
+              ]),
+            ),
+
+          if (_canProceed)
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD5F5E3),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFF82E0AA)),
+              ),
+              child: const Row(children: [
+                Text('🎉', style: TextStyle(fontSize: 20)),
+                SizedBox(width: 10),
+                Expanded(child: Text('Amazing! Your password passes the rules. You\'re ready to finish!',
+                  style: TextStyle(fontSize: 13, color: Color(0xFF1E8449), fontWeight: FontWeight.w600, height: 1.4))),
+              ]),
+            ),
+
+          const SizedBox(height: 24),
+          _NextButton(
+            onTap: widget.onComplete,
+            enabled: _canProceed,
+            label: 'Finish! 🏆',
+          ),
+          if (!_canProceed)
+            const Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Center(
+                child: Text('Complete at least 4 rules to finish',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF9AABBF))),
+              ),
+            ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  String _getHint() {
+    if (!_hasLength) return 'Your password is too short — aim for at least 12 characters. Try adding more words!';
+    if (!_hasUpper) return 'Add some UPPERCASE letters — try capitalising the start of each word.';
+    if (!_hasLower) return 'Add some lowercase letters too — mix them with your capitals.';
+    if (!_hasNumber) return 'Throw in a number or two — like replacing "o" with "0" or adding "7" at the end.';
+    if (!_hasSymbol) return 'Nearly there! Add a symbol like ! @ # or \$ to make it super strong.';
+    return 'Keep going — you\'re almost there!';
+  }
+}
+
+class _CheckRow extends StatelessWidget {
+  final String label;
+  final bool passed;
+  const _CheckRow({required this.label, required this.passed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          width: 26, height: 26,
+          decoration: BoxDecoration(
+            color: passed ? const Color(0xFF2ECC71) : const Color(0xFFEFF4FB),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: passed ? const Color(0xFF2ECC71) : const Color(0xFFCDD8E3),
+              width: 2,
+            ),
+          ),
+          child: Icon(passed ? Icons.check : Icons.remove,
+            size: 15, color: passed ? Colors.white : const Color(0xFFCDD8E3)),
+        ),
+        const SizedBox(width: 12),
+        Text(label, style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: passed ? const Color(0xFF1A2E45) : const Color(0xFF9AABBF),
+          decoration: passed ? TextDecoration.none : TextDecoration.none,
+        )),
+      ],
+    );
+  }
+}
 
 class _CompleteStep extends StatelessWidget {
   final VoidCallback onDone;
@@ -848,7 +1085,8 @@ class _CompleteStep extends StatelessWidget {
             child: const Text('🏆', style: TextStyle(fontSize: 72)),
           ),
           const SizedBox(height: 24),
-          const Text('You did it! 🎉', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
+          const Text('You did it! 🎉',
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
           const SizedBox(height: 10),
           const Text('You\'ve completed Password Power!', textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: Color(0xFF5A7A95))),
@@ -877,18 +1115,22 @@ class _CompleteStep extends StatelessWidget {
                 Text('⭐', style: TextStyle(fontSize: 32)),
               ]),
               const SizedBox(height: 10),
-              const Text('3 Stars — Amazing!', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
+              const Text('3 Stars — Amazing!',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
             ]),
           ),
           const SizedBox(height: 20),
-          _InfoCard(color: Colors.orange, emoji: '🔒', title: 'Badge Unlocked: Password Master!', body: 'You now know how to build a password that even hackers can\'t crack!'),
+          _InfoCard(color: Colors.orange, emoji: '🔒', title: 'Badge Unlocked: Password Master!',
+            body: 'You know how to build a password that even hackers can\'t crack — AND you made one yourself!'),
           const SizedBox(height: 16),
-          const Text('What you learned:', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
+          const Text('What you learned:',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
           const SizedBox(height: 10),
           _SummaryTile(emoji: '🏠', text: 'Why passwords protect your online life'),
           _SummaryTile(emoji: '😬', text: 'How to spot a weak, hackable password'),
           _SummaryTile(emoji: '💪', text: 'The 4 rules of a strong password'),
-          _SummaryTile(emoji: '🧠', text: 'The passphrase trick for easy-to-remember passwords'),
+          _SummaryTile(emoji: '🧠', text: 'The passphrase trick'),
+          _SummaryTile(emoji: '🛠️', text: 'Built your very own strong password!'),
           const SizedBox(height: 32),
           _NextButton(onTap: onDone, label: '🏠 Back to Dashboard'),
         ],

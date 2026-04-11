@@ -1,7 +1,5 @@
-// ==================== IMPORTS ====================
 import 'package:flutter/material.dart';
 
-// ==================== MAIN WIDGET ====================
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
 
@@ -9,7 +7,6 @@ class AchievementsScreen extends StatefulWidget {
   State<AchievementsScreen> createState() => _AchievementsScreenState();
 }
 
-// ==================== STATE ====================
 class _AchievementsScreenState extends State<AchievementsScreen> {
   String _selectedFilter = 'All';
 
@@ -78,7 +75,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     );
   }
 
-  // ==================== STATS CARD ====================
   Widget _buildStatsCard() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -200,7 +196,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     );
   }
 
-  // ==================== FILTER TABS ====================
   Widget _buildFilterTabs() {
     final filters = ['All', 'Completed', 'In progress', 'Not Complete'];
     
@@ -243,7 +238,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     );
   }
 
-  // ==================== ACHIEVEMENT CARD ====================
   Widget _buildAchievementCard({
     required String title,
     required String subtitle,
