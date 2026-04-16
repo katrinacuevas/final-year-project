@@ -529,7 +529,7 @@ class _TypingDotsState extends State<_TypingDots> with SingleTickerProviderState
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _controller,
-      builder: (_, __) {
+      builder: (_, _) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(3, (i) {

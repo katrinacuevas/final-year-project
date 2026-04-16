@@ -47,8 +47,8 @@ class _SplashScreenState extends State<SplashScreen>
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 600),
-            pageBuilder: (_, __, ___) => const UsernameScreen(),
-            transitionsBuilder: (_, anim, __, child) =>
+            pageBuilder: (_, _, _) => const UsernameScreen(),
+            transitionsBuilder: (_, anim, _, child) =>
                 FadeTransition(opacity: anim, child: child),
           ),
         );
@@ -84,7 +84,7 @@ class _SplashScreenState extends State<SplashScreen>
                 children: [
                   AnimatedBuilder(
                     animation: _ctrl,
-                    builder: (_, __) => FadeTransition(
+                    builder: (_, _) => FadeTransition(
                       opacity: _logoFade,
                       child: ScaleTransition(
                         scale: _logoScale,
@@ -112,7 +112,7 @@ class _SplashScreenState extends State<SplashScreen>
                   const SizedBox(height: 28),
                   AnimatedBuilder(
                     animation: _ctrl,
-                    builder: (_, __) => FadeTransition(
+                    builder: (_, _) => FadeTransition(
                       opacity: _textFade,
                       child: SlideTransition(
                         position: _textSlide,
@@ -145,7 +145,7 @@ class _SplashScreenState extends State<SplashScreen>
                   const SizedBox(height: 48),
                   AnimatedBuilder(
                     animation: _ctrl,
-                    builder: (_, __) => FadeTransition(
+                    builder: (_, _) => FadeTransition(
                       opacity: _shimmer,
                       child: const LoadingDots(),
                     ),

@@ -38,8 +38,8 @@ class _UsernameScreenState extends State<UsernameScreen>
     if (_ctrl.text.trim().isEmpty) return;
     Navigator.of(context).push(PageRouteBuilder(
       transitionDuration: const Duration(milliseconds: 400),
-      pageBuilder: (_, __, ___) => AvatarScreen(username: _ctrl.text.trim()),
-      transitionsBuilder: (_, anim, __, child) => SlideTransition(
+      pageBuilder: (_, _, _) => AvatarScreen(username: _ctrl.text.trim()),
+      transitionsBuilder: (_, anim, _, child) => SlideTransition(
         position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
             .animate(CurvedAnimation(parent: anim, curve: Curves.easeOut)),
         child: child,

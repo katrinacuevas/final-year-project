@@ -769,7 +769,7 @@ class _QuizStepState extends State<_QuizStep> {
                     const SizedBox(width: 12),
                     Expanded(child: Text(opt,
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textColor))),
-                    if (trailing != null) trailing,
+                    ?trailing,
                   ]),
                 ),
               ),

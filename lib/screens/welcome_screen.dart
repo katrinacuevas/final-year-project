@@ -30,8 +30,8 @@ class _WelcomeFlashState extends State<WelcomeFlash>
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 500),
-            pageBuilder: (_, __, ___) => const MainNavigationScreen(), // ← Your existing nav
-            transitionsBuilder: (_, anim, __, child) =>
+            pageBuilder: (_, _, _) => const MainNavigationScreen(), // ← Your existing nav
+            transitionsBuilder: (_, anim, _, child) =>
                 FadeTransition(opacity: anim, child: child),
           ),
         );

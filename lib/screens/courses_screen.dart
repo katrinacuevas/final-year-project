@@ -94,7 +94,7 @@ class CoursesScreen extends StatelessWidget {
               child: ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: _courses.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 14),
+                separatorBuilder: (_, _) => const SizedBox(height: 14),
                 itemBuilder: (context, i) => _CourseCard(course: _courses[i]),
               ),
             ),

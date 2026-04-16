@@ -26,7 +26,7 @@ class _LoadingDotsState extends State<LoadingDots> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _ctrl,
-      builder: (_, __) => Row(
+      builder: (_, _) => Row(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(3, (i) {
           final double phase = ((_ctrl.value * 3) - i).clamp(0.0, 1.0);

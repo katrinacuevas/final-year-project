@@ -44,8 +44,8 @@ class _AvatarScreenState extends State<AvatarScreen>
     Navigator.of(context).pushAndRemoveUntil(
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 600),
-        pageBuilder: (_, __, ___) => const WelcomeFlash(),
-        transitionsBuilder: (_, anim, __, child) =>
+        pageBuilder: (_, _, _) => const WelcomeFlash(),
+        transitionsBuilder: (_, anim, _, child) =>
             FadeTransition(opacity: anim, child: child),
       ),
       (route) => false,
