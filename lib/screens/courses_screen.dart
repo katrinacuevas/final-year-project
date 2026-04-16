@@ -16,7 +16,6 @@ class CoursesScreen extends StatelessWidget {
         {'title': 'What is Baiting?', 'done': true},
         {'title': 'Spotting a Trap', 'done': false},
         {'title': 'Free Offers Online', 'done': false},
-        {'title': 'USB Drives & Devices', 'done': false},
         {'title': 'Prize Scams', 'done': false},
         {'title': 'Fake Downloads', 'done': false},
         {'title': 'Real vs Fake Rewards', 'done': false},
@@ -86,23 +85,7 @@ class CoursesScreen extends StatelessWidget {
               color: Colors.white,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Courses',
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
-                  const SizedBox(height: 4),
-                  const Text('Choose a topic and start learning!',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF7A9BB5))),
-                  const SizedBox(height: 14),
-                  // summary chips
-                  Row(children: [
-                    _SummaryChip(emoji: '📚', label: '4 Courses', color: const Color(0xFFDEEAF8)),
-                    const SizedBox(width: 10),
-                    _SummaryChip(emoji: '✅', label: '1 Started', color: const Color(0xFFD5F5E3)),
-                    const SizedBox(width: 10),
-                    _SummaryChip(emoji: '🔥', label: '5 Day Streak', color: const Color(0xFFFFEDD5)),
-                  ]),
-                ],
+                crossAxisAlignment: CrossAxisAlignment.start
               ),
             ),
 
@@ -425,26 +408,6 @@ class _LessonRow extends StatelessWidget {
             const Icon(Icons.star, color: Color(0xFFFFD700), size: 16),
         ],
       ),
-    );
-  }
-}
-
-// ── summary chip ─────────────────────────────────────────────────────
-class _SummaryChip extends StatelessWidget {
-  final String emoji, label;
-  final Color color;
-  const _SummaryChip({required this.emoji, required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
-      child: Row(children: [
-        Text(emoji, style: const TextStyle(fontSize: 13)),
-        const SizedBox(width: 5),
-        Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF1A2E45))),
-      ]),
     );
   }
 }
