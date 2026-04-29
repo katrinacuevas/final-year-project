@@ -311,7 +311,6 @@ class _Carousel extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        // dot indicators
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(itemCount, (i) => AnimatedContainer(

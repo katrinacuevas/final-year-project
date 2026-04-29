@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../widgets/navigation_bar.dart';
+import '../widgets/navigation_bar.dart'; 
 
 class WelcomeFlash extends StatefulWidget {
   const WelcomeFlash({super.key});
@@ -18,7 +18,8 @@ class _WelcomeFlashState extends State<WelcomeFlash>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _ctrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 800));
     _scale = Tween<double>(begin: 0.5, end: 1.0).animate(
         CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut));
     _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeIn);
@@ -26,12 +27,12 @@ class _WelcomeFlashState extends State<WelcomeFlash>
 
     Timer(const Duration(milliseconds: 1800), () {
       if (mounted) {
-        // Navigate to your main navigation screen
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 500),
-            pageBuilder: (_, _, _) => const MainNavigationScreen(), // ← Your existing nav
-            transitionsBuilder: (_, anim, _, child) =>
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const MainNavigationScreen(),
+            transitionsBuilder: (context, anim, secondaryAnim, child) =>
                 FadeTransition(opacity: anim, child: child),
           ),
         );
@@ -40,9 +41,9 @@ class _WelcomeFlashState extends State<WelcomeFlash>
   }
 
   @override
-  void dispose() { 
-    _ctrl.dispose(); 
-    super.dispose(); 
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -62,16 +63,19 @@ class _WelcomeFlashState extends State<WelcomeFlash>
           opacity: _fade,
           child: ScaleTransition(
             scale: _scale,
-            child: const Column(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+              children: const [
                 Text('🎉', style: TextStyle(fontSize: 80)),
                 SizedBox(height: 20),
                 Text("You're all set!",
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white)),
+                    style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white)),
                 SizedBox(height: 10),
                 Text("Let's start your adventure!",
-                  style: TextStyle(fontSize: 16, color: Colors.white70)),
+                    style: TextStyle(fontSize: 16, color: Colors.white70)),
               ],
             ),
           ),

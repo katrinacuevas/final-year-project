@@ -1,15 +1,32 @@
 import 'package:flutter/material.dart';
-import '../screens/password_screen.dart';
-import '../screens/phishing_screen.dart';
+import '../services/user_service.dart';
 import '../widgets/welcome_card.dart';
 import '../widgets/daily_challenge.dart';
 import '../widgets/learning_task.dart';
+import '../screens/password_screen.dart';
+import '../screens/phishing_screen.dart';
+import '../screens/baiting_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  UserProfile? _userProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    _userProfile = UserService.instance.profile;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final String displayName = _userProfile?.username ?? "Explorer";
+
     return Scaffold(
       backgroundColor: const Color(0xFFE3F2FD),
       body: SingleChildScrollView(
@@ -18,15 +35,21 @@ class DashboardScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const WelcomeCard(),
+            
             const SizedBox(height: 16),
             const DailyChallengeCard(),
+            
             const SizedBox(height: 24),
-            const Text(
-              'Learning tasks',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              'Learning tasks for $displayName',
+              style: const TextStyle(
+                fontSize: 24, 
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1A2E45),
+              ),
             ),
             const SizedBox(height: 16),
-            // Password power card
+            
             LearningTaskCard(
               icon: Icons.lock,
               iconColor: Colors.orange,
@@ -46,7 +69,7 @@ class DashboardScreen extends StatelessWidget {
               },
             ),
             const SizedBox(height: 12),
-            // Phishing detective card
+            
             LearningTaskCard(
               icon: Icons.search,
               iconColor: Colors.grey,
@@ -66,7 +89,7 @@ class DashboardScreen extends StatelessWidget {
               },
             ),
             const SizedBox(height: 12),
-            // Baiting pro card
+            
             LearningTaskCard(
               icon: Icons.card_giftcard,
               iconColor: Colors.red,
@@ -77,8 +100,12 @@ class DashboardScreen extends StatelessWidget {
               stars: 2,
               duration: '22 mins',
               onTap: () {
-                // Add navigation for baiting screen when ready
-                // Navigator.push(...);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BaitingScreen(),
+                  ),
+                );
               },
             ),
           ],

@@ -43,7 +43,6 @@ class LearningTaskCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Icon
             Container(
               width: 50,
               height: 50,
@@ -54,7 +53,6 @@ class LearningTaskCard extends StatelessWidget {
               child: Icon(icon, size: 30, color: iconColor),
             ),
             const SizedBox(width: 16),
-            // Content
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,13 +67,11 @@ class LearningTaskCard extends StatelessWidget {
                     style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 12),
-                  // Progress label
                   const Text(
                     'Progress',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
-                  // Progress bar
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
@@ -86,7 +82,6 @@ class LearningTaskCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Stars and time
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

@@ -20,17 +20,14 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              // Stats Card
               _buildStatsCard(),
               
               const SizedBox(height: 16),
               
-              // Filter Tabs
               _buildFilterTabs(),
               
               const SizedBox(height: 16),
               
-              // Achievement Cards
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
@@ -64,7 +61,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                       color: const Color(0xFFFFECB3),
                       progressColor: Colors.orange.shade200,
                     ),
-                    const SizedBox(height: 80), // Space for nav bar
+                    const SizedBox(height: 80),  
                   ],
                 ),
               ),
@@ -85,7 +82,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       ),
       child: Column(
         children: [
-          // Top row - Level and Points
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -130,7 +126,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           
           const SizedBox(height: 24),
           
-          // Circular Progress
           SizedBox(
             width: 120,
             height: 120,
@@ -175,7 +170,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           
           const SizedBox(height: 24),
           
-          // Bottom message
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(

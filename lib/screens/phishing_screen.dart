@@ -64,7 +64,6 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
       ],
     },
 
-    // ── SCENARIO 2: Prize phishing ──────────────────────────────────
     {
       'title': 'You\'ve Won a Prize! 🏆',
       'messages': [
@@ -192,7 +191,6 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
         _showFeedback = false;
       });
     } else {
-      // all scenarios done
       Navigator.pop(context);
     }
   }
@@ -236,7 +234,6 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
       ),
       body: Column(
         children: [
-          // scenario title strip
           Container(
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -248,18 +245,15 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
             ]),
           ),
 
-          // chat area
           Expanded(
             child: GestureDetector(
               onTap: _allMessagesShown || _showFeedback ? null : _nextMessage,
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 children: [
-                  // render visible messages
                   for (int i = 0; i <= _step; i++)
                     _buildMessage(_messages[i] as Map<String, dynamic>, i),
 
-                  // tap hint
                   if (!_allMessagesShown && !_showFeedback)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -280,7 +274,6 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
             ),
           ),
 
-          // bottom panel
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             transitionBuilder: (child, animation) => SlideTransition(
@@ -422,7 +415,6 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // title row
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(feedback['emoji'] as String, style: const TextStyle(fontSize: 28)),
             const SizedBox(width: 12),
@@ -437,7 +429,6 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
           ]),
           const SizedBox(height: 14),
 
-          // bullet points
           ...points.map((p) => Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -460,7 +451,6 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
           )),
           const SizedBox(height: 16),
 
-          // next button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(

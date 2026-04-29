@@ -824,7 +824,6 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
 
   int get _score => [_hasLength, _hasUpper, _hasLower, _hasNumber, _hasSymbol].where((b) => b).length;
 
-  // only allow proceeding once password is strong enough (4+ rules)
   bool get _canProceed => _score >= 4;
 
   String get _strengthLabel {
@@ -858,7 +857,6 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // header
           Row(children: [
             const Text('🛠️', style: TextStyle(fontSize: 28)),
             const SizedBox(width: 10),
@@ -872,7 +870,6 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
             style: TextStyle(fontSize: 14, color: Color(0xFF5A7A95), height: 1.4)),
           const SizedBox(height: 20),
 
-          // input card
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
@@ -916,7 +913,6 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
                 ),
                 const SizedBox(height: 16),
 
-                // strength meter
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -943,7 +939,6 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
           ),
           const SizedBox(height: 20),
 
-          // checklist
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
@@ -970,7 +965,6 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
           ),
           const SizedBox(height: 16),
 
-          // hint
           if (!_canProceed && _controller.text.isNotEmpty)
             Container(
               padding: const EdgeInsets.all(14),

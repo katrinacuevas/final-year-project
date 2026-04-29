@@ -1,85 +1,80 @@
 import 'package:flutter/material.dart';
+import '../services/user_service.dart';
 
 class WelcomeCard extends StatelessWidget {
   const WelcomeCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final profile = UserService.instance.profile;
+    final String name = profile?.username ?? "Explorer";
+    final String emoji = profile?.avatarEmoji ?? "👤";
+    
+    Color avatarBg;
+    try {
+      avatarBg = Color(int.parse(profile?.avatarColour ?? "0xFFBBDEFB"));
+    } catch (e) {
+      avatarBg = const Color(0xFFBBDEFB);
+    }
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: const Color(0xFF1A2E45),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Avatar
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: Colors.orange.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.person, size: 40, color: Colors.orange),
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: avatarBg,
+            child: Text(emoji, style: const TextStyle(fontSize: 45)),
           ),
+          
           const SizedBox(width: 16),
-          // Welcome text and progress
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Welcome back, User18!',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                // Level badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.star, color: Colors.yellow, size: 16),
-                      SizedBox(width: 4),
-                      Text(
-                        'Level 2',
-                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                Text(
+                  'Welcome back, $name!',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                // Progress bar
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: 0.5,
-                        minHeight: 8,
-                        backgroundColor: Colors.grey.shade200,
-                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-                      ),
+                
+                const SizedBox(height: 12),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text(
+                      'Level 1', 
+                      style: TextStyle(color: Colors.amber, fontSize: 12, fontWeight: FontWeight.bold)
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      '250 / 500 XP',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    Text(
+                      '200 / 500 XP', 
+                      style: TextStyle(color: Colors.white70, fontSize: 12)
                     ),
                   ],
+                ),
+                
+                const SizedBox(height: 6),
+
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value: 0.4, 
+                    backgroundColor: Colors.white.withOpacity(0.1),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.amber),
+                    minHeight: 8,
+                  ),
                 ),
               ],
             ),

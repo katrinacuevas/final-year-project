@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'baiting_screen.dart'; 
+import 'phishing_screen.dart';
+import 'pretexting_screen.dart';
+import 'password_screen.dart';
 
 class CoursesScreen extends StatelessWidget {
   const CoursesScreen({super.key});
@@ -72,6 +76,37 @@ class CoursesScreen extends StatelessWidget {
     },
   ];
 
+  void _navigateToCourse(BuildContext context, Map<String, dynamic> course) {
+    final String title = course['title'] as String;
+    
+    switch (title) {
+      case 'Baiting':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const BaitingScreen()),
+        );
+        break;
+      case 'Pretexting':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PretextingScreen()),
+        );
+        break;
+      case 'Phishing':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PhishingDetectiveScreen()),
+        );
+        break;
+      case 'Password Power':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PasswordPowerScreen()),
+        );
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,22 +115,15 @@ class CoursesScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── header ──
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start
-              ),
-            ),
-
-            // ── course list ──
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: _courses.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 14),
-                itemBuilder: (context, i) => _CourseCard(course: _courses[i]),
+                separatorBuilder: (_, __) => const SizedBox(height: 14),
+                itemBuilder: (context, i) => _CourseCard(
+                  course: _courses[i],
+                  onStart: () => _navigateToCourse(context, _courses[i]),
+                ),
               ),
             ),
           ],
@@ -105,10 +133,10 @@ class CoursesScreen extends StatelessWidget {
   }
 }
 
-// ── course card (expandable) ────────────────────────────────────────
 class _CourseCard extends StatefulWidget {
   final Map<String, dynamic> course;
-  const _CourseCard({required this.course});
+  final VoidCallback onStart;
+  const _CourseCard({required this.course, required this.onStart});
 
   @override
   State<_CourseCard> createState() => _CourseCardState();
@@ -157,7 +185,6 @@ class _CourseCardState extends State<_CourseCard> with SingleTickerProviderState
       ),
       child: Column(
         children: [
-          // ── banner image area ──
           ClipRRect(
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(20),
@@ -171,7 +198,6 @@ class _CourseCardState extends State<_CourseCard> with SingleTickerProviderState
               color: bgColor,
               child: Stack(
                 children: [
-                  // decorative circles
                   Positioned(right: -20, top: -20,
                     child: Container(width: 100, height: 100,
                       decoration: BoxDecoration(shape: BoxShape.circle,
@@ -180,12 +206,10 @@ class _CourseCardState extends State<_CourseCard> with SingleTickerProviderState
                     child: Container(width: 70, height: 70,
                       decoration: BoxDecoration(shape: BoxShape.circle,
                         color: accentColor.withOpacity(0.10)))),
-                  // main content
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
-                        // big emoji
                         Container(
                           width: 64, height: 64,
                           decoration: BoxDecoration(
@@ -218,7 +242,6 @@ class _CourseCardState extends State<_CourseCard> with SingleTickerProviderState
                             ],
                           ),
                         ),
-                        // expand chevron
                         GestureDetector(
                           onTap: _toggle,
                           child: Container(
@@ -239,7 +262,6 @@ class _CourseCardState extends State<_CourseCard> with SingleTickerProviderState
             ),
           ),
 
-          // ── progress + subtitle + button ──
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
             child: Column(
@@ -270,13 +292,12 @@ class _CourseCardState extends State<_CourseCard> with SingleTickerProviderState
             ),
           ),
 
-          // ── start / continue button ──
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: widget.onStart,  
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isDone ? const Color(0xFF2ECC71) : accentColor,
                   foregroundColor: Colors.white,
@@ -285,14 +306,13 @@ class _CourseCardState extends State<_CourseCard> with SingleTickerProviderState
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(
-                  isDone ? '🔄 Review' : isStarted ? '▶  Continue' : '▶  Start Course',
+                  isDone ? '🔄 Review' : isStarted ? '▶  Continue' : '▶  Start Lesson',
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                 ),
               ),
             ),
           ),
 
-          // ── expandable lessons list ──
           SizeTransition(
             sizeFactor: _expandAnimation,
             child: Column(
@@ -328,7 +348,6 @@ class _CourseCardState extends State<_CourseCard> with SingleTickerProviderState
   }
 }
 
-// ── individual lesson row ────────────────────────────────────────────
 class _LessonRow extends StatelessWidget {
   final int number;
   final String title;
@@ -350,7 +369,6 @@ class _LessonRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
       child: Row(
         children: [
-          // number / check circle
           Container(
             width: 30, height: 30,
             decoration: BoxDecoration(

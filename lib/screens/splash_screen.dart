@@ -1,7 +1,9 @@
+import 'package:final_year_project/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'username_screen.dart';
 import '../widgets/loading_dots.dart';
+import '../widgets/navigation_bar.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -44,12 +46,16 @@ class _SplashScreenState extends State<SplashScreen>
 
     Timer(const Duration(milliseconds: 3000), () {
       if (mounted) {
+        final destination = UserService.instance.hasProfile
+          ? const MainNavigationScreen()
+          : const UsernameScreen();
+        
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 600),
-            pageBuilder: (_, _, _) => const UsernameScreen(),
-            transitionsBuilder: (_, anim, _, child) =>
-                FadeTransition(opacity: anim, child: child),
+            pageBuilder: (context, animation, secondaryAnimation) => destination,
+            transitionsBuilder: (context, anim, secondaryAnim, child) =>
+              FadeTransition(opacity: anim, child: child),
           ),
         );
       }
