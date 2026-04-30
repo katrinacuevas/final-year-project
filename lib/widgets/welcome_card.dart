@@ -30,11 +30,17 @@ class WelcomeCard extends StatelessWidget {
           CircleAvatar(
             radius: 40,
             backgroundColor: avatarBg,
-            child: Text(emoji, style: const TextStyle(fontSize: 45)),
+            child: Center(
+              child: Text(
+                emoji,
+                style: const TextStyle(
+                  fontSize: 45,
+                  height: 1,
+                ),
+              ),
+            ),
           ),
-          
           const SizedBox(width: 16),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,9 +54,7 @@ class WelcomeCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                
                 const SizedBox(height: 12),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: const [
@@ -64,9 +68,7 @@ class WelcomeCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
                 const SizedBox(height: 6),
-
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(

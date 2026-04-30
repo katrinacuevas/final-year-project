@@ -18,14 +18,14 @@ class _AvatarScreenState extends State<AvatarScreen>
   late Animation<double> _fadeIn;
 
   final List<Map<String, dynamic>> _avatars = [
-    {'emoji': '👦', 'color': Color(0xFFBBDEFB), 'name': 'Boy'},
-    {'emoji': '👧', 'color': Color(0xFFF8BBD9), 'name': 'Girl'},
-    {'emoji': '🦸', 'color': Color(0xFFE8D5FB), 'name': 'Hero'},
-    {'emoji': '🧙', 'color': Color(0xFFFFCDD2), 'name': 'Wizard'},
-    {'emoji': '🧑‍🚀', 'color': Color(0xFFFFE0B2), 'name': 'Astronaut'},
-    {'emoji': '🦊', 'color': Color(0xFFFFCCBC), 'name': 'Fox'},
-    {'emoji': '🐱', 'color': Color(0xFFFFF9C4), 'name': 'Cat'},
-    {'emoji': '🐸', 'color': Color(0xFFC8E6C9), 'name': 'Frog'},
+    {'emoji': '👦', 'color': const Color(0xFFBBDEFB), 'name': 'Boy'},
+    {'emoji': '👧', 'color': const Color(0xFFF8BBD9), 'name': 'Girl'},
+    {'emoji': '🦸', 'color': const Color(0xFFE8D5FB), 'name': 'Hero'},
+    {'emoji': '🧙', 'color': const Color(0xFFFFCDD2), 'name': 'Wizard'},
+    {'emoji': '🧑‍🚀', 'color': const Color(0xFFFFE0B2), 'name': 'Astronaut'},
+    {'emoji': '🦊', 'color': const Color(0xFFFFCCBC), 'name': 'Fox'},
+    {'emoji': '🐱', 'color': const Color(0xFFFFF9C4), 'name': 'Cat'},
+    {'emoji': '🐸', 'color': const Color(0xFFC8E6C9), 'name': 'Frog'},
   ];
 
   @override
@@ -59,12 +59,12 @@ class _AvatarScreenState extends State<AvatarScreen>
         avatarColour: '0x${((av['color'] as Color).value.toRadixString(16)).padLeft(8, '0')}',
       );
 
-      await UserService.instance.saveProfile(profile).timeout(
-        const Duration(seconds: 5),
-        onTimeout: () => throw Exception("Firebase timed out")
-      );
+      // This will throw the exception from UserService if the name is taken
+      await UserService.instance.saveProfile(profile);
 
       if (!mounted) return;
+      
+      // If we got here, it means the name is NOT taken
       Navigator.of(context).pushAndRemoveUntil(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 600),
@@ -78,8 +78,16 @@ class _AvatarScreenState extends State<AvatarScreen>
     } catch (e) {
       setState(() => _saving = false);
       if (!mounted) return;
+      
+      // Clean up the error message for the user
+      String errorMessage = e.toString().replaceAll('Exception: ', '');
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }

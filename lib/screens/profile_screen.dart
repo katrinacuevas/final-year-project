@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/user_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -56,6 +57,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final profile = UserService.instance.profile;
+    final String name = profile?.username ?? "Explorer";
+    final String emoji = profile?.avatarEmoji ?? "👤";
+    
+    Color avatarBg;
+    try {
+      avatarBg = Color(int.parse(profile?.avatarColour ?? "0xFFFFE4B5"));
+    } catch (e) {
+      avatarBg = const Color(0xFFFFE4B5);
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFE3F2FD),
       body: SafeArea(
@@ -91,11 +103,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Container(
                           width: 100, height: 100,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFFE4B5),
+                            color: avatarBg,
                             shape: BoxShape.circle,
                             border: Border.all(color: const Color(0xFF4A90D9), width: 3),
                           ),
-                          child: const Center(child: Text('🧒', style: TextStyle(fontSize: 54))),
+                          child: Center(
+                            child: Text(
+                              emoji, 
+                              style: const TextStyle(fontSize: 54, height: 1)
+                            )
+                          ),
                         ),
                         Positioned(
                           bottom: 2, right: 2,
@@ -116,8 +133,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('User18',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
+                        Text(name,
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
                         const SizedBox(width: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),

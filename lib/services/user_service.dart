@@ -29,13 +29,13 @@ class UserProfile {
     );
   }
 
-Map<String, dynamic> toMap() => {
-  'username': username, 
-  'avatarIndex': avatarIndex,
-  'avatarEmoji': avatarEmoji,
-  'avatarName': avatarName,
-  'avatarColour': avatarColour,
-  'updatedAt': FieldValue.serverTimestamp(),
+  Map<String, dynamic> toMap() => {
+    'username': username, 
+    'avatarIndex': avatarIndex,
+    'avatarEmoji': avatarEmoji,
+    'avatarName': avatarName,
+    'avatarColour': avatarColour,
+    'updatedAt': FieldValue.serverTimestamp(),
   };
 }
 
@@ -69,16 +69,38 @@ class UserService {
         _profile = UserProfile.fromMap(_uid!, doc.data()!);
       }
     } catch (e) {
-      // no profile (username and avatar not chosen yet )
+      print(e);
+    }
+  }
+
+  Future<bool> isUsernameTaken(String username) async {
+    try {
+      final result = await _db
+          .collection('users')
+          .where('username', isEqualTo: username)
+          .get();
+
+      if (result.docs.isEmpty) return false;
+
+      for (var doc in result.docs) {
+        if (doc.id != _uid) return true;
+      }
+      
+      return false;
+    } catch (e) {
+      return false;
     }
   }
 
   Future<void> saveProfile(UserProfile profile) async {
-    if (_uid == null) throw Exception('Not authenticated');
-    await _db.collection('users').doc(_uid).set(
-      profile.toMap(),
-      SetOptions(merge: true),
-    );
+    if (_uid == null) return;
+
+    bool taken = await isUsernameTaken(profile.username);
+    if (taken) {
+      throw Exception("Username is already taken, try another one!");
+    }
+
+    await _db.collection('users').doc(_uid).set(profile.toMap());
     _profile = profile;
   }
 

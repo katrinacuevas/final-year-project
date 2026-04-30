@@ -1,3 +1,4 @@
+import 'package:final_year_project/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -18,12 +19,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'CyberShield',
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: const SplashScreen(),
-      debugShowCheckedModeBanner: false,
+      home: UserService.instance.hasProfile
+        ? const MainNavigationScreen()
+        : const SplashScreen(),
     );
   }
 }
