@@ -1,42 +1,49 @@
 import 'package:flutter/material.dart';
-import '../services/user_service.dart';
+import 'package:final_year_project/services/user_service.dart';
 
 class WelcomeCard extends StatelessWidget {
   const WelcomeCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final profile = UserService.instance.profile;
-    final String name = profile?.username ?? "Explorer";
-    final String emoji = profile?.avatarEmoji ?? "👤";
-    
-    Color avatarBg;
-    try {
-      avatarBg = Color(int.parse(profile?.avatarColour ?? "0xFFBBDEFB"));
-    } catch (e) {
-      avatarBg = const Color(0xFFBBDEFB);
-    }
+    final svc = UserService.instance;
+    final profile = svc.profile;
+    final xp = svc.xp;
+    final level = svc.level;
+    final progress = svc.xpProgress;
+    // final xpFloor = svc.xpAtCurrentLevel;
+    final xpCeiling = svc.xpNeededForNextLevel;
+
+    final avatarColor = profile != null
+        ? Color(int.parse(profile.avatarColour))
+        : const Color(0xFFFFE4B5);
 
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A2E45),
-        borderRadius: BorderRadius.circular(24),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: avatarBg,
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: avatarColor,
+              shape: BoxShape.circle,
+            ),
             child: Center(
               child: Text(
-                emoji,
-                style: const TextStyle(
-                  fontSize: 45,
-                  height: 1,
-                ),
+                profile?.avatarEmoji ?? '🧒',
+                style: const TextStyle(fontSize: 32),
               ),
             ),
           ),
@@ -44,39 +51,57 @@ class WelcomeCard extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Welcome back, $name!',
+                  'Welcome back, ${profile?.username ?? 'Player'}!',
                   style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
-                      'Level 1', 
-                      style: TextStyle(color: Colors.amber, fontSize: 12, fontWeight: FontWeight.bold)
-                    ),
-                    Text(
-                      '200 / 500 XP', 
-                      style: TextStyle(color: Colors.white70, fontSize: 12)
-                    ),
-                  ],
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: LinearProgressIndicator(
-                    value: 0.4, 
-                    backgroundColor: Colors.white.withOpacity(0.1),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.amber),
-                    minHeight: 8,
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(12),
                   ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.star, color: Colors.yellow, size: 14),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Level $level',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 8,
+                    backgroundColor: Colors.grey.shade200,
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.green),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      '$xp / $xpCeiling XP',
+                      style: const TextStyle(
+                          fontSize: 11, color: Colors.grey),
+                    ),
+                  ],
                 ),
               ],
             ),

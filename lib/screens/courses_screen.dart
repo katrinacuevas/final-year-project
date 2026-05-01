@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'baiting_screen.dart'; 
-import 'phishing_screen.dart';
-import 'pretexting_screen.dart';
-import 'password_screen.dart';
+import 'baiting/baiting_screen.dart'; 
+import 'phishing/phishing_screen.dart';
+import 'pretexting/pretexting_screen.dart';
+import 'password/password_screen.dart';
 
 class CoursesScreen extends StatelessWidget {
   const CoursesScreen({super.key});

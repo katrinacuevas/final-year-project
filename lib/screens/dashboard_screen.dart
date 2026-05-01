@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../services/user_service.dart';
+import 'package:final_year_project/services/user_service.dart';
+import 'password/password_screen.dart';
+import 'phishing/phishing_screen.dart';
+import 'baiting/baiting_screen.dart';
 import '../widgets/welcome_card.dart';
 import '../widgets/daily_challenge.dart';
 import '../widgets/learning_task.dart';
-import '../screens/password_screen.dart';
-import '../screens/phishing_screen.dart';
-import '../screens/baiting_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -15,100 +15,106 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  UserProfile? _userProfile;
-
   @override
   void initState() {
     super.initState();
-    _userProfile = UserService.instance.profile;
+    _refresh();
+  }
+
+  Future<void> _refresh() async {
+    await UserService.instance.loadAllProgress();
+    if (mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final String displayName = _userProfile?.username ?? "Explorer";
+    final passwordProgress =
+        UserService.instance.getProgress('password_power');
+    final phishingProgress =
+        UserService.instance.getProgress('phishing_detective');
+    final baitingProgress =
+        UserService.instance.getProgress('baiting_pro');
 
     return Scaffold(
       backgroundColor: const Color(0xFFE3F2FD),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const WelcomeCard(),
-            
-            const SizedBox(height: 16),
-            const DailyChallengeCard(),
-            
-            const SizedBox(height: 24),
-            Text(
-              'Learning tasks for $displayName',
-              style: const TextStyle(
-                fontSize: 24, 
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A2E45),
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const WelcomeCard(),
+              const SizedBox(height: 16),
+              const DailyChallengeCard(),
+              const SizedBox(height: 24),
+              const Text(
+                'Learning tasks',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-            ),
-            const SizedBox(height: 16),
-            
-            LearningTaskCard(
-              icon: Icons.lock,
-              iconColor: Colors.orange,
-              title: 'Password Power',
-              subtitle: 'Learn to create a strong password!',
-              progress: 1,
-              totalLessons: 1,
-              stars: 1,
-              duration: '10 mins',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PasswordPowerScreen(),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            
-            LearningTaskCard(
-              icon: Icons.search,
-              iconColor: Colors.grey,
-              title: 'Phishing Detective',
-              subtitle: 'Become an expert at spotting fake messages!',
-              progress: 3,
-              totalLessons: 6,
-              stars: 3,
-              duration: '20 mins',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PhishingDetectiveScreen(),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            
-            LearningTaskCard(
-              icon: Icons.card_giftcard,
-              iconColor: Colors.red,
-              title: 'Baiting Pro',
-              subtitle: 'Investigate offers that are too good to be true!',
-              progress: 2,
-              totalLessons: 5,
-              stars: 2,
-              duration: '22 mins',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const BaitingScreen(),
-                  ),
-                );
-              },
-            ),
-          ],
+              const SizedBox(height: 16),
+              LearningTaskCard(
+                icon: Icons.lock,
+                iconColor: Colors.orange,
+                title: 'Password Power',
+                subtitle: 'Learn to create a strong password!',
+                progress: passwordProgress?.stepsCompleted ?? 0,
+                totalLessons: passwordProgress?.totalSteps ?? 4,
+                stars: passwordProgress?.stars ?? 1,
+                duration: '10 mins',
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PasswordPowerScreen(),
+                    ),
+                  );
+                  _refresh();
+                },
+              ),
+              const SizedBox(height: 12),
+              LearningTaskCard(
+                icon: Icons.search,
+                iconColor: Colors.grey,
+                title: 'Phishing Detective',
+                subtitle: 'Become an expert at spotting fake messages!',
+                progress: phishingProgress?.stepsCompleted ?? 0,
+                totalLessons: phishingProgress?.totalSteps ?? 6,
+                stars: phishingProgress?.stars ?? 0,
+                duration: '20 mins',
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PhishingDetectiveScreen(),
+                    ),
+                  );
+                  _refresh();
+                },
+              ),
+              const SizedBox(height: 12),
+              LearningTaskCard(
+                icon: Icons.card_giftcard,
+                iconColor: Colors.red,
+                title: 'Baiting Pro',
+                subtitle: 'Investigate offers that are too good to be true!',
+                progress: baitingProgress?.stepsCompleted ?? 0,
+                totalLessons: baitingProgress?.totalSteps ?? 5,
+                stars: baitingProgress?.stars ?? 0,
+                duration: '22 mins',
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BaitingScreen(),
+                    ),
+                  );
+                  _refresh();
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
