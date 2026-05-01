@@ -82,7 +82,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 progress: phishingProgress?.stepsCompleted ?? 0,
                 totalLessons: phishingProgress?.totalSteps ?? 6,
                 stars: phishingProgress?.stars ?? 0,
-                duration: '20 mins',
+                duration: '10 mins',
                 onTap: () async {
                   await Navigator.push(
                     context,

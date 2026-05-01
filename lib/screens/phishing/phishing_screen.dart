@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/user_service.dart';
 import 'phishing_chat_models.dart';
 import 'phishing_chat.dart';
 import 'phishing_choices.dart';
@@ -34,7 +35,7 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
     });
   }
 
-  void _nextScenario() {
+  void _nextScenario() async {
     if (_scenarioIndex < phishingScenarios.length - 1) {
       setState(() {
         _scenarioIndex++;
@@ -43,7 +44,40 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
         _showFeedback = false;
       });
     } else {
-      Navigator.pop(context);
+      final result = await UserService.instance.addXp('phishing_detective', 300);
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text('🚀 Mission Complete!', textAlign: TextAlign.center),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('You spotted all the phishing attempts!', textAlign: TextAlign.center),
+              const SizedBox(height: 15),
+              const Text('XP Earned: +300', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
+              if (result != null && result.levelledUp) ...[
+                const SizedBox(height: 10),
+                Text('🎊 LEVEL UP! You are now Level ${result.newLevel}!', 
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.purple)),
+              ]
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text('Back to Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      );
     }
   }
 

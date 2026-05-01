@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 
 class WelcomeCard extends StatelessWidget {
   const WelcomeCard({super.key});
 
   Color _getLevelColor(int level) {
-    if (level >= 5) return Colors.purple;
-    if (level >= 3) return Colors.redAccent;
     if (level >= 1) return Colors.pink;
+    if (level >= 2) return Colors.purple;
+    if (level >= 3) return Colors.green;
+    if (level >= 4) return Colors.orange;
     return Colors.blue;
   }
 
@@ -17,10 +19,19 @@ class WelcomeCard extends StatelessWidget {
     final profile = svc.profile;
     final xp = svc.xp;
     final level = svc.level;
-    
     final xpCeiling = svc.xpNeededForNextLevel;
 
-    double totalProgress = xpCeiling > 0 ? (xp / xpCeiling).clamp(0.0, 1.0) : 1.0;
+    final String name = profile?.username ?? 'Explorer';
+    final double totalProgress = xpCeiling > 0 ? (xp / xpCeiling).clamp(0.0, 1.0) : 1.0;
+
+    final List<String> greetings = [
+      "Ready for a mission,",
+      "Let's get learning,",
+      "Great to see you,",
+      "Awesome to have you back,",
+      "Ready to level up,"
+    ];
+    final String greeting = greetings[name.length % greetings.length];
 
     final avatarColor = profile != null
         ? Color(int.parse(profile.avatarColour))
@@ -48,8 +59,8 @@ class WelcomeCard extends StatelessWidget {
               color: avatarColor,
               shape: BoxShape.circle,
               border: Border.all(
-                color: _getLevelColor(level), 
-                width: 2.5,                   
+                color: _getLevelColor(level),
+                width: 3.0,
               ),
             ),
             child: Center(
@@ -64,15 +75,27 @@ class WelcomeCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Welcome back, ${profile?.username ?? 'Player'}!',
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                RichText(
+                  text: TextSpan(
+                    style: GoogleFonts.quicksand(
+                      color: const Color(0xFF1A2E45),
+                      fontSize: 18,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: '$greeting ',
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      TextSpan(
+                        text: '$name! 🌟',
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
                     color: _getLevelColor(level),
                     borderRadius: BorderRadius.circular(12),
@@ -93,16 +116,16 @@ class WelcomeCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(
-                    value: totalProgress,  
-                    minHeight: 8,
+                    value: totalProgress,
+                    minHeight: 10,
                     backgroundColor: Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(10),
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      _getLevelColor(level),
+                      totalProgress >= 1.0 ? Colors.green : _getLevelColor(level),
                     ),
                   ),
                 ),
@@ -112,8 +135,11 @@ class WelcomeCard extends StatelessWidget {
                   children: [
                     Text(
                       '$xp / $xpCeiling XP',
-                      style: const TextStyle(
-                          fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.quicksand(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),

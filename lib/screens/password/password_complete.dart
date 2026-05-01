@@ -22,13 +22,13 @@ class _CompleteStepState extends State<CompleteStep> {
     try {
       await UserService.instance.addXp(
         'password_power', 
-        100,
+        200,
       );
 
       await XpAward.show(
         context,
         lessonId: 'password_power',
-        amount: 100,
+        amount: 200,
       );
 
       widget.onDone();
@@ -88,7 +88,7 @@ class _CompleteStepState extends State<CompleteStep> {
                 child: const Row(mainAxisSize: MainAxisSize.min, children: [
                   Text('⭐', style: TextStyle(fontSize: 28)),
                   SizedBox(width: 8),
-                  Text('+100 XP',
+                  Text('+200 XP',
                       style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
