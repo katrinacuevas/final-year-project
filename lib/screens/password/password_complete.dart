@@ -1,18 +1,41 @@
 import 'package:flutter/material.dart';
+import '../../services/user_service.dart';
 import 'package:final_year_project/widgets/xp_award.dart';
 import 'password_components.dart';
 
-class CompleteStep extends StatelessWidget {
+class CompleteStep extends StatefulWidget {
   final VoidCallback onDone;
   const CompleteStep({super.key, required this.onDone});
 
+  @override
+  State<CompleteStep> createState() => _CompleteStepState();
+}
+
+class _CompleteStepState extends State<CompleteStep> {
+  bool _isClaiming = false;
+
   Future<void> _finish(BuildContext context) async {
-    await XpAward.show(
-      context,
-      lessonId: 'password_power', 
-      amount: 100,                
-    );
-    onDone(); 
+    if (_isClaiming) return; 
+
+    setState(() => _isClaiming = true);
+
+    try {
+      await UserService.instance.addXp(
+        'password_power', 
+        100,
+      );
+
+      await XpAward.show(
+        context,
+        lessonId: 'password_power',
+        amount: 100,
+      );
+
+      widget.onDone();
+    } catch (e) {
+      debugPrint("Error finishing lesson: $e");
+      widget.onDone();
+    }
   }
 
   @override
@@ -22,23 +45,28 @@ class CompleteStep extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 20),
+          
           Container(
             padding: const EdgeInsets.all(28),
             decoration: const BoxDecoration(
                 color: Color(0xFFD5F5E3), shape: BoxShape.circle),
             child: const Text('🏆', style: TextStyle(fontSize: 72)),
           ),
+          
           const SizedBox(height: 24),
           const Text('You did it! 🎉',
               style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF1A2E45))),
+          
           const SizedBox(height: 10),
           const Text("You've completed Password Power!",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Color(0xFF5A7A95))),
+          
           const SizedBox(height: 28),
+
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -53,8 +81,7 @@ class CompleteStep extends StatelessWidget {
             ),
             child: Column(children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
                     color: const Color(0xFFFFFDE7),
                     borderRadius: BorderRadius.circular(14)),
@@ -82,27 +109,40 @@ class CompleteStep extends StatelessWidget {
                       color: Color(0xFF1A2E45))),
             ]),
           ),
+          
           const SizedBox(height: 20),
+
           InfoCard(
               color: Colors.orange,
               emoji: '🔒',
               title: 'Badge Unlocked: Password Master!',
-              body:
-                  'You know how to build a password that even hackers can\'t crack — AND you made one yourself!'),
-          const SizedBox(height: 16),
-          const Text('What you learned:',
-              style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF1A2E45))),
-          const SizedBox(height: 10),
+              body: 'You know how to build a password that even hackers can\'t crack — AND you made one yourself!'),
+          
+          const SizedBox(height: 24),
+
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text('What you learned:',
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1A2E45))),
+          ),
+          const SizedBox(height: 12),
           SummaryTile(emoji: '🏠', text: 'Why passwords protect your online life'),
           SummaryTile(emoji: '😬', text: 'How to spot a weak, hackable password'),
           SummaryTile(emoji: '💪', text: 'The 4 rules of a strong password'),
           SummaryTile(emoji: '🧠', text: 'The passphrase trick'),
           SummaryTile(emoji: '🛠️', text: 'Built your very own strong password!'),
+          
           const SizedBox(height: 32),
-          NextButton(onTap: () => _finish(context), label: '🏠 Back to Dashboard'),
+
+          NextButton(
+            onTap: () => _finish(context),
+            label: _isClaiming ? 'Claiming...' : '🎉 Claim your XP!',
+            enabled: !_isClaiming,
+          ),
+          const SizedBox(height: 20),
         ],
       ),
     );

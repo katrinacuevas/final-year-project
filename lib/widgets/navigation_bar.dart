@@ -50,7 +50,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 ),
                 _buildNavItem(
                   icon: Icons.menu_book,
-                  label: 'Courses',
+                  label: 'Lessons',
                   index: 1,
                   color: Colors.purple,
                 ),
@@ -64,7 +64,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   icon: Icons.person,
                   label: 'Profile',
                   index: 3,
-                  color: Colors.orange,
+                  color: Colors.pink,
                 ),
               ],
             ),

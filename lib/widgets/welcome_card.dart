@@ -4,15 +4,23 @@ import 'package:final_year_project/services/user_service.dart';
 class WelcomeCard extends StatelessWidget {
   const WelcomeCard({super.key});
 
+  Color _getLevelColor(int level) {
+    if (level >= 5) return Colors.purple;
+    if (level >= 3) return Colors.redAccent;
+    if (level >= 1) return Colors.pink;
+    return Colors.blue;
+  }
+
   @override
   Widget build(BuildContext context) {
     final svc = UserService.instance;
     final profile = svc.profile;
     final xp = svc.xp;
     final level = svc.level;
-    final progress = svc.xpProgress;
-    // final xpFloor = svc.xpAtCurrentLevel;
+    
     final xpCeiling = svc.xpNeededForNextLevel;
+
+    double totalProgress = xpCeiling > 0 ? (xp / xpCeiling).clamp(0.0, 1.0) : 1.0;
 
     final avatarColor = profile != null
         ? Color(int.parse(profile.avatarColour))
@@ -34,16 +42,20 @@ class WelcomeCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 60,
-            height: 60,
+            width: 80,
+            height: 80,
             decoration: BoxDecoration(
               color: avatarColor,
               shape: BoxShape.circle,
+              border: Border.all(
+                color: _getLevelColor(level), 
+                width: 2.5,                   
+              ),
             ),
             child: Center(
               child: Text(
                 profile?.avatarEmoji ?? '🧒',
-                style: const TextStyle(fontSize: 32),
+                style: const TextStyle(fontSize: 42),
               ),
             ),
           ),
@@ -62,7 +74,7 @@ class WelcomeCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: _getLevelColor(level),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -83,13 +95,15 @@ class WelcomeCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(
-                    value: progress,
+                    value: totalProgress,  
                     minHeight: 8,
                     backgroundColor: Colors.grey.shade200,
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(Colors.green),
+                    borderRadius: BorderRadius.circular(10),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      _getLevelColor(level),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -99,7 +113,7 @@ class WelcomeCard extends StatelessWidget {
                     Text(
                       '$xp / $xpCeiling XP',
                       style: const TextStyle(
-                          fontSize: 11, color: Colors.grey),
+                          fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),

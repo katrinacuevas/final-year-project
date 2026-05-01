@@ -17,13 +17,13 @@ double xpProgressInLevel(int xp) {
   final currentFloor = kXpThresholds[level];
   final nextCeiling = level + 1 < kXpThresholds.length
       ? kXpThresholds[level + 1]
-      : kXpThresholds.last + 500; 
+      : kXpThresholds.last + 500;
   return ((xp - currentFloor) / (nextCeiling - currentFloor)).clamp(0.0, 1.0);
 }
 
 int xpToNextLevel(int xp) {
   final level = levelFromXp(xp);
-  if (level + 1 >= kXpThresholds.length) return 0; 
+  if (level + 1 >= kXpThresholds.length) return 0;
   return kXpThresholds[level + 1] - xp;
 }
 
@@ -34,7 +34,7 @@ class UserProfile {
   final String avatarEmoji;
   final String avatarName;
   final String avatarColour;
-  final int xp;    
+  final int xp;
   final int level;
 
   const UserProfile({
@@ -84,6 +84,7 @@ class UserProfile {
         level: levelFromXp(newXp),
       );
 }
+
 
 class LessonProgress {
   final String lessonId;
@@ -164,11 +165,6 @@ class UserService {
       final doc = await _db.collection('users').doc(_uid).get();
       if (doc.exists && doc.data() != null) {
         _profile = UserProfile.fromMap(_uid!, doc.data()!);
-        _awardedLessons.addAll(
-          _progressCache.entries
-              .where((e) => e.value.completed)
-              .map((e) => e.key),
-        );
       }
     } catch (_) {}
   }
@@ -206,21 +202,40 @@ class UserService {
   }) async {
     if (_uid == null || _profile == null) return null;
 
-    if (!force && _awardedLessons.contains(lessonId)) return null;
+    if (!force) {
+      try {
+        final awarded = await _db
+            .collection('users')
+            .doc(_uid)
+            .collection('xp_awarded')
+            .doc(lessonId)
+            .get();
+        if (awarded.exists) return null;
+      } catch (_) {
+        // If the read fails, allow the award anyway rather than
+        // silently blocking the user forever
+      }
+    }
 
     final oldLevel = _profile!.level;
     final newXp = _profile!.xp + amount;
     final newLevel = levelFromXp(newXp);
-    final updatedProfile = _profile!.withXp(newXp);
 
-    await _db.collection('users').doc(_uid).update({
+    await _db.collection('users').doc(_uid).set({
       'xp': FieldValue.increment(amount),
       'level': newLevel,
       'updatedAt': FieldValue.serverTimestamp(),
-    });
+    }, SetOptions(merge: true));
 
-    _profile = updatedProfile;
-    _awardedLessons.add(lessonId);
+    await _db
+        .collection('users')
+        .doc(_uid)
+        .collection('xp_awarded')
+        .doc(lessonId)
+        .set({'awardedAt': FieldValue.serverTimestamp()});
+
+    _profile = _profile!.withXp(newXp);
+    _awardedLessons.add(lessonId); 
 
     return (
       newXp: newXp,
@@ -240,8 +255,6 @@ class UserService {
         .doc(progress.lessonId)
         .set(progress.toMap(), SetOptions(merge: true));
     _progressCache[progress.lessonId] = progress;
-
-    if (progress.completed) _awardedLessons.add(progress.lessonId);
   }
 
   Future<void> loadAllProgress() async {
@@ -256,11 +269,6 @@ class UserService {
         for (final doc in snapshot.docs)
           doc.id: LessonProgress.fromMap(doc.data()),
       };
-      _awardedLessons.addAll(
-        _progressCache.entries
-            .where((e) => e.value.completed)
-            .map((e) => e.key),
-      );
     } catch (_) {
       _progressCache = {};
     }

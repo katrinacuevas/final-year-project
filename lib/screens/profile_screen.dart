@@ -15,12 +15,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _badgePage = 0;
   final List<bool> _ruleExpanded = List.generate(ProfileData.safetyRules.length, (_) => false);
 
+  Color _getLevelColor(int level) {
+    if (level >= 5) return Colors.purple;
+    if (level >= 3) return Colors.redAccent;
+    if (level >= 1) return Colors.pink;
+    return Colors.blue;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final profile = UserService.instance.profile;
+    final svc = UserService.instance;
+    final profile = svc.profile;
+    
     final String name = profile?.username ?? "Explorer";
     final String emoji = profile?.avatarEmoji ?? "👤";
+    final int xp = svc.xp;
+    final int level = svc.level;
+    final int nextXp = svc.xpNeededForNextLevel;
     
+    double totalProgress = nextXp > 0 ? (xp / nextXp).clamp(0.0, 1.0) : 1.0;
+
     Color avatarBg;
     try {
       avatarBg = Color(int.parse(profile?.avatarColour ?? "0xFFFFE4B5"));
@@ -34,7 +48,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // HEADER SECTION
               Container(
                 color: Colors.white,
                 width: double.infinity,
@@ -54,16 +67,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Container(
                           width: 100, height: 100,
-                          decoration: BoxDecoration(color: avatarBg, shape: BoxShape.circle, border: Border.all(color: const Color(0xFF4A90D9), width: 3)),
-                          child: Center(child: Text(emoji, style: const TextStyle(fontSize: 54, height: 1))),
-                        ),
-                        Positioned(
-                          bottom: 2, right: 2,
-                          child: Container(
-                            width: 28, height: 28,
-                            decoration: BoxDecoration(color: const Color(0xFF4A90D9), shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
-                            child: const Icon(Icons.edit, color: Colors.white, size: 14),
+                          decoration: BoxDecoration(
+                            color: avatarBg, 
+                            shape: BoxShape.circle, 
+                            border: Border.all(color: _getLevelColor(level), width: 3) 
                           ),
+                          child: Center(child: Text(emoji, style: const TextStyle(fontSize: 54, height: 1))),
                         ),
                       ],
                     ),
@@ -75,25 +84,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(width: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                          decoration: BoxDecoration(color: const Color(0xFF4A90D9), borderRadius: BorderRadius.circular(20)),
-                          child: const Text('⭐ Level 2', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
+                          decoration: BoxDecoration(color: _getLevelColor(level), borderRadius: BorderRadius.circular(20)),
+                          child: Text('⭐ Level $level', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    // Progress Bar and Stats
+                    
+                    const SizedBox(height: 20),
+                    
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: LinearProgressIndicator(
+                              value: totalProgress,
+                              minHeight: 10,
+                              backgroundColor: const Color(0xFFEFF4FB),
+                              borderRadius: BorderRadius.circular(10),
+                              valueColor: AlwaysStoppedAnimation<Color>(_getLevelColor(level)),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text('$xp / $nextXp XP', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF7A9BB5))),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(color: const Color(0xFFEFF4FB), borderRadius: BorderRadius.circular(16)),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          StatItem(value: '250', label: 'XP Earned', emoji: '⚡'),
-                          VertDivider(),
-                          StatItem(value: '6', label: 'Lessons', emoji: '📖'),
-                          VertDivider(),
-                          StatItem(value: '4', label: 'Badges', emoji: '🏅'),
-                          VertDivider(),
-                          StatItem(value: '5', label: 'Day Streak', emoji: '🔥'),
+                          StatItem(value: xp.toString(), label: 'XP Earned', emoji: '⚡'),
+                          const VertDivider(),
+                          const StatItem(value: '6', label: 'Lessons', emoji: '📖'),
+                          const VertDivider(),
+                          const StatItem(value: '4', label: 'Badges', emoji: '🏅'),
+                          const VertDivider(),
+                          const StatItem(value: '5', label: 'Day Streak', emoji: '🔥'),
                         ],
                       ),
                     ),
@@ -103,7 +135,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 16),
 
-              // TASKS SECTION
               _SectionHeader(title: 'Tasks completed:'),
               Carousel(
                 itemCount: ProfileData.completedTasks.length,
@@ -114,7 +145,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 20),
 
-              // BADGES SECTION
               _SectionHeader(title: 'Badges earned:'),
               Carousel(
                 itemCount: ProfileData.badges.length,
@@ -125,7 +155,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 20),
 
-              // SAFETY RULES SECTION
               _SectionHeader(title: 'My safety rules'),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -168,13 +197,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 class _SectionHeader extends StatelessWidget {
   final String title;
   const _SectionHeader({required this.title});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16, 
+            fontWeight: FontWeight.w800, 
+            color: Color(0xFF1A2E45)
+          ),
+        ),
       ),
     );
   }
