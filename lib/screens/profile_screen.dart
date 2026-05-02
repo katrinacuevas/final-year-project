@@ -16,8 +16,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final List<bool> _ruleExpanded = List.generate(ProfileData.safetyRules.length, (_) => false);
 
   Color _getLevelColor(int level) {
-    if (level >= 5) return Colors.purple;
-    if (level >= 3) return Colors.redAccent;
+    if (level >= 5) return Colors.orange;
+    if (level >= 4) return Colors.cyan;
+    if (level >= 3) return Colors.green;
+    if (level >= 2) return Colors.purple;
     if (level >= 1) return Colors.pink;
     return Colors.blue;
   }

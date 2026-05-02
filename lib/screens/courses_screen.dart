@@ -32,7 +32,7 @@ class CoursesScreen extends StatelessWidget {
       'subtitle': 'Become an expert at spotting fake messages!',
       'completed': 0,
       'total': 6,
-      'color': Color(0xFF7EC8E3),
+      'color': Color.fromARGB(255, 101, 194, 149),
       'bgColor': Color(0xFFE3F4FB),
       'lessons': [
         {'title': 'What is Phishing?', 'done': false},

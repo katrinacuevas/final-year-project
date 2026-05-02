@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../services/user_service.dart';
+import '../../widgets/xp_award.dart';
+
 
 
 class PretextingScreen extends StatefulWidget {
@@ -82,6 +85,8 @@ class _PretextingScreenState extends State<PretextingScreen> {
     }
   }
 }
+
+
 
 const _accent = Color(0xFFB39DDB);
 const _accentDark = Color(0xFF7C4DFF);
@@ -235,6 +240,7 @@ class _TipBox extends StatelessWidget {
       );
 }
 
+
 class _IntroStep extends StatelessWidget {
   final VoidCallback onNext;
   const _IntroStep({super.key, required this.onNext});
@@ -293,6 +299,7 @@ class _IntroStep extends StatelessWidget {
         ]),
       );
 }
+
 
 class _Lesson1 extends StatelessWidget {
   final VoidCallback onNext;
@@ -468,6 +475,7 @@ class _StoryPanel extends StatelessWidget {
       );
 }
 
+
 class _Lesson2 extends StatelessWidget {
   final VoidCallback onNext;
   const _Lesson2({super.key, required this.onNext});
@@ -625,6 +633,7 @@ class _FakeIDCard extends StatelessWidget {
         ]),
       );
 }
+
 
 class _Lesson3 extends StatelessWidget {
   final VoidCallback onNext;
@@ -911,6 +920,7 @@ class _VerifyRow extends StatelessWidget {
         ]),
       );
 }
+
 
 class _Lesson4 extends StatelessWidget {
   final VoidCallback onNext;
@@ -1582,6 +1592,8 @@ class _FinalChallengeState extends State<_FinalChallenge> {
   }
 }
 
+
+
 class _QuizStep extends StatefulWidget {
   final VoidCallback onComplete;
   const _QuizStep({super.key, required this.onComplete});
@@ -1826,9 +1838,28 @@ class _QuizStepState extends State<_QuizStep> {
   }
 }
 
+
 class _CompleteStep extends StatelessWidget {
   final VoidCallback onDone;
   const _CompleteStep({super.key, required this.onDone});
+
+  Future<void> _finish(BuildContext context) async {
+    await UserService.instance.saveProgress(
+      const LessonProgress(
+        lessonId: 'pretexting',
+        stepsCompleted: 5,
+        totalSteps: 5,
+        stars: 3,
+        completed: true,
+      ),
+    );
+    await XpAward.show(
+      context,
+      lessonId: 'pretexting',
+      amount: 200,
+    );
+    onDone();
+  }
 
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
@@ -1923,7 +1954,7 @@ class _CompleteStep extends StatelessWidget {
           _SummaryRow(emoji: '🧠', text: 'How to trust your instincts with the PAUSE rule'),
           _SummaryRow(emoji: '🎬', text: 'Two real-life scenario challenges'),
           const SizedBox(height: 32),
-          _NextBtn(onTap: onDone, label: '🏠 Back to Dashboard'),
+          _NextBtn(onTap: () => _finish(context), label: '🎉 Claim your XP!'),
         ]),
       );
 }
@@ -1947,6 +1978,8 @@ class _SummaryRow extends StatelessWidget {
         ]),
       );
 }
+
+
 
 class _TypingDots extends StatefulWidget {
   @override

@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-const List<int> kXpThresholds = [0, 100, 300, 500, 700];
+const List<int> kXpThresholds = [0, 100, 300, 500, 700, 900, 1100];
 
 int levelFromXp(int xp) {
   for (int i = kXpThresholds.length - 1; i >= 0; i--) {

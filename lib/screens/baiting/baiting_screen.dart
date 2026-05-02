@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../services/user_service.dart';
+import '../../widgets/xp_award.dart';
 
 class BaitingScreen extends StatefulWidget {
   const BaitingScreen({super.key});
@@ -47,21 +49,23 @@ class _BaitingScreenState extends State<BaitingScreen> {
   }
 
   Widget _buildStep() {
-  n(int s) => () => setState(() => _currentStep = s);
-  switch (_currentStep) {
+    n(int s) => () => setState(() => _currentStep = s);
+    switch (_currentStep) {
       case 0: return _IntroStep(key: const ValueKey(0), onNext: n(1));
       case 1: return _Lesson1(key: const ValueKey(1), onNext: n(2));
       case 2: return _Lesson2(key: const ValueKey(2), onNext: n(3));
-      case 3: return _Lesson3(key: const ValueKey(3), onNext: n(4)); 
-      case 4: return _Lesson4(key: const ValueKey(4), onNext: n(5)); 
-      case 5: return _Lesson5(key: const ValueKey(5), onNext: n(6));  
-      case 6: return _SpotTheBaitActivity(key: const ValueKey(6), onNext: n(7));  
-      case 7: return _QuizStep(key: const ValueKey(7), onComplete: n(8));  
-      case 8: return _CompleteStep(key: const ValueKey(8), onDone: () => Navigator.pop(context)); 
+      case 3: return _Lesson3(key: const ValueKey(3), onNext: n(4));
+      case 4: return _Lesson4(key: const ValueKey(4), onNext: n(5));
+      case 5: return _Lesson5(key: const ValueKey(5), onNext: n(6));
+      case 6: return _Lesson6(key: const ValueKey(6), onNext: n(7));
+      case 7: return _SpotTheBaitActivity(key: const ValueKey(7), onNext: n(8));
+      case 8: return _QuizStep(key: const ValueKey(8), onComplete: n(9));
+      case 9: return _CompleteStep(key: const ValueKey(9), onDone: () => Navigator.pop(context));
       default: return const SizedBox();
     }
   }
 }
+
 
 class _ProgressBar extends StatelessWidget {
   final int current;
@@ -172,6 +176,30 @@ class _TipBox extends StatelessWidget {
   );
 }
 
+class _ScenarioCard extends StatelessWidget {
+  final String emoji, text;
+  final bool isBad;
+  const _ScenarioCard({required this.emoji, required this.text, required this.isBad});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    decoration: BoxDecoration(
+      color: isBad ? const Color(0xFFFFEBEB) : const Color(0xFFD5F5E3),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: isBad ? const Color(0xFFFFAAAA) : const Color(0xFF82E0AA), width: 1.2),
+    ),
+    child: Row(children: [
+      Text(emoji, style: const TextStyle(fontSize: 22)),
+      const SizedBox(width: 12),
+      Expanded(child: Text(text, style: TextStyle(
+        fontSize: 13, fontWeight: FontWeight.w600,
+        color: isBad ? const Color(0xFFB03030) : const Color(0xFF1E8449)))),
+      Icon(isBad ? Icons.cancel : Icons.check_circle,
+        color: isBad ? const Color(0xFFE74C3C) : const Color(0xFF2ECC71), size: 20),
+    ]),
+  );
+}
 
 class _IntroStep extends StatelessWidget {
   final VoidCallback onNext;
@@ -210,6 +238,7 @@ class _IntroStep extends StatelessWidget {
     ]),
   );
 }
+
 
 
 class _Lesson1 extends StatelessWidget {
@@ -266,6 +295,7 @@ class _TrapRow extends StatelessWidget {
     ]),
   );
 }
+
 
 
 class _Lesson2 extends StatelessWidget {
@@ -376,6 +406,72 @@ class _Lesson3 extends StatelessWidget {
   Widget build(BuildContext context) => SingleChildScrollView(
     padding: const EdgeInsets.all(20),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      _ProgressBar(current: 3, total: 6),
+      const SizedBox(height: 24),
+      const Text('Baiting in Real Life 🌍',
+        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
+      const SizedBox(height: 8),
+      const Text("Baiting doesn't just happen online!",
+        style: TextStyle(fontSize: 14, color: Color(0xFF5A7A95))),
+      const SizedBox(height: 16),
+      _WhiteCard(child: Column(children: const [
+        Text('🖲️', style: TextStyle(fontSize: 52)),
+        SizedBox(height: 12),
+        Text('The USB Stick Trick', textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
+        SizedBox(height: 8),
+        Text(
+          'A hacker leaves a USB stick on the floor labelled "FREE GAMES" or "SECRET FILES". Someone picks it up and plugs it into their computer...',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, color: Color(0xFF5A7A95), height: 1.5),
+        ),
+        SizedBox(height: 12),
+        _ResultRow(emoji: '💻', text: 'Their computer gets infected instantly'),
+        _ResultRow(emoji: '🔓', text: 'The hacker can access all their files'),
+        _ResultRow(emoji: '📷', text: 'Even the camera could be turned on secretly'),
+      ])),
+      const SizedBox(height: 20),
+      const Text('Other real-life baiting tricks:',
+        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
+      const SizedBox(height: 10),
+      _InfoCard(color: Colors.orange, emoji: '📀', title: 'Free CDs or Leaflets',
+        body: 'A free disc or flyer with a QR code that leads to a dangerous website.'),
+      const SizedBox(height: 8),
+      _InfoCard(color: Colors.purple, emoji: '🎁', title: 'Suspicious "prize" packages',
+        body: '"You\'ve won a prize — pick it up at this address!" Used to collect your details or lure you somewhere unsafe.'),
+      const SizedBox(height: 16),
+      _TipBox(text: 'NEVER plug in a USB stick you found — even if it looks exciting. Give it to a trusted adult straight away.'),
+      const SizedBox(height: 32),
+      _NextBtn(onTap: onNext),
+    ]),
+  );
+}
+
+class _ResultRow extends StatelessWidget {
+  final String emoji, text;
+  const _ResultRow({required this.emoji, required this.text});
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    child: Row(children: [
+      Text(emoji, style: const TextStyle(fontSize: 20)),
+      const SizedBox(width: 10),
+      Expanded(child: Text(text, style: const TextStyle(fontSize: 13, color: Color(0xFF5A7A95)))),
+    ]),
+  );
+}
+
+
+
+class _Lesson4 extends StatelessWidget {
+  final VoidCallback onNext;
+  const _Lesson4({super.key, required this.onNext});
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+    padding: const EdgeInsets.all(20),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _ProgressBar(current: 4, total: 6),
       const SizedBox(height: 24),
       const Text('Spot the Red Flags 🚩',
@@ -438,9 +534,9 @@ class _RedFlagCard extends StatelessWidget {
 }
 
 
-class _Lesson4 extends StatelessWidget {
+class _Lesson5 extends StatelessWidget {
   final VoidCallback onNext;
-  const _Lesson4({super.key, required this.onNext});
+  const _Lesson5({super.key, required this.onNext});
 
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
@@ -512,9 +608,10 @@ class _StepCard extends StatelessWidget {
 }
 
 
-class _Lesson5 extends StatelessWidget {
+
+class _Lesson6 extends StatelessWidget {
   final VoidCallback onNext;
-  const _Lesson5({super.key, required this.onNext});
+  const _Lesson6({super.key, required this.onNext});
 
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
@@ -583,7 +680,6 @@ class _CompareRow extends StatelessWidget {
     ]),
   );
 }
-
 
 
 class _SpotTheBaitActivity extends StatefulWidget {
@@ -789,6 +885,7 @@ class _SpotTheBaitActivityState extends State<_SpotTheBaitActivity> {
 }
 
 
+
 class _QuizStep extends StatefulWidget {
   final VoidCallback onComplete;
   const _QuizStep({super.key, required this.onComplete});
@@ -949,6 +1046,24 @@ class _CompleteStep extends StatelessWidget {
   final VoidCallback onDone;
   const _CompleteStep({super.key, required this.onDone});
 
+  Future<void> _finish(BuildContext context) async {
+    await UserService.instance.saveProgress(
+      const LessonProgress(
+        lessonId: 'baiting_pro',
+        stepsCompleted: 6,
+        totalSteps: 6,
+        stars: 3,
+        completed: true,
+      ),
+    );
+    await XpAward.show(
+      context,
+      lessonId: 'baiting_pro',
+      amount: 400,
+    );
+    onDone();
+  }
+
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
     padding: const EdgeInsets.all(20),
@@ -1009,7 +1124,7 @@ class _CompleteStep extends StatelessWidget {
       _SummaryRow(emoji: '🔍', text: 'Real vs fake rewards'),
       _SummaryRow(emoji: '🎯', text: 'Spot the Bait activity'),
       const SizedBox(height: 32),
-      _NextBtn(onTap: onDone, label: '🏠 Back to Dashboard'),
+      _NextBtn(onTap: () => _finish(context), label: '🎉 Claim your XP!'),
     ]),
   );
 }

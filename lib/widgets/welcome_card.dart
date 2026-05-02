@@ -6,10 +6,11 @@ class WelcomeCard extends StatelessWidget {
   const WelcomeCard({super.key});
 
   Color _getLevelColor(int level) {
-    if (level >= 1) return Colors.pink;
-    if (level >= 2) return Colors.purple;
+    if (level >= 5) return Colors.orange;
+    if (level >= 4) return Colors.cyan;
     if (level >= 3) return Colors.green;
-    if (level >= 4) return Colors.orange;
+    if (level >= 2) return Colors.purple;
+    if (level >= 1) return Colors.pink;
     return Colors.blue;
   }
 
@@ -37,6 +38,8 @@ class WelcomeCard extends StatelessWidget {
         ? Color(int.parse(profile.avatarColour))
         : const Color(0xFFFFE4B5);
 
+    final levelColor = _getLevelColor(level);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -52,21 +55,29 @@ class WelcomeCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: avatarColor,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: _getLevelColor(level),
-                width: 3.0,
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0.8, end: 1.0),
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOutBack,
+            builder: (context, scale, child) {
+              return Transform.scale(scale: scale, child: child);
+            },
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: avatarColor,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: levelColor,
+                  width: 3.0,
+                ),
               ),
-            ),
-            child: Center(
-              child: Text(
-                profile?.avatarEmoji ?? '🧒',
-                style: const TextStyle(fontSize: 42),
+              child: Center(
+                child: Text(
+                  profile?.avatarEmoji ?? '🧒',
+                  style: const TextStyle(fontSize: 42),
+                ),
               ),
             ),
           ),
@@ -97,7 +108,7 @@ class WelcomeCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
-                    color: _getLevelColor(level),
+                    color: levelColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -117,17 +128,24 @@ class WelcomeCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: LinearProgressIndicator(
-                    value: totalProgress,
-                    minHeight: 10,
-                    backgroundColor: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(10),
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      totalProgress >= 1.0 ? Colors.green : _getLevelColor(level),
-                    ),
-                  ),
+                TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 1500),
+                  curve: Curves.elasticOut,
+                  tween: Tween<double>(begin: 0, end: totalProgress),
+                  builder: (context, value, child) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: LinearProgressIndicator(
+                        value: value,
+                        minHeight: 10,
+                        backgroundColor: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(20),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          value >= 1.0 ? Colors.green : levelColor,
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 4),
                 Row(
