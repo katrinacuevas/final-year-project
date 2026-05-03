@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
 import 'baiting/baiting_screen.dart';
@@ -95,26 +94,8 @@ class _CoursesScreenState extends State<CoursesScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Courses',
-                        style: GoogleFonts.quicksand(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A2E45),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Pick a topic and start learning!',
-                        style: GoogleFonts.quicksand(
-                          fontSize: 14,
-                          color: const Color(0xFF7A9BB5),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
                       const SizedBox(height: 8),
-                      _buildSummaryRow(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       ..._kCoursesMeta.map((course) {
                         final lessonId = course['lessonId'] as String;
                         final p = UserService.instance.getProgress(lessonId);
@@ -144,7 +125,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
                           ),
                         );
                       }),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 5),
                     ],
                   ),
                 ),
@@ -152,57 +133,4 @@ class _CoursesScreenState extends State<CoursesScreen> {
       ),
     );
   }
-
-  Widget _buildSummaryRow() {
-    int completedCount = 0;
-    int totalStepsAll = 0;
-    int completedStepsAll = 0;
-
-    for (final c in _kCoursesMeta) {
-      final p = UserService.instance.getProgress(c['lessonId'] as String);
-      final total = c['totalSteps'] as int;
-      totalStepsAll += total;
-      completedStepsAll += p?.stepsCompleted ?? 0;
-      if (p?.completed ?? false) completedCount++;
-    }
-
-    return Row(children: [
-      _SummaryChip(
-        emoji: '📚',
-        label: '${_kCoursesMeta.length} Courses',
-        color: const Color(0xFFDEEAF8),
-      ),
-      const SizedBox(width: 8),
-      _SummaryChip(
-        emoji: '✅',
-        label: '$completedCount Completed',
-        color: const Color(0xFFD5F5E3),
-      ),
-      const SizedBox(width: 8),
-      _SummaryChip(
-        emoji: '⚡',
-        label: '$completedStepsAll/$totalStepsAll Steps',
-        color: const Color(0xFFFFFDE7),
-      ),
-    ]);
-  }
-}
-
-class _SummaryChip extends StatelessWidget {
-  final String emoji, label;
-  final Color color;
-  const _SummaryChip({required this.emoji, required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
-    child: Row(children: [
-      Text(emoji, style: const TextStyle(fontSize: 13)),
-      const SizedBox(width: 5),
-      Text(label,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700,
-          color: Color(0xFF1A2E45))),
-    ]),
-  );
 }

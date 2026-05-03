@@ -56,14 +56,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                 child: Column(
                   children: [
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Container(
-                        width: 40, height: 40,
-                        decoration: BoxDecoration(color: const Color(0xFFEFF4FB), borderRadius: BorderRadius.circular(12)),
-                        child: const Icon(Icons.settings, color: Color(0xFF7A9BB5), size: 22),
-                      ),
-                    ),
                     const SizedBox(height: 20),
                     Stack(
                       children: [
@@ -113,24 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 24),
-                    
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(color: const Color(0xFFEFF4FB), borderRadius: BorderRadius.circular(16)),
-                      child: Row(
-                        children: [
-                          StatItem(value: xp.toString(), label: 'XP Earned', emoji: '⚡'),
-                          const VertDivider(),
-                          const StatItem(value: '6', label: 'Lessons', emoji: '📖'),
-                          const VertDivider(),
-                          const StatItem(value: '4', label: 'Badges', emoji: '🏅'),
-                          const VertDivider(),
-                          const StatItem(value: '5', label: 'Day Streak', emoji: '🔥'),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
               ),

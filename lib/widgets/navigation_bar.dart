@@ -45,7 +45,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               children: [
                 _buildNavItem(
                   icon: Icons.home,
-                  label: 'Dashboard',
+                  label: 'Home',
                   index: 0,
                   color: Colors.blue,
                 ),

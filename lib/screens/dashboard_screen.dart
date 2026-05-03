@@ -46,9 +46,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const WelcomeCard(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   const DailyChallengeCard(),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 10),
                   Text(
                     'Learning Tasks',
                     style: GoogleFonts.quicksand(
