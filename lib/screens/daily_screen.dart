@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
 
@@ -9,7 +8,6 @@ class _Email {
   final String body;
   final bool isPhishing;
   final String explanation;
-
   const _Email({
     required this.sender,
     required this.subject,
@@ -27,7 +25,7 @@ const List<_Email> _emails = [
         'Dear Customer,\n\nYour PayPal account has been suspended due to suspicious activity. Click the link below IMMEDIATELY to restore access or your account will be permanently deleted.\n\nwww.paypa1-secure.com/restore',
     isPhishing: true,
     explanation:
-        'This is a fake email! The sender address says "paypa1" (with a number 1) instead of "paypal". Real companies never ask you to click urgent links in emails.',
+        'The sender says "paypa1" (number 1) instead of "paypal". Real companies never demand you click urgent links in emails.',
   ),
   _Email(
     sender: 'no-reply@google.com',
@@ -36,7 +34,7 @@ const List<_Email> _emails = [
         'Hi,\n\nWe noticed a new sign-in to your Google Account. If this was you, you can ignore this email.\n\nIf you don\'t recognise this activity, please review your account.\n\nThe Google Team',
     isPhishing: false,
     explanation:
-        'This is a real email! It comes from the official google.com domain, doesn\'t create panic, and doesn\'t ask you to click a suspicious link.',
+        'This comes from the official google.com domain, doesn\'t create panic, and doesn\'t ask you to click a suspicious link.',
   ),
   _Email(
     sender: 'winner@prizes-online.net',
@@ -45,7 +43,7 @@ const List<_Email> _emails = [
         'CONGRATULATIONS!\n\nYou have been selected as today\'s lucky winner! Claim your £1,000 Amazon Gift Card now. This offer expires in 24 hours.\n\nEnter your details at: www.prizes-online.net/claim',
     isPhishing: true,
     explanation:
-        'This is a phishing email! You can\'t win a prize you never entered. The sender address looks unofficial, and it\'s trying to rush you with a fake deadline.',
+        'You can\'t win a prize you never entered. The sender looks unofficial and it\'s rushing you with a fake deadline.',
   ),
 ];
 
@@ -56,8 +54,7 @@ class DailyChallengeScreen extends StatefulWidget {
   State<DailyChallengeScreen> createState() => _DailyChallengeScreenState();
 }
 
-class _DailyChallengeScreenState extends State<DailyChallengeScreen>
-    with SingleTickerProviderStateMixin {
+class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   int _currentIndex = 0;
   int _score = 0;
   bool? _selectedAnswer;
@@ -65,25 +62,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
   bool _finished = false;
   bool _awardingXp = false;
 
-  late AnimationController _animCtrl;
-  late Animation<double> _fadeAnim;
-
   _Email get _current => _emails[_currentIndex];
-
-  @override
-  void initState() {
-    super.initState();
-    _animCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 400));
-    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeIn);
-    _animCtrl.forward();
-  }
-
-  @override
-  void dispose() {
-    _animCtrl.dispose();
-    super.dispose();
-  }
 
   void _answer(bool guessedPhishing) {
     if (_showResult) return;
@@ -99,13 +78,11 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
   Future<void> _next() async {
     SoundService.playClick();
     if (_currentIndex < _emails.length - 1) {
-      await _animCtrl.reverse();
       setState(() {
         _currentIndex++;
         _selectedAnswer = null;
         _showResult = false;
       });
-      _animCtrl.forward();
     } else {
       await _finishChallenge();
     }
@@ -113,7 +90,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
 
   Future<void> _finishChallenge() async {
     setState(() => _awardingXp = true);
-
     await UserService.instance.saveProgress(
       LessonProgress(
         lessonId: 'daily_challenge',
@@ -127,9 +103,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
         completed: true,
       ),
     );
-
     await UserService.instance.addXp('daily_challenge', 50);
-
     setState(() {
       _awardingXp = false;
       _finished = true;
@@ -139,334 +113,314 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
   @override
   Widget build(BuildContext context) {
     if (_finished) return _buildFinished();
+    final bool correct = _showResult && _selectedAnswer == _current.isPhishing;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F0),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: FadeTransition(
-                opacity: _fadeAnim,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildEmailCard(),
-                      const SizedBox(height: 24),
-                      if (!_showResult) _buildQuestionButtons(),
-                      if (_showResult) _buildResultPanel(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+      backgroundColor: const Color(0xFFE3F2FD),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A2E45)),
+          onPressed: () {
+            SoundService.playClick();
+            Navigator.pop(context);
+          },
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () {
-              SoundService.playClick();
-              Navigator.pop(context);
-            },
-            child: Container(
-              width: 38, height: 38,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF3E0),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFFB347).withOpacity(0.4)),
-              ),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF4A2800), size: 20),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '⚡ Daily Challenge',
-                  style: GoogleFonts.nunito(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF3D2C8D),
-                  ),
+        title: const Text('Daily Challenge',
+            style: TextStyle(
+                color: Color(0xFF1A2E45),
+                fontWeight: FontWeight.w800,
+                fontSize: 18)),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF9C4),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                Text(
+                child: Text(
                   'Email ${_currentIndex + 1} of ${_emails.length}',
-                  style: GoogleFonts.nunito(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF9B8ABF),
-                  ),
+                  style: const TextStyle(
+                      color: Color(0xFF7A6020),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13),
                 ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFE066),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFFFB347).withOpacity(0.4),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Text(
-              '✨ +50 XP',
-              style: GoogleFonts.nunito(
-                fontSize: 13,
-                fontWeight: FontWeight.w900,
-                color: const Color(0xFF4A2800),
               ),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildEmailCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE0D5F5), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF5F0FF),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(22),
-                topRight: Radius.circular(22),
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+              transitionBuilder: (child, anim) => SlideTransition(
+                position: Tween<Offset>(
+                        begin: const Offset(1, 0), end: Offset.zero)
+                    .animate(anim),
+                child: child,
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+              child: SingleChildScrollView(
+                key: ValueKey(_currentIndex),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: LinearProgressIndicator(
+                        value: (_currentIndex + 1) / _emails.length,
+                        minHeight: 8,
+                        backgroundColor: Colors.grey.shade200,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xFFFFB347)),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     Container(
-                      width: 36, height: 36,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF3D2C8D),
-                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3))
+                        ],
                       ),
-                      child: const Center(
-                        child: Text('📧', style: TextStyle(fontSize: 18)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF5F0FF),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(children: [
+                                  Container(
+                                    width: 36, height: 36,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1A2E45),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Center(
+                                        child: Text('📧',
+                                            style: TextStyle(fontSize: 18))),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      _current.sender,
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF3D2C8D)),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ]),
+                                const SizedBox(height: 8),
+                                Text(
+                                  _current.subject,
+                                  style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF1A2E45)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            _current.body,
+                            style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF5A7A95),
+                                height: 1.6),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        _current.sender,
-                        style: GoogleFonts.nunito(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF3D2C8D),
-                        ),
-                        overflow: TextOverflow.ellipsis,
+                    const SizedBox(height: 20),
+                    if (!_showResult) ...[
+                      const Text('Is this email real or fake? 🤔',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1A2E45))),
+                      const SizedBox(height: 12),
+                      _choiceTile(
+                        label: '✅  Real Email',
+                        index: 0,
+                        onTap: () => _answer(false),
                       ),
-                    ),
+                      const SizedBox(height: 10),
+                      _choiceTile(
+                        label: '🎣  Fake / Phishing',
+                        index: 1,
+                        onTap: () => _answer(true),
+                      ),
+                    ],
+                    const SizedBox(height: 80),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  _current.subject,
-                  style: GoogleFonts.nunito(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF2D1B69),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(18),
-            child: Text(
-              _current.body,
-              style: GoogleFonts.nunito(
-                fontSize: 14,
-                color: const Color(0xFF4A3F6B),
-                height: 1.6,
-                fontWeight: FontWeight.w600,
               ),
             ),
+          ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, anim) => SlideTransition(
+              position: Tween<Offset>(
+                      begin: const Offset(0, 1), end: Offset.zero)
+                  .animate(CurvedAnimation(
+                      parent: anim, curve: Curves.easeOut)),
+              child: child,
+            ),
+            child: _showResult
+                ? _buildFeedbackPanel(correct)
+                : const SizedBox.shrink(key: ValueKey('empty')),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuestionButtons() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Is this email real or fake? 🤔',
-          style: GoogleFonts.nunito(
-            fontSize: 17,
-            fontWeight: FontWeight.w900,
-            color: const Color(0xFF3D2C8D),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _choiceButton(
-                label: '✅ Real Email',
-                color: const Color(0xFF00C9A7),
-                onTap: () => _answer(false),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _choiceButton(
-                label: '🎣 Fake / Phishing',
-                color: const Color(0xFFFF6B9D),
-                onTap: () => _answer(true),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _choiceButton({
+  Widget _choiceTile({
     required String label,
-    required Color color,
+    required int index,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.4),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          color: const Color(0xFFF0EBFF),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFB39DDB), width: 1.5),
         ),
-        child: Center(
-          child: Text(
-            label,
-            style: GoogleFonts.nunito(
-              fontSize: 14,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
+        child: Row(children: [
+          Container(
+            width: 28, height: 28,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFF7C4DFF).withOpacity(0.15),
             ),
-            textAlign: TextAlign.center,
+            child: Center(
+              child: Text('${index + 1}',
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF7C4DFF))),
+            ),
           ),
-        ),
+          const SizedBox(width: 12),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1A2E45))),
+        ]),
       ),
     );
   }
 
-  Widget _buildResultPanel() {
-    final bool correct = _selectedAnswer == _current.isPhishing;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: correct ? const Color(0xFFE6FBF7) : const Color(0xFFFFEBF3),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: correct
-                  ? const Color(0xFF00C9A7).withOpacity(0.4)
-                  : const Color(0xFFFF6B9D).withOpacity(0.4),
-              width: 2,
+  Widget _buildFeedbackPanel(bool correct) {
+    final bool isLast = _currentIndex == _emails.length - 1;
+    return Container(
+      key: const ValueKey('feedback'),
+      decoration: BoxDecoration(
+        color: correct ? const Color(0xFFD5F5E3) : const Color(0xFFFFEBEB),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 16,
+              offset: const Offset(0, -4))
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(correct ? '🛡️' : '😬',
+                style: const TextStyle(fontSize: 28)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                correct ? 'Correct! Well spotted! 🎉' : 'Not quite!',
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: correct
+                        ? const Color(0xFF1E6B3A)
+                        : const Color(0xFFB03030)),
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                correct ? '🎉 Correct!' : '😅 Not quite!',
-                style: GoogleFonts.nunito(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: correct ? const Color(0xFF00A383) : const Color(0xFFD63075),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
+          ]),
+          const SizedBox(height: 10),
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Container(
+                margin: const EdgeInsets.only(top: 5),
+                width: 6, height: 6,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: correct
+                        ? const Color(0xFF27AE60)
+                        : const Color(0xFFE74C3C))),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
                 _current.explanation,
-                style: GoogleFonts.nunito(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: correct ? const Color(0xFF1A6B58) : const Color(0xFF8B1A4A),
-                  height: 1.5,
-                ),
+                style: TextStyle(
+                    fontSize: 13,
+                    height: 1.4,
+                    color: correct
+                        ? const Color(0xFF1A4A2A)
+                        : const Color(0xFF7A2020)),
               ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: _awardingXp
-              ? const Center(child: CircularProgressIndicator())
-              : ElevatedButton(
-                  onPressed: _next,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3D2C8D),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18)),
-                    elevation: 4,
-                    shadowColor: const Color(0xFF3D2C8D).withOpacity(0.4),
-                  ),
-                  child: Text(
-                    _currentIndex < _emails.length - 1
-                        ? 'Next Email →'
-                        : 'Finish Challenge 🏁',
-                    style: GoogleFonts.nunito(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
+            ),
+          ]),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: _awardingXp
+                ? const Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+                    onPressed: _next,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: correct
+                          ? const Color(0xFF27AE60)
+                          : const Color(0xFFE74C3C),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      isLast ? 'See Results! 🎉' : 'Next Email →',
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w700),
                     ),
                   ),
-                ),
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -475,94 +429,144 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
     final bool perfect = _score == total;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F0),
+      backgroundColor: const Color(0xFFE3F2FD),
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  perfect ? '🏆' : _score >= (total ~/ 2 + 1) ? '🌟' : '💪',
-                  style: const TextStyle(fontSize: 80),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(children: [
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: const BoxDecoration(
+                  color: Color(0xFFFFFDE7), shape: BoxShape.circle),
+              child: Text(
+                perfect ? '🏆' : _score >= (total ~/ 2 + 1) ? '🌟' : '💪',
+                style: const TextStyle(fontSize: 72),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              perfect
+                  ? 'Perfect Score!'
+                  : _score >= (total ~/ 2 + 1)
+                      ? 'Great Job!'
+                      : 'Good Try!',
+              style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF1A2E45)),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'You got $_score out of $total correct!',
+              style: const TextStyle(fontSize: 16, color: Color(0xFF5A7A95)),
+            ),
+            const SizedBox(height: 28),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4))
+                ],
+              ),
+              child: Column(children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                      color: const Color(0xFFFFFDE7),
+                      borderRadius: BorderRadius.circular(14)),
+                  child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                    Text('⭐', style: TextStyle(fontSize: 28)),
+                    SizedBox(width: 8),
+                    Text('+50 XP',
+                        style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFFE6A817))),
+                  ]),
                 ),
                 const SizedBox(height: 16),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                        3,
+                        (i) => Text(
+                              i < _score ? '⭐' : '☆',
+                              style: const TextStyle(fontSize: 32),
+                            ))),
+                const SizedBox(height: 10),
                 Text(
-                  perfect
-                      ? 'Perfect Score!'
-                      : _score >= (total ~/ 2 + 1)
-                          ? 'Great Job!'
-                          : 'Good Try!',
-                  style: GoogleFonts.nunito(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF3D2C8D),
-                  ),
+                  perfect ? '3 Stars — Amazing!' : '$_score Stars — Keep it up!',
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF1A2E45)),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'You got $_score out of $total correct!',
-                  style: GoogleFonts.nunito(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF6B5B8A),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFFE066), Color(0xFFFFB347)],
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFFFB347).withOpacity(0.5),
-                        blurRadius: 14,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    '✨ +50 XP Earned!',
-                    style: GoogleFonts.nunito(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: const Color(0xFF4A2800),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      SoundService.playClick();
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3D2C8D),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18)),
-                      elevation: 4,
-                      shadowColor: const Color(0xFF3D2C8D).withOpacity(0.4),
-                    ),
-                    child: Text(
-                      'Back to Dashboard 🏠',
-                      style: GoogleFonts.nunito(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ]),
             ),
-          ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0EBFF).withOpacity(0.6),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                    color: const Color(0xFFB39DDB).withOpacity(0.4)),
+              ),
+              child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                const Text('🎭', style: TextStyle(fontSize: 28)),
+                const SizedBox(width: 14),
+                const Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                  Text('What you practised:',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF1A2E45))),
+                  SizedBox(height: 4),
+                  Text(
+                      'Spotting suspicious sender addresses, fake urgency, and too-good-to-be-true offers.',
+                      style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF5A7A95),
+                          height: 1.4)),
+                ])),
+              ]),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  SoundService.playClick();
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1A2E45),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
+                  elevation: 0,
+                ),
+                child: const Text('Back to Dashboard 🏠',
+                    style: TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w700)),
+              ),
+            ),
+          ]),
         ),
       ),
     );

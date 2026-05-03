@@ -137,7 +137,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: const Color(0xFFDCEAF7),
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator())
@@ -148,11 +148,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 16),
                       _buildStatsCard(),
                       const SizedBox(height: 16),
                       _buildFilterTabs(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
@@ -176,7 +175,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                   ),
                                 ),
                               ),
-                            const SizedBox(height: 16),
                             const SizedBox(height: 80),
                           ],
                         ),
@@ -195,89 +193,96 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     final pct = (_overallProgress * 100).round();
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1A2E45), Color(0xFF2C5282)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: const Color(0xFF1A2E45).withOpacity(0.3),
-            blurRadius: 16, offset: const Offset(0, 6)),
-        ],
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
+      decoration: const BoxDecoration(
+        color: Color(0xFFDCEAF7),
       ),
-      child: Column(children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(children: [
-              const Icon(Icons.star, color: Color(0xFFFFD700), size: 18),
-              const SizedBox(width: 6),
-              Text('Level $level',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-            ]),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2196F3),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Row(children: [
+                  const Icon(Icons.star, color: Color(0xFFFFD700), size: 18),
+                  const SizedBox(width: 6),
+                  Text('Level $level',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15)),
+                ]),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2196F3),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text('$xp points',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15)),
+              ),
+            ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFD700).withOpacity(0.25),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text('⭐ $xp XP',
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-          ),
-        ]),
-        const SizedBox(height: 24),
-        SizedBox(
-          width: 130, height: 130,
-          child: Stack(alignment: Alignment.center, children: [
-            TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0, end: _overallProgress),
-              duration: const Duration(milliseconds: 900),
-              curve: Curves.easeOut,
-              builder: (_, v, __) => SizedBox(
-                width: 130, height: 130,
-                child: CircularProgressIndicator(
-                  value: v, strokeWidth: 13,
-                  backgroundColor: Colors.white.withOpacity(0.15),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFFD700)),
+          const SizedBox(height: 28),
+          SizedBox(
+            width: 160,
+            height: 160,
+            child: Stack(alignment: Alignment.center, children: [
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: _overallProgress),
+                duration: const Duration(milliseconds: 900),
+                curve: Curves.easeOut,
+                builder: (_, v, __) => SizedBox(
+                  width: 160,
+                  height: 160,
+                  child: CircularProgressIndicator(
+                    value: v,
+                    strokeWidth: 14,
+                    backgroundColor: Colors.white.withOpacity(0.5),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2196F3)),
+                  ),
                 ),
               ),
-            ),
-            Column(mainAxisSize: MainAxisSize.min, children: [
-              Text('$pct%', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white)),
-              const Text('Complete', style: TextStyle(fontSize: 13, color: Colors.white70)),
+              Column(mainAxisSize: MainAxisSize.min, children: [
+                Text('$pct%',
+                    style: const TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white)),
+                const Text('Complete',
+                    style: TextStyle(fontSize: 14, color: Colors.white70)),
+              ]),
             ]),
-          ]),
-        ),
-        const SizedBox(height: 18),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          _StatPill(label: '$_completedCourses/${_kCourses.length}', sub: 'courses'),
-          const SizedBox(width: 10),
-          _StatPill(label: '$_completedSteps/$_totalSteps', sub: 'steps'),
-        ]),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(20),
           ),
-          child: Text(
-            _completedCourses == _kCourses.length
-                ? '🏆 All courses completed!'
-                : '🎯 Keep learning to unlock more badges!',
-            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2196F3),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Text(
+              _completedCourses == _kCourses.length
+                  ? '🏆 All courses completed!'
+                  : '🎯 Keep learning to unlock more badges!',
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600),
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 
@@ -295,19 +300,24 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
               onTap: () => setState(() => _selectedFilter = f),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 11),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF1A2E45) : Colors.transparent,
+                  color: isSelected ? Colors.white : Colors.transparent,
                   border: Border.all(
-                    color: isSelected ? const Color(0xFF1A2E45) : Colors.grey.shade400),
-                  borderRadius: BorderRadius.circular(20),
+                    color: isSelected ? Colors.white : Colors.grey.shade400,
+                  ),
+                  borderRadius: BorderRadius.circular(30),
                 ),
                 child: Text(f,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.grey.shade600,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    fontSize: 14,
-                  )),
+                    style: TextStyle(
+                      color: isSelected
+                          ? const Color(0xFF1A2E45)
+                          : Colors.grey.shade600,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      fontSize: 14,
+                    )),
               ),
             ),
           );
@@ -335,7 +345,6 @@ class _AchievementCardState extends State<_AchievementCard> {
     final color = widget.course['color'] as Color;
     final progressColor = widget.course['progressColor'] as Color;
     final accentColor = widget.course['accentColor'] as Color;
-    final headerColor = widget.course['headerColor'] as Color;
     final milestones = widget.course['milestones'] as List;
 
     final p = UserService.instance.getProgress(lessonId);
@@ -350,67 +359,71 @@ class _AchievementCardState extends State<_AchievementCard> {
       child: Container(
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: accentColor.withOpacity(0.15),
-            blurRadius: 10, offset: const Offset(0, 4))],
-        ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-              color: headerColor.withOpacity(0.35),
-              child: Row(children: [
-                Text(widget.course['courseEmoji'] as String,
-                  style: const TextStyle(fontSize: 26)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(widget.course['title'] as String,
-                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A2E45))),
-                ),
-                if (completed)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text('Done ✓',
-                      style: TextStyle(color: progressColor, fontSize: 11,
-                        fontWeight: FontWeight.bold)),
-                  ),
-              ]),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(widget.course['subtitle'] as String,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade700)),
-              const SizedBox(height: 14),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Row(children: [
-                  Text('$badgesEarned',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: accentColor)),
-                  Text(' / ${milestones.length} badges',
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w500)),
-                ]),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(10),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(widget.course['courseEmoji'] as String,
+                      style: const TextStyle(fontSize: 26)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(widget.course['title'] as String,
+                        style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A2E45))),
                   ),
-                  child: Text('$pct%',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: accentColor)),
-                ),
-              ]),
-              const SizedBox(height: 10),
+                  if (completed)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text('Done ✓',
+                          style: TextStyle(
+                              color: progressColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(widget.course['subtitle'] as String,
+                  style: TextStyle(
+                      fontSize: 13, color: Colors.grey.shade700)),
+              const SizedBox(height: 14),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '$badgesEarned / ${milestones.length} Badges earned',
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700),
+                  ),
+                  Text('$pct%',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: accentColor)),
+                ],
+              ),
+              const SizedBox(height: 8),
               TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: fraction),
                 duration: const Duration(milliseconds: 700),
@@ -418,55 +431,65 @@ class _AchievementCardState extends State<_AchievementCard> {
                 builder: (_, v, __) => ClipRRect(
                   borderRadius: BorderRadius.circular(6),
                   child: LinearProgressIndicator(
-                    value: v, minHeight: 10,
+                    value: v,
+                    minHeight: 10,
                     backgroundColor: Colors.white.withOpacity(0.6),
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      completed ? Colors.green.shade500 : progressColor),
+                        completed ? Colors.green.shade500 : progressColor),
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               Center(
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Text(_expanded ? 'Hide badges' : 'View badges 🏅',
-                    style: TextStyle(fontSize: 12, color: accentColor,
-                      fontWeight: FontWeight.w700)),
+                  Text(
+                    _expanded ? 'Hide badges' : 'View badges 🏅',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: accentColor,
+                        fontWeight: FontWeight.w700),
+                  ),
                   AnimatedRotation(
                     turns: _expanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 200),
-                    child: Icon(Icons.keyboard_arrow_down, color: accentColor, size: 22),
+                    child: Icon(Icons.keyboard_arrow_down,
+                        color: accentColor, size: 22),
                   ),
                 ]),
               ),
-            ]),
+              AnimatedCrossFade(
+                firstChild: const SizedBox(width: double.infinity),
+                secondChild: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Divider(color: accentColor.withOpacity(0.2), thickness: 1.5),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: milestones.asMap().entries.map((e) {
+                        final m = e.value as Map<String, dynamic>;
+                        final earned = steps >= (m['step'] as int);
+                        return Expanded(
+                          child: _MilestoneBadge(
+                            emoji: m['emoji'] as String,
+                            name: m['name'] as String,
+                            desc: m['desc'] as String,
+                            earned: earned,
+                            accentColor: accentColor,
+                            progressColor: progressColor,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+                crossFadeState: _expanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 250),
+              ),
+            ],
           ),
-
-          AnimatedCrossFade(
-            firstChild: const SizedBox(width: double.infinity),
-            secondChild: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Divider(color: accentColor.withOpacity(0.2), thickness: 1.5),
-                const SizedBox(height: 10),
-                Row(children: milestones.asMap().entries.map((e) {
-                  final m = e.value as Map<String, dynamic>;
-                  final earned = steps >= (m['step'] as int);
-                  return Expanded(child: _MilestoneBadge(
-                    emoji: m['emoji'] as String,
-                    name: m['name'] as String,
-                    desc: m['desc'] as String,
-                    earned: earned,
-                    accentColor: accentColor,
-                    progressColor: progressColor,
-                  ));
-                }).toList()),
-              ]),
-            ),
-            crossFadeState: _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 250),
-          ),
-        ]),
+        ),
       ),
     );
   }
@@ -492,38 +515,54 @@ class _MilestoneBadge extends StatelessWidget {
       onTap: () => showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24)),
           backgroundColor: Colors.white,
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             Container(
               width: 80, height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: earned ? accentColor.withOpacity(0.15) : Colors.grey.shade100,
+                color: earned
+                    ? accentColor.withOpacity(0.15)
+                    : Colors.grey.shade100,
               ),
-              child: Center(child: Text(
-                earned ? emoji : '🔒',
-                style: const TextStyle(fontSize: 40))),
+              child: Center(
+                  child: Text(earned ? emoji : '🔒',
+                      style: const TextStyle(fontSize: 40))),
             ),
             const SizedBox(height: 14),
-            Text(name, textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800,
-                color: Color(0xFF1A2E45))),
+            Text(name,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1A2E45))),
             const SizedBox(height: 6),
-            Text(desc, textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF7A9BB5))),
+            Text(desc,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontSize: 13, color: Color(0xFF7A9BB5))),
             const SizedBox(height: 14),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: earned ? progressColor.withOpacity(0.12) : const Color(0xFFEFF4FB),
+                color: earned
+                    ? progressColor.withOpacity(0.12)
+                    : const Color(0xFFEFF4FB),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Text(
                 earned ? '✅ Unlocked!' : '🔒 Keep going to unlock',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
-                  color: earned ? progressColor : const Color(0xFF9AABBF)),
-              )),
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: earned
+                        ? progressColor
+                        : const Color(0xFF9AABBF)),
+              ),
+            ),
           ]),
         ),
       ),
@@ -533,45 +572,42 @@ class _MilestoneBadge extends StatelessWidget {
           width: 60, height: 60,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: earned ? accentColor.withOpacity(0.18) : Colors.white.withOpacity(0.6),
+            color: earned
+                ? accentColor.withOpacity(0.18)
+                : Colors.white.withOpacity(0.6),
             border: Border.all(
-              color: earned ? accentColor : Colors.grey.shade300,
-              width: earned ? 2.5 : 1.5),
+                color: earned ? accentColor : Colors.grey.shade300,
+                width: earned ? 2.5 : 1.5),
             boxShadow: earned
-                ? [BoxShadow(color: accentColor.withOpacity(0.35),
-                    blurRadius: 10, offset: const Offset(0, 4))]
+                ? [
+                    BoxShadow(
+                        color: accentColor.withOpacity(0.35),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4))
+                  ]
                 : [],
           ),
-          child: Center(child: Text(
-            earned ? emoji : '🔒',
-            style: TextStyle(fontSize: earned ? 28 : 22))),
+          child: Center(
+              child: Text(earned ? emoji : '🔒',
+                  style: TextStyle(fontSize: earned ? 28 : 22))),
         ),
         const SizedBox(height: 6),
-        Text(name, textAlign: TextAlign.center, maxLines: 2,
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700,
-            color: earned ? const Color(0xFF1A2E45) : Colors.grey.shade400)),
+        Text(name,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: earned
+                    ? const Color(0xFF1A2E45)
+                    : Colors.grey.shade400)),
         if (earned)
-          Text('✓', style: TextStyle(fontSize: 11, color: progressColor, fontWeight: FontWeight.bold)),
+          Text('✓',
+              style: TextStyle(
+                  fontSize: 11,
+                  color: progressColor,
+                  fontWeight: FontWeight.bold)),
       ]),
     );
   }
-}
-
-class _StatPill extends StatelessWidget {
-  final String label, sub;
-  const _StatPill({required this.label, required this.sub});
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-    decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.18),
-      borderRadius: BorderRadius.circular(14),
-    ),
-    child: Row(mainAxisSize: MainAxisSize.min, children: [
-      Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
-      const SizedBox(width: 4),
-      Text(sub, style: const TextStyle(fontSize: 11, color: Colors.white70)),
-    ]),
-  );
 }

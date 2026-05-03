@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
 import 'password/password_screen.dart';
@@ -39,8 +38,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: ListenableBuilder(
             listenable: UserService.instance,
             builder: (context, child) {
-              final passwordProgress = UserService.instance.getProgress('password_power');
-              final phishingProgress = UserService.instance.getProgress('phishing_detective');
+              final passwordProgress =
+                  UserService.instance.getProgress('password_power');
+              final phishingProgress =
+                  UserService.instance.getProgress('phishing_detective');
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,12 +50,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 10),
                   const DailyChallengeCard(),
                   const SizedBox(height: 10),
-                  Text(
+                  const Text(
                     'Learning Tasks',
-                    style: GoogleFonts.quicksand(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
-                      color: const Color(0xFF1F355E),
+                      color: Color(0xFF1F355E),
                     ),
                   ),
                   const SizedBox(height: 16),
