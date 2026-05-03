@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
+import '../services/sound_service.dart';
 import 'password/password_screen.dart';
 import 'phishing/phishing_screen.dart';
 import '../widgets/welcome_card.dart';
@@ -63,6 +64,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 progress: passwordProgress?.stepsCompleted ?? 0,
                 totalLessons: passwordProgress?.totalSteps ?? 4,
                 onTap: () async {
+                  SoundService.playClick();
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -82,6 +84,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 progress: phishingProgress?.stepsCompleted ?? 0,
                 totalLessons: phishingProgress?.totalSteps ?? 6,
                 onTap: () async {
+                  SoundService.playClick();
                   await Navigator.push(
                     context,
                     MaterialPageRoute(

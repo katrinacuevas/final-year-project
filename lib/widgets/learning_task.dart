@@ -186,7 +186,7 @@ class LearningTaskCard extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            _isStarted ? '▶  Continue' : '▶  Start Lesson',
+                            _isStarted ? 'Continue' : 'Start Lesson',
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,

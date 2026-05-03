@@ -72,15 +72,6 @@ const List<Map<String, dynamic>> _kCourses = [
   },
 ];
 
-const List<Map<String, dynamic>> _kSpecialBadges = [
-  {'id': 'first_lesson', 'emoji': '🚀', 'name': 'Blast Off!',   'desc': 'Complete your first step',  'color': Color(0xFFBBDEFB)},
-  {'id': 'all_courses',  'emoji': '🌟', 'name': 'All Star',     'desc': 'Complete every course',     'color': Color(0xFFFFF9C4)},
-  {'id': 'level_2',      'emoji': '⚡', 'name': 'Power Up',     'desc': 'Reach Level 2',             'color': Color(0xFFFFE0B2)},
-  {'id': 'level_3',      'emoji': '🔥', 'name': 'On Fire',      'desc': 'Reach Level 3',             'color': Color(0xFFFFCCBC)},
-  {'id': 'xp_300',       'emoji': '💎', 'name': 'XP Collector', 'desc': 'Earn 300 XP total',         'color': Color(0xFFB2EBF2)},
-  {'id': 'xp_1000',      'emoji': '👑', 'name': 'XP Champion',  'desc': 'Earn 1000 XP total',        'color': Color(0xFFE8D5FB)},
-];
-
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
 
@@ -122,18 +113,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
   double get _overallProgress =>
       _totalSteps == 0 ? 0 : (_completedSteps / _totalSteps).clamp(0.0, 1.0);
-
-  Set<String> get _earnedSpecialIds {
-    final svc = UserService.instance;
-    final earned = <String>{};
-    if (_completedSteps > 0)                   earned.add('first_lesson');
-    if (_completedCourses == _kCourses.length) earned.add('all_courses');
-    if (svc.level >= 2)                        earned.add('level_2');
-    if (svc.level >= 3)                        earned.add('level_3');
-    if (svc.xp >= 300)                         earned.add('xp_300');
-    if (svc.xp >= 1000)                        earned.add('xp_1000');
-    return earned;
-  }
 
   List<Map<String, dynamic>> get _filtered {
     switch (_selectedFilter) {
@@ -198,7 +177,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                 ),
                               ),
                             const SizedBox(height: 16),
-                            _buildSpecialBadgesSection(),
                             const SizedBox(height: 80),
                           ],
                         ),
@@ -335,51 +313,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           );
         }).toList(),
       ),
-    );
-  }
-
-  Widget _buildSpecialBadgesSection() {
-    final earned = _earnedSpecialIds;
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05),
-          blurRadius: 10, offset: const Offset(0, 3))],
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const Text('✨', style: TextStyle(fontSize: 20)),
-          const SizedBox(width: 8),
-          const Text('Special Badges',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1A2E45))),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1A2E45).withOpacity(0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text('${earned.length}/${_kSpecialBadges.length}',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800,
-                color: Color(0xFF1A2E45))),
-          ),
-        ]),
-        const SizedBox(height: 14),
-        GridView.count(
-          crossAxisCount: 3,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          childAspectRatio: 0.88,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: _kSpecialBadges.map((b) {
-            final isEarned = earned.contains(b['id'] as String);
-            return _SpecialBadgeTile(badge: b, earned: isEarned);
-          }).toList(),
-        ),
-      ]),
     );
   }
 }
@@ -620,79 +553,6 @@ class _MilestoneBadge extends StatelessWidget {
         if (earned)
           Text('✓', style: TextStyle(fontSize: 11, color: progressColor, fontWeight: FontWeight.bold)),
       ]),
-    );
-  }
-}
-
-class _SpecialBadgeTile extends StatelessWidget {
-  final Map<String, dynamic> badge;
-  final bool earned;
-  const _SpecialBadgeTile({required this.badge, required this.earned});
-
-  @override
-  Widget build(BuildContext context) {
-    final tileColor = badge['color'] as Color;
-    return GestureDetector(
-      onTap: () => showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          content: Column(mainAxisSize: MainAxisSize.min, children: [
-            Container(
-              width: 80, height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: earned ? tileColor : Colors.grey.shade100),
-              child: Center(child: Text(
-                earned ? badge['emoji'] as String : '🔒',
-                style: const TextStyle(fontSize: 38)))),
-            const SizedBox(height: 14),
-            Text(badge['name'] as String, textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800,
-                color: Color(0xFF1A2E45))),
-            const SizedBox(height: 6),
-            Text(badge['desc'] as String, textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF7A9BB5))),
-            const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: earned ? tileColor.withOpacity(0.4) : const Color(0xFFEFF4FB),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Text(
-                earned ? '✅ Unlocked!' : '🔒 Keep going to unlock',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
-                  color: earned ? const Color(0xFF1A2E45) : const Color(0xFF9AABBF))),
-            ),
-          ]),
-        ),
-      ),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        decoration: BoxDecoration(
-          color: earned ? tileColor : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: earned
-              ? [BoxShadow(color: tileColor.withOpacity(0.4),
-                  blurRadius: 8, offset: const Offset(0, 3))]
-              : [],
-        ),
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text(earned ? badge['emoji'] as String : '🔒',
-            style: const TextStyle(fontSize: 30)),
-          const SizedBox(height: 5),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(badge['name'] as String, textAlign: TextAlign.center,
-              maxLines: 2,
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800,
-                color: earned ? const Color(0xFF1A2E45) : Colors.grey.shade400))),
-          if (earned)
-            const Text('✓', style: TextStyle(fontSize: 11, color: Colors.green,
-              fontWeight: FontWeight.bold)),
-        ]),
-      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
+import '../services/sound_service.dart';
 import 'baiting/baiting_screen.dart';
 import 'phishing/phishing_screen.dart';
 import 'pretexting/pretexting_screen.dart';
@@ -131,6 +132,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
                             progress: steps,
                             totalLessons: total,
                             onTap: () async {
+                              SoundService.playClick();
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
