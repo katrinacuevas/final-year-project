@@ -98,7 +98,7 @@ class WelcomeCard extends StatelessWidget {
                         style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                       TextSpan(
-                        text: '$name! 🌟',
+                        text: '$name!',
                         style: const TextStyle(fontWeight: FontWeight.w800),
                       ),
                     ],

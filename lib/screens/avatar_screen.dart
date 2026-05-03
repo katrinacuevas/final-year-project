@@ -1,5 +1,6 @@
 import 'package:final_year_project/services/user_service.dart';
 import 'package:flutter/material.dart';
+import '../services/sound_service.dart';
 import 'welcome_screen.dart';
 
 class AvatarScreen extends StatefulWidget {
@@ -13,7 +14,7 @@ class AvatarScreen extends StatefulWidget {
 class _AvatarScreenState extends State<AvatarScreen>
     with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
-  bool _saving = false;  
+  bool _saving = false;
   late AnimationController _animCtrl;
   late Animation<double> _fadeIn;
 
@@ -45,6 +46,7 @@ class _AvatarScreenState extends State<AvatarScreen>
 
   Future<void> _finish() async {
     if (_saving) return;
+    SoundService.playClick();
     setState(() => _saving = true);
 
     try {
@@ -59,12 +61,10 @@ class _AvatarScreenState extends State<AvatarScreen>
         avatarColour: '0x${((av['color'] as Color).value.toRadixString(16)).padLeft(8, '0')}',
       );
 
-      // This will throw the exception from UserService if the name is taken
       await UserService.instance.saveProfile(profile);
 
       if (!mounted) return;
-      
-      // If we got here, it means the name is NOT taken
+
       Navigator.of(context).pushAndRemoveUntil(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 600),
@@ -78,13 +78,10 @@ class _AvatarScreenState extends State<AvatarScreen>
     } catch (e) {
       setState(() => _saving = false);
       if (!mounted) return;
-      
-      // Clean up the error message for the user
-      String errorMessage = e.toString().replaceAll('Exception: ', '');
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMessage),
+          content: Text(e.toString().replaceAll('Exception: ', '')),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -110,7 +107,10 @@ class _AvatarScreenState extends State<AvatarScreen>
                   children: [
                     Row(children: [
                       GestureDetector(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () {
+                          SoundService.playClick();
+                          Navigator.pop(context);
+                        },
                         child: Container(
                           width: 38, height: 38,
                           decoration: BoxDecoration(
@@ -122,13 +122,11 @@ class _AvatarScreenState extends State<AvatarScreen>
                       ),
                       const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 7),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                         decoration: BoxDecoration(
                           color: const Color(0xFF4A90D9).withOpacity(0.12),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                              color: const Color(0xFF4A90D9).withOpacity(0.3)),
+                          border: Border.all(color: const Color(0xFF4A90D9).withOpacity(0.3)),
                         ),
                         child: const Text('Step 2 of 2',
                             style: TextStyle(
@@ -145,8 +143,7 @@ class _AvatarScreenState extends State<AvatarScreen>
                       decoration: BoxDecoration(
                         color: selected['color'] as Color,
                         borderRadius: BorderRadius.circular(28),
-                        border:
-                            Border.all(color: const Color(0xFF4A90D9), width: 3),
+                        border: Border.all(color: const Color(0xFF4A90D9), width: 3),
                         boxShadow: [
                           BoxShadow(
                             color: (selected['color'] as Color).withOpacity(0.5),
@@ -173,8 +170,7 @@ class _AvatarScreenState extends State<AvatarScreen>
                             fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
                     const Text("Choose your avatar",
-                        style:
-                            TextStyle(fontSize: 15, color: Color(0xFF5A7A95))),
+                        style: TextStyle(fontSize: 15, color: Color(0xFF5A7A95))),
                   ],
                 ),
               ),
@@ -182,8 +178,7 @@ class _AvatarScreenState extends State<AvatarScreen>
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 4,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
@@ -194,13 +189,14 @@ class _AvatarScreenState extends State<AvatarScreen>
                       final av = _avatars[i];
                       final bool isSelected = i == _selectedIndex;
                       return GestureDetector(
-                        onTap: () => setState(() => _selectedIndex = i),
+                        onTap: () {
+                          SoundService.playClick();
+                          setState(() => _selectedIndex = i);
+                        },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? (av['color'] as Color)
-                                : Colors.white,
+                            color: isSelected ? (av['color'] as Color) : Colors.white,
                             borderRadius: BorderRadius.circular(18),
                             border: Border.all(
                               color: isSelected
@@ -211,8 +207,7 @@ class _AvatarScreenState extends State<AvatarScreen>
                             boxShadow: isSelected
                                 ? [
                                     BoxShadow(
-                                        color: const Color(0xFF4A90D9)
-                                            .withOpacity(0.25),
+                                        color: const Color(0xFF4A90D9).withOpacity(0.25),
                                         blurRadius: 12,
                                         offset: const Offset(0, 4))
                                   ]

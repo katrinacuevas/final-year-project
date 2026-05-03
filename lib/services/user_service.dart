@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 const List<int> kXpThresholds = [0, 100, 300, 500, 700, 900, 1100];
 
@@ -85,7 +86,6 @@ class UserProfile {
       );
 }
 
-
 class LessonProgress {
   final String lessonId;
   final int stepsCompleted;
@@ -124,7 +124,7 @@ class LessonProgress {
       };
 }
 
-class UserService {
+class UserService with ChangeNotifier {
   UserService._();
   static final UserService instance = UserService._();
 
@@ -134,7 +134,6 @@ class UserService {
   UserProfile? _profile;
   String? _uid;
   Map<String, LessonProgress> _progressCache = {};
-
   final Set<String> _awardedLessons = {};
 
   UserProfile? get profile => _profile;
@@ -165,6 +164,7 @@ class UserService {
       final doc = await _db.collection('users').doc(_uid).get();
       if (doc.exists && doc.data() != null) {
         _profile = UserProfile.fromMap(_uid!, doc.data()!);
+        notifyListeners();
       }
     } catch (_) {}
   }
@@ -191,6 +191,7 @@ class UserService {
     if (taken) throw Exception('Username is already taken, try another one!');
     await _db.collection('users').doc(_uid).set(profile.toMap());
     _profile = profile;
+    notifyListeners();
   }
 
   Future<void> refreshProfile() async => await _loadProfile();
@@ -211,10 +212,7 @@ class UserService {
             .doc(lessonId)
             .get();
         if (awarded.exists) return null;
-      } catch (_) {
-        // If the read fails, allow the award anyway rather than
-        // silently blocking the user forever
-      }
+      } catch (_) {}
     }
 
     final oldLevel = _profile!.level;
@@ -236,6 +234,7 @@ class UserService {
 
     _profile = _profile!.withXp(newXp);
     _awardedLessons.add(lessonId); 
+    notifyListeners();
 
     return (
       newXp: newXp,
@@ -255,6 +254,7 @@ class UserService {
         .doc(progress.lessonId)
         .set(progress.toMap(), SetOptions(merge: true));
     _progressCache[progress.lessonId] = progress;
+    notifyListeners();
   }
 
   Future<void> loadAllProgress() async {
@@ -269,6 +269,7 @@ class UserService {
         for (final doc in snapshot.docs)
           doc.id: LessonProgress.fromMap(doc.data()),
       };
+      notifyListeners();
     } catch (_) {
       _progressCache = {};
     }
