@@ -60,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 16),
                   LearningTaskCard(
-                    emoji: '🔒',
+                    emoji: '🔐',
                     iconColor: const Color(0xFFFFB347),
                     bgColor: const Color(0xFFFFF3E0),
                     title: 'Password Power',
