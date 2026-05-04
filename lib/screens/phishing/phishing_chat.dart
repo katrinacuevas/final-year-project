@@ -34,7 +34,7 @@ class ChatMessageWidget extends StatelessWidget {
                   bottomLeft: isYou ? const Radius.circular(18) : const Radius.circular(4),
                   bottomRight: isYou ? const Radius.circular(4) : const Radius.circular(18),
                 ),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 6, offset: const Offset(0, 2))],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 6, offset: const Offset(0, 2))],
               ),
               child: isTyping
                 ? const TypingDots()

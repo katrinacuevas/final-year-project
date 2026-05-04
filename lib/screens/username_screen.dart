@@ -166,10 +166,10 @@ class _UsernameScreenState extends State<UsernameScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4A90D9).withOpacity(0.12),
+                      color: const Color(0xFF4A90D9).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                          color: const Color(0xFF4A90D9).withOpacity(0.3)),
+                          color: const Color(0xFF4A90D9).withValues(alpha: 0.3)),
                     ),
                     child: const Text('Step 1 of 2',
                         style: TextStyle(
@@ -185,7 +185,7 @@ class _UsernameScreenState extends State<UsernameScreen>
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                            color: const Color(0xFF4A90D9).withOpacity(0.2),
+                            color: const Color(0xFF4A90D9).withValues(alpha: 0.2),
                             blurRadius: 20,
                             offset: const Offset(0, 8)),
                       ],
@@ -216,7 +216,7 @@ class _UsernameScreenState extends State<UsernameScreen>
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
+                            color: Colors.black.withValues(alpha: 0.06),
                             blurRadius: 12,
                             offset: const Offset(0, 4))
                       ],
@@ -328,10 +328,10 @@ class _UsernameScreenState extends State<UsernameScreen>
           color: const Color(0xFFE6FBF7),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-              color: const Color(0xFF00C9A7).withOpacity(0.35), width: 1.5),
+              color: const Color(0xFF00C9A7).withValues(alpha: 0.35), width: 1.5),
           boxShadow: [
             BoxShadow(
-                color: const Color(0xFF00C9A7).withOpacity(0.12),
+                color: const Color(0xFF00C9A7).withValues(alpha: 0.12),
                 blurRadius: 10,
                 offset: const Offset(0, 3)),
           ],
@@ -341,7 +341,7 @@ class _UsernameScreenState extends State<UsernameScreen>
             Container(
               width: 36, height: 36,
               decoration: BoxDecoration(
-                color: const Color(0xFF00C9A7).withOpacity(0.15),
+                color: const Color(0xFF00C9A7).withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: const Center(
@@ -373,10 +373,10 @@ class _UsernameScreenState extends State<UsernameScreen>
         color: const Color(0xFFFFEBF3),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: const Color(0xFFFF6B9D).withOpacity(0.35), width: 1.5),
+            color: const Color(0xFFFF6B9D).withValues(alpha: 0.35), width: 1.5),
         boxShadow: [
           BoxShadow(
-              color: const Color(0xFFFF6B9D).withOpacity(0.12),
+              color: const Color(0xFFFF6B9D).withValues(alpha: 0.12),
               blurRadius: 10,
               offset: const Offset(0, 3)),
         ],
@@ -386,7 +386,7 @@ class _UsernameScreenState extends State<UsernameScreen>
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFFFF6B9D).withOpacity(0.15),
+              color: const Color(0xFFFF6B9D).withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: const Center(

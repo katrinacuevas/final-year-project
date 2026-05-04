@@ -123,9 +123,9 @@ class _InfoCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.12),
+      color: color.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: color.withOpacity(0.3)),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(emoji, style: const TextStyle(fontSize: 28)),
@@ -150,7 +150,7 @@ class _WhiteCard extends StatelessWidget {
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),
-      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 3))],
+      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 3))],
     ),
     child: child,
   );
@@ -358,7 +358,7 @@ class _BaitExampleCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
       color: Colors.white, borderRadius: BorderRadius.circular(18),
-      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Container(
@@ -522,7 +522,7 @@ class _RedFlagCard extends StatelessWidget {
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
       color: Colors.white, borderRadius: BorderRadius.circular(14),
-      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
       border: Border.all(color: const Color(0xFFFFCDD2), width: 1.2),
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -587,7 +587,7 @@ class _StepCard extends StatelessWidget {
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
       color: Colors.white, borderRadius: BorderRadius.circular(16),
-      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
     ),
     child: Row(children: [
       Container(width: 48, height: 48,
@@ -781,7 +781,7 @@ class _SpotTheBaitActivityState extends State<_SpotTheBaitActivity> {
                 border: answered
                   ? Border.all(color: wasCorrect! ? const Color(0xFF82E0AA) : const Color(0xFFFFAAAA), width: 2)
                   : Border.all(color: const Color(0xFFDDE8F2), width: 1.5),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
               ),
               child: Column(children: [
                 Padding(
@@ -1085,7 +1085,7 @@ class _CompleteStep extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 4))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, 4))],
         ),
         child: Column(children: [
           Container(

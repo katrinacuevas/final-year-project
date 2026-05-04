@@ -9,6 +9,7 @@ class LearningTaskCard extends StatelessWidget {
   final String subtitle;
   final int progress;
   final int totalLessons;
+  final List<String> stepsList;
   final VoidCallback onTap;
 
   const LearningTaskCard({
@@ -20,6 +21,7 @@ class LearningTaskCard extends StatelessWidget {
     required this.subtitle,
     required this.progress,
     required this.totalLessons,
+    required this.stepsList,
     required this.onTap,
   });
 
@@ -43,7 +45,7 @@ class LearningTaskCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withValues(alpha: 0.06),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -60,7 +62,7 @@ class LearningTaskCard extends StatelessWidget {
                   height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: accentColor.withOpacity(0.15),
+                    color: accentColor.withValues(alpha: 0.15),
                   ),
                 ),
               ),
@@ -72,7 +74,7 @@ class LearningTaskCard extends StatelessWidget {
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: accentColor.withOpacity(0.10),
+                    color: accentColor.withValues(alpha: 0.10),
                   ),
                 ),
               ),
@@ -91,7 +93,7 @@ class LearningTaskCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: accentColor.withOpacity(0.25),
+                                color: accentColor.withValues(alpha: 0.25),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
@@ -164,11 +166,50 @@ class LearningTaskCard extends StatelessWidget {
                           child: LinearProgressIndicator(
                             value: value,
                             minHeight: 8,
-                            backgroundColor: Colors.white.withOpacity(0.5),
-                            valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+                            backgroundColor: Colors.white.withValues(alpha: 0.5),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(accentColor),
                           ),
                         );
                       },
+                    ),
+                    const SizedBox(height: 12),
+                    Column(
+                      children: stepsList.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final step = entry.value;
+                        final stepNumber = index + 1;
+                        final isDone = stepNumber <= progress;
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Row(
+                            children: [
+                              Icon(
+                                isDone
+                                    ? Icons.check_circle
+                                    : Icons.radio_button_unchecked,
+                                size: 18,
+                                color:
+                                    isDone ? accentColor : Colors.grey,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  step,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDone
+                                        ? const Color(0xFF1A2E45)
+                                        : Colors.grey.shade500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                     ),
                     const SizedBox(height: 14),
                     if (!_isCompleted)
@@ -200,7 +241,7 @@ class LearningTaskCard extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 13),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(

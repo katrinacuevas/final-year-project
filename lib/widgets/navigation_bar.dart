@@ -31,7 +31,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -99,7 +99,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isSelected ? color.withOpacity(0.2) : Colors.transparent,
+              color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(

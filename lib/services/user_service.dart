@@ -148,6 +148,8 @@ class UserService with ChangeNotifier {
       level < kXpThresholds.length ? kXpThresholds[level] : 0;
   int get xpNeededForNextLevel =>
       level + 1 < kXpThresholds.length ? kXpThresholds[level + 1] : xp;
+  
+  Map<String, LessonProgress> get progressCache => _progressCache;
 
   Future<void> init() async {
     if (_auth.currentUser == null) {

@@ -97,12 +97,12 @@ class _SplashScreenState extends State<SplashScreen>
                         child: Container(
                           width: 120, height: 120,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
+                            color: Colors.white.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(32),
-                            border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF4A90D9).withOpacity(0.5),
+                                color: const Color(0xFF4A90D9).withValues(alpha: 0.5),
                                 blurRadius: 30,
                                 spreadRadius: 5,
                               ),
@@ -138,7 +138,7 @@ class _SplashScreenState extends State<SplashScreen>
                               'Stay Safe Online 🌐',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontWeight: FontWeight.w500,
                                 letterSpacing: 0.5,
                               ),
@@ -185,7 +185,7 @@ class _SplashScreenState extends State<SplashScreen>
           height: b.size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withOpacity(b.opacity),
+            color: Colors.white.withValues(alpha: b.opacity),
           ),
         ),
       );

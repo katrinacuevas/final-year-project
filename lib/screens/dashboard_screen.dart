@@ -29,7 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: const Color.fromARGB(255, 245, 255, 250),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: SingleChildScrollView(
@@ -67,6 +67,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     subtitle: 'Learn to create a strong password!',
                     progress: passwordProgress?.stepsCompleted ?? 0,
                     totalLessons: passwordProgress?.totalSteps ?? 4,
+                    stepsList: [],
                     onTap: () async {
                       SoundService.playClick();
                       await Navigator.push(
@@ -87,6 +88,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     subtitle: 'Become an expert at spotting fake messages!',
                     progress: phishingProgress?.stepsCompleted ?? 0,
                     totalLessons: phishingProgress?.totalSteps ?? 6,
+                    stepsList: [],
                     onTap: () async {
                       SoundService.playClick();
                       await Navigator.push(

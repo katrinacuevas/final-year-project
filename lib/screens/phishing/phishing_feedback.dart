@@ -21,7 +21,7 @@ class FeedbackPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: safe ? const Color(0xFFD5F5E3) : const Color(0xFFFFEBEB),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 16, offset: const Offset(0, -4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 16, offset: const Offset(0, -4))],
       ),
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
       child: Column(

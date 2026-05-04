@@ -48,7 +48,7 @@ class ChoicesPanel extends StatelessWidget {
                   Container(
                     width: 26, height: 26,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4A90D9).withOpacity(0.12),
+                      color: const Color(0xFF4A90D9).withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
                     child: Center(child: Text('${e.key + 1}',

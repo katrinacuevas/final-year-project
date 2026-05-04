@@ -78,13 +78,13 @@ class TaskCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 3))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 3))],
       ),
       child: Row(
         children: [
           Container(
             width: 52, height: 52,
-            decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(14)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(14)),
             child: Center(child: Text(task['emoji'] as String, style: const TextStyle(fontSize: 28))),
           ),
           const SizedBox(width: 14),
@@ -122,8 +122,8 @@ class BadgeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 3))],
-        border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.4), width: 1.5),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 3))],
+        border: Border.all(color: const Color(0xFFFFD700).withValues(alpha: 0.4), width: 1.5),
       ),
       child: Row(
         children: [
@@ -131,7 +131,7 @@ class BadgeCard extends StatelessWidget {
             children: [
               Container(
                 width: 60, height: 60,
-                decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [color.withOpacity(0.3), color.withOpacity(0.05)])),
+                decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [color.withValues(alpha: 0.3), color.withValues(alpha: 0.05)])),
               ),
               SizedBox(width: 60, height: 60, child: Center(child: Text(badge['emoji'] as String, style: const TextStyle(fontSize: 32)))),
             ],

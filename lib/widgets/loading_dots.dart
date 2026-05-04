@@ -36,7 +36,7 @@ class _LoadingDotsState extends State<LoadingDots> with SingleTickerProviderStat
             width: 8, 
             height: 8 + bounce * 8,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.6 + bounce * 0.4),
+              color: Colors.white.withValues(alpha: 0.6 + bounce * 0.4),
               borderRadius: BorderRadius.circular(4),
             ),
           );

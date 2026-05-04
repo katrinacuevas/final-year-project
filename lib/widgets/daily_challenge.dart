@@ -46,7 +46,7 @@ class _DailyChallengeCardState extends State<DailyChallengeCard> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -61,7 +61,7 @@ class _DailyChallengeCardState extends State<DailyChallengeCard> {
                 width: 120, height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: accentColor.withOpacity(0.15),
+                  color: accentColor.withValues(alpha: 0.15),
                 ),
               ),
             ),
@@ -71,7 +71,7 @@ class _DailyChallengeCardState extends State<DailyChallengeCard> {
                 width: 80, height: 80,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: accentColor.withOpacity(0.10),
+                  color: accentColor.withValues(alpha: 0.10),
                 ),
               ),
             ),
@@ -89,7 +89,7 @@ class _DailyChallengeCardState extends State<DailyChallengeCard> {
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: [
                             BoxShadow(
-                              color: accentColor.withOpacity(0.25),
+                              color: accentColor.withValues(alpha: 0.25),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -108,7 +108,7 @@ class _DailyChallengeCardState extends State<DailyChallengeCard> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: accentColor.withOpacity(0.2),
+                                color: accentColor.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Text(
@@ -151,7 +151,7 @@ class _DailyChallengeCardState extends State<DailyChallengeCard> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: accentColor.withOpacity(0.2),
+                          color: accentColor.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
