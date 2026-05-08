@@ -180,7 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final completed = _completedCourses;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: const Color.fromARGB(255, 255, 217, 229),
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator())

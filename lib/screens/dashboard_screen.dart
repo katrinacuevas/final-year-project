@@ -29,7 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 245, 255, 250),
+      backgroundColor: const Color.fromARGB(255, 234, 255, 251),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: SingleChildScrollView(
@@ -82,8 +82,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 12),
                   LearningTaskCard(
                     emoji: '🎣',
-                    iconColor: const Color(0xFF26A69A),
-                    bgColor: const Color(0xFFE0F2F1),
+                    iconColor: const Color.fromARGB(255, 103, 122, 204),
+                    bgColor: const Color.fromARGB(255, 190, 203, 231),
                     title: 'Phishing Detective',
                     subtitle: 'Become an expert at spotting fake messages!',
                     progress: phishingProgress?.stepsCompleted ?? 0,

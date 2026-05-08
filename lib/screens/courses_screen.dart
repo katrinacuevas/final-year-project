@@ -115,7 +115,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: const Color.fromARGB(255, 252, 237, 255),
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator())

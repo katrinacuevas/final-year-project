@@ -154,7 +154,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: const Color.fromARGB(255, 255, 240, 197),
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator())
