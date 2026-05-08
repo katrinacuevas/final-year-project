@@ -11,8 +11,8 @@ const List<Map<String, dynamic>> _kCourses = [
     'bgColor': Color(0xFFFFF3E0),
     'totalSteps': 4,
     'milestones': [
-      {'step': 1, 'emoji': '🔑', 'name': 'First Key',       'desc': 'Started your first lesson'},
-      {'step': 2, 'emoji': '🛡️', 'name': 'Shield Up',       'desc': 'Halfway through the course'},
+      {'step': 1, 'emoji': '🔑', 'name': 'First Key', 'desc': 'Started your first lesson'},
+      {'step': 2, 'emoji': '🛡️', 'name': 'Shield Up', 'desc': 'Halfway through the course'},
       {'step': 4, 'emoji': '🏅', 'name': 'Password Master', 'desc': 'Completed Password Power!'},
     ],
   },
@@ -24,8 +24,8 @@ const List<Map<String, dynamic>> _kCourses = [
     'bgColor': Color(0xFFE0F2F1),
     'totalSteps': 6,
     'milestones': [
-      {'step': 1, 'emoji': '👀', 'name': 'Eagle Eyes',   'desc': 'Spotted your first scenario'},
-      {'step': 3, 'emoji': '🔎', 'name': 'Detective',    'desc': 'Halfway through the course'},
+      {'step': 1, 'emoji': '👀', 'name': 'Eagle Eyes', 'desc': 'Spotted your first scenario'},
+      {'step': 3, 'emoji': '🔎', 'name': 'Detective', 'desc': 'Halfway through the course'},
       {'step': 6, 'emoji': '🕵️', 'name': 'Super Sleuth', 'desc': 'Completed Phishing Detective!'},
     ],
   },
@@ -37,9 +37,9 @@ const List<Map<String, dynamic>> _kCourses = [
     'bgColor': Color(0xFFFFEBEB),
     'totalSteps': 6,
     'milestones': [
-      {'step': 1, 'emoji': '🧐', 'name': 'Suspicious',   'desc': 'Started investigating baiting'},
+      {'step': 1, 'emoji': '🧐', 'name': 'Suspicious', 'desc': 'Started investigating baiting'},
       {'step': 3, 'emoji': '🚩', 'name': 'Flag Spotter', 'desc': 'Spotted 3 red flags'},
-      {'step': 6, 'emoji': '🪤', 'name': 'Trap Buster',  'desc': 'Completed Baiting Pro!'},
+      {'step': 6, 'emoji': '🪤', 'name': 'Trap Buster', 'desc': 'Completed Baiting Pro!'},
     ],
   },
   {
@@ -50,8 +50,8 @@ const List<Map<String, dynamic>> _kCourses = [
     'bgColor': Color(0xFFF0EBFF),
     'totalSteps': 5,
     'milestones': [
-      {'step': 1, 'emoji': '🤔', 'name': 'Curious',       'desc': 'Started learning pretexting'},
-      {'step': 3, 'emoji': '🎭', 'name': 'Mask Off',      'desc': 'Spotted a fake identity'},
+      {'step': 1, 'emoji': '🤔', 'name': 'Curious', 'desc': 'Started learning pretexting'},
+      {'step': 3, 'emoji': '🎭', 'name': 'Mask Off', 'desc': 'Spotted a fake identity'},
       {'step': 5, 'emoji': '🦸', 'name': 'Identity Hero', 'desc': 'Completed Pretexting!'},
     ],
   },
@@ -96,8 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _loading = true;
   int _taskPage = 0;
   int _badgePage = 0;
-  final List<bool> _ruleExpanded =
-      List.generate(_kSafetyRules.length, (_) => false);
+  final List<bool> _ruleExpanded = List.generate(_kSafetyRules.length, (_) => false);
 
   @override
   void initState() {
@@ -147,8 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   List<Map<String, dynamic>> get _completedCourses {
     return _kCourses.where((course) {
-      final p =
-          UserService.instance.getProgress(course['lessonId'] as String);
+      final p = UserService.instance.getProgress(course['lessonId'] as String);
       return p?.completed ?? false;
     }).toList();
   }
@@ -157,21 +155,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final svc = UserService.instance;
     final profile = svc.profile;
-
     final String name = profile?.username ?? 'Explorer';
     final String emoji = profile?.avatarEmoji ?? '👤';
     final int xp = svc.xp;
     final int level = svc.level;
     final int nextXp = svc.xpNeededForNextLevel;
-    final double totalProgress =
-        nextXp > 0 ? (xp / nextXp).clamp(0.0, 1.0) : 1.0;
+    
+    double totalProgress = 0.0;
+    if (nextXp > 0) {
+      totalProgress = (xp / nextXp).clamp(0.0, 1.0);
+    } else if (xp > 0) {
+      totalProgress = 1.0;
+    }
+
     final Color levelColor = _getLevelColor(level);
     final Color lightLevelColor = levelColor.withOpacity(0.1);
 
     Color avatarBg;
     try {
-      avatarBg =
-          Color(int.parse(profile?.avatarColour ?? '0xFFFFE4B5'));
+      avatarBg = Color(int.parse(profile?.avatarColour ?? '0xFFFFE4B5'));
     } catch (_) {
       avatarBg = const Color(0xFFFFE4B5);
     }
@@ -193,221 +195,201 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 20),
-
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: lightLevelColor,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: levelColor.withOpacity(0.05),
-                              blurRadius: 15,
-                              offset: const Offset(0, 5),
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.0, end: 1.0),
+                        duration: const Duration(milliseconds: 800),
+                        curve: Curves.easeOutBack,
+                        builder: (context, value, child) {
+                          return Opacity(
+                            opacity: value.clamp(0.0, 1.0),
+                            child: Transform.translate(
+                              offset: Offset(0, 30 * (1 - value)),
+                              child: child,
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 100, height: 100,
-                              decoration: BoxDecoration(
-                                color: avatarBg,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: levelColor, width: 4),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: lightLevelColor,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: levelColor.withOpacity(0.05),
+                                blurRadius: 15,
+                                offset: const Offset(0, 5),
                               ),
-                              child: Center(
-                                child: Text(emoji,
-                                    style: const TextStyle(
-                                        fontSize: 50)),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  name,
-                                  style: GoogleFonts.quicksand(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                    color: const Color(0xFF1A2E45),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: const Duration(milliseconds: 1000),
+                                curve: Curves.elasticOut,
+                                builder: (context, value, child) => Transform.scale(scale: value, child: child),
+                                child: Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: avatarBg,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: levelColor, width: 4),
+                                  ),
+                                  child: Center(
+                                    child: Text(emoji, style: const TextStyle(fontSize: 50)),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: levelColor,
-                                    borderRadius:
-                                        BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    '⭐ Level $level',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      name,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.quicksand(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w800,
+                                        color: const Color(0xFF1A2E45),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
-                            Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Level Progress',
-                                    style: TextStyle(
-                                        fontSize: 12,
+                                  const SizedBox(width: 12),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: levelColor,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '⭐ Level $level',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
                                         fontWeight: FontWeight.w700,
-                                        color: levelColor)),
-                                Text('$xp / $nextXp XP',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: levelColor)),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: LinearProgressIndicator(
-                                value: totalProgress,
-                                minHeight: 12,
-                                backgroundColor:
-                                    const Color(0xFFF0F4F8),
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(
-                                        levelColor),
-                                borderRadius:
-                                    BorderRadius.circular(20),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 24),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Level Progress', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: levelColor)),
+                                  Text('$xp / $nextXp XP', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: levelColor)),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: TweenAnimationBuilder<double>(
+                                  duration: const Duration(milliseconds: 1500),
+                                  curve: Curves.easeInOutQuart,
+                                  tween: Tween<double>(begin: 0, end: totalProgress),
+                                  builder: (context, value, _) => LinearProgressIndicator(
+                                    value: value,
+                                    minHeight: 12,
+                                    backgroundColor: const Color(0xFFF0F4F8),
+                                    valueColor: AlwaysStoppedAnimation<Color>(levelColor),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-
                       const SizedBox(height: 28),
                       _SectionHeader(title: 'Tasks Completed'),
                       const SizedBox(height: 4),
-
                       SizedBox(
                         height: 130,
                         child: completed.isEmpty
                             ? Center(
                                 child: Text(
                                   'No courses completed yet — keep going! 💪',
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.grey.shade500),
+                                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
                                 ),
                               )
                             : PageView.builder(
                                 itemCount: completed.length,
-                                onPageChanged: (p) =>
-                                    setState(() => _taskPage = p),
+                                onPageChanged: (p) => setState(() => _taskPage = p),
                                 itemBuilder: (_, i) {
                                   final course = completed[i];
-                                  final iconColor =
-                                      course['iconColor'] as Color;
-                                  final bgColor =
-                                      course['bgColor'] as Color;
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(18),
-                                      decoration: BoxDecoration(
-                                        color: bgColor,
-                                        borderRadius:
-                                            BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: iconColor
-                                                .withOpacity(0.15),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 3),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Row(children: [
-                                        Container(
-                                          width: 56, height: 56,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(
-                                                    14),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: iconColor
-                                                    .withOpacity(0.2),
-                                                blurRadius: 8,
-                                                offset:
-                                                    const Offset(0, 3),
+                                  final iconColor = course['iconColor'] as Color;
+                                  final bgColor = course['bgColor'] as Color;
+                                  return AnimatedScale(
+                                    duration: const Duration(milliseconds: 400),
+                                    scale: _taskPage == i ? 1.0 : 0.9,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(18),
+                                        decoration: BoxDecoration(
+                                          color: bgColor,
+                                          borderRadius: BorderRadius.circular(20),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: iconColor.withOpacity(0.15),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(children: [
+                                          Container(
+                                            width: 56,
+                                            height: 56,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(14),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: iconColor.withOpacity(0.2),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                course['emoji'] as String,
+                                                style: const TextStyle(fontSize: 28),
                                               ),
-                                            ],
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              course['emoji'] as String,
-                                              style: const TextStyle(
-                                                  fontSize: 28),
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 14),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment
-                                                    .start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                course['title']
-                                                    as String,
-                                                style: const TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight:
-                                                        FontWeight.w800,
-                                                    color: Color(
-                                                        0xFF1A2E45)),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 3),
-                                                decoration: BoxDecoration(
-                                                  color: iconColor
-                                                      .withOpacity(0.15),
-                                                  borderRadius:
-                                                      BorderRadius
-                                                          .circular(10),
+                                          const SizedBox(width: 14),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  course['title'] as String,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45)),
                                                 ),
-                                                child: Text(
-                                                  '✅ Completed!',
-                                                  style: TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: iconColor),
+                                                const SizedBox(height: 4),
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                                  decoration: BoxDecoration(
+                                                    color: iconColor.withOpacity(0.15),
+                                                    borderRadius: BorderRadius.circular(10),
+                                                  ),
+                                                  child: Text(
+                                                    '✅ Completed!',
+                                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: iconColor),
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ]),
+                                        ]),
+                                      ),
                                     ),
                                   );
                                 },
@@ -420,138 +402,108 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: List.generate(
                             completed.length,
                             (i) => AnimatedContainer(
-                              duration:
-                                  const Duration(milliseconds: 200),
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 3),
+                              duration: const Duration(milliseconds: 200),
+                              margin: const EdgeInsets.symmetric(horizontal: 3),
                               width: _taskPage == i ? 16 : 6,
                               height: 6,
                               decoration: BoxDecoration(
-                                color: _taskPage == i
-                                    ? const Color(0xFF1A2E45)
-                                    : Colors.grey.shade300,
-                                borderRadius:
-                                    BorderRadius.circular(3),
+                                color: _taskPage == i ? const Color(0xFF1A2E45) : Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(3),
                               ),
                             ),
                           ),
                         ),
                       ],
-
                       const SizedBox(height: 28),
                       _SectionHeader(title: 'Badges Earned'),
                       const SizedBox(height: 4),
-
                       badges.isEmpty
                           ? Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 12),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                               child: Text(
                                 'Complete lessons to earn badges! 🏅',
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey.shade500),
+                                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
                               ),
                             )
                           : SizedBox(
                               height: 130,
                               child: PageView.builder(
                                 itemCount: badges.length,
-                                onPageChanged: (p) =>
-                                    setState(() => _badgePage = p),
+                                onPageChanged: (p) => setState(() => _badgePage = p),
                                 itemBuilder: (_, i) {
                                   final badge = badges[i];
-                                  final iconColor =
-                                      badge['iconColor'] as Color;
-                                  final bgColor =
-                                      badge['bgColor'] as Color;
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(18),
-                                      decoration: BoxDecoration(
-                                        color: bgColor,
-                                        borderRadius:
-                                            BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: iconColor
-                                                .withOpacity(0.15),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 3),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Row(children: [
-                                        Container(
-                                          width: 56, height: 56,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                                color: iconColor
-                                                    .withOpacity(0.4),
-                                                width: 2),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: iconColor
-                                                    .withOpacity(0.2),
-                                                blurRadius: 8,
-                                                offset:
-                                                    const Offset(0, 3),
+                                  final iconColor = badge['iconColor'] as Color;
+                                  final bgColor = badge['bgColor'] as Color;
+                                  return AnimatedScale(
+                                    duration: const Duration(milliseconds: 400),
+                                    scale: _badgePage == i ? 1.0 : 0.9,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(18),
+                                        decoration: BoxDecoration(
+                                          color: bgColor,
+                                          borderRadius: BorderRadius.circular(20),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: iconColor.withOpacity(0.15),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(children: [
+                                          Container(
+                                            width: 56,
+                                            height: 56,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(color: iconColor.withOpacity(0.4), width: 2),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: iconColor.withOpacity(0.2),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                badge['emoji'] as String,
+                                                style: const TextStyle(fontSize: 28),
                                               ),
-                                            ],
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              badge['emoji'] as String,
-                                              style: const TextStyle(
-                                                  fontSize: 28),
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 14),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment
-                                                    .start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                badge['name'] as String,
-                                                style: const TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight:
-                                                        FontWeight.w800,
-                                                    color: Color(
-                                                        0xFF1A2E45)),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                badge['desc'] as String,
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color:
-                                                        Color(0xFF5A7A95),
-                                                    height: 1.3),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                badge['courseTitle']
-                                                    as String,
-                                                style: TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight:
-                                                        FontWeight.w700,
-                                                    color: iconColor),
-                                              ),
-                                            ],
+                                          const SizedBox(width: 14),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  badge['name'] as String,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45)),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  badge['desc'] as String,
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(fontSize: 12, color: Color(0xFF5A7A95), height: 1.3),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  badge['courseTitle'] as String,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: iconColor),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ]),
+                                        ]),
+                                      ),
                                     ),
                                   );
                                 },
@@ -564,24 +516,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: List.generate(
                             badges.length,
                             (i) => AnimatedContainer(
-                              duration:
-                                  const Duration(milliseconds: 200),
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 3),
+                              duration: const Duration(milliseconds: 200),
+                              margin: const EdgeInsets.symmetric(horizontal: 3),
                               width: _badgePage == i ? 16 : 6,
                               height: 6,
                               decoration: BoxDecoration(
-                                color: _badgePage == i
-                                    ? const Color(0xFF1A2E45)
-                                    : Colors.grey.shade300,
-                                borderRadius:
-                                    BorderRadius.circular(3),
+                                color: _badgePage == i ? const Color(0xFF1A2E45) : Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(3),
                               ),
                             ),
                           ),
                         ),
                       ],
-
                       const SizedBox(height: 28),
                       _SectionHeader(title: 'My Safety Rules'),
                       Container(
@@ -591,18 +537,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color:
-                                  Colors.black.withOpacity(0.06),
+                              color: Colors.black.withOpacity(0.06),
                               blurRadius: 10,
                               offset: const Offset(0, 3),
                             ),
                           ],
                         ),
                         child: Column(
-                          children: _kSafetyRules
-                              .asMap()
-                              .entries
-                              .map((e) {
+                          children: _kSafetyRules.asMap().entries.map((e) {
                             final i = e.key;
                             final rule = e.value;
                             return Column(
@@ -612,12 +554,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   title: rule['title']!,
                                   detail: rule['detail']!,
                                   expanded: _ruleExpanded[i],
-                                  onTap: () => setState(() =>
-                                      _ruleExpanded[i] =
-                                          !_ruleExpanded[i]),
+                                  onTap: () => setState(() => _ruleExpanded[i] = !_ruleExpanded[i]),
                                 ),
-                                if (i !=
-                                    _kSafetyRules.length - 1)
+                                if (i != _kSafetyRules.length - 1)
                                   const Divider(
                                     height: 1,
                                     indent: 20,
@@ -675,38 +614,38 @@ class _RuleAccordion extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Padding(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          color: expanded ? const Color(0xFFF8FAFF) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              Text(icon,
-                  style: const TextStyle(fontSize: 22)),
+              Text(icon, style: const TextStyle(fontSize: 22)),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(title,
-                    style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1A2E45))),
+                child: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF1A2E45))),
               ),
               AnimatedRotation(
                 turns: expanded ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
-                child: const Icon(Icons.keyboard_arrow_down,
-                    color: Color(0xFF9AABBF), size: 22),
+                child: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF9AABBF), size: 22),
               ),
             ]),
-            if (expanded) ...[
-              const SizedBox(height: 10),
-              Text(detail,
-                  style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF5A7A95),
-                      height: 1.5)),
-            ],
+            AnimatedCrossFade(
+              firstChild: const SizedBox(width: double.infinity),
+              secondChild: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text(detail, style: const TextStyle(fontSize: 13, color: Color(0xFF5A7A95), height: 1.5)),
+              ),
+              crossFadeState: expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 250),
+            ),
           ],
         ),
       ),

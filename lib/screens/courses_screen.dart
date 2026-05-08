@@ -25,7 +25,7 @@ const List<Map<String, dynamic>> _kCoursesMeta = [
   },
   {
     'lessonId': 'phishing_detective',
-    'emoji': '🔍',
+    'emoji': '🎣',
     'title': 'Phishing Detective',
     'subtitle': 'Become an expert at spotting fake messages!',
     'totalSteps': 6,
@@ -42,7 +42,7 @@ const List<Map<String, dynamic>> _kCoursesMeta = [
   },
   {
     'lessonId': 'baiting_pro',
-    'emoji': '🎣',
+    'emoji': '🎁',
     'title': 'Baiting Pro',
     'subtitle': 'Investigate offers that are too good to be true!',
     'totalSteps': 6,
@@ -112,10 +112,28 @@ class _CoursesScreenState extends State<CoursesScreen> {
     }
   }
 
+  Widget _animateIn(Widget child, int index) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 600),
+      curve: Interval((index * 0.1).clamp(0.0, 0.5), 1.0, curve: Curves.easeOutCubic),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(40 * (1 - value), 0),
+            child: child,
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 237, 255),
+      backgroundColor: const Color(0xFFF8F0FF),
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator())
@@ -125,21 +143,27 @@ class _CoursesScreenState extends State<CoursesScreen> {
                   padding: const EdgeInsets.all(20),
                   itemCount: _kCoursesMeta.length,
                   itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: _CourseCard(
-                        course: _kCoursesMeta[index],
-                        onStart: (lessonId) async {
-                          SoundService.playClick();
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => _screenFor(lessonId),
-                            ),
-                          );
-                          _refresh();
-                        },
+                    return _animateIn(
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _CourseCard(
+                          course: _kCoursesMeta[index],
+                          onStart: (lessonId) async {
+                            SoundService.playClick();
+                            await Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                transitionDuration: const Duration(milliseconds: 500),
+                                pageBuilder: (context, anim, second) => _screenFor(lessonId),
+                                transitionsBuilder: (context, anim, second, child) => 
+                                    FadeTransition(opacity: anim, child: child),
+                              ),
+                            );
+                            _refresh();
+                          },
+                        ),
                       ),
+                      index,
                     );
                   },
                 ),
@@ -164,6 +188,7 @@ class _CourseCard extends StatefulWidget {
 
 class _CourseCardState extends State<_CourseCard> {
   bool _expanded = false;
+  double _scale = 1.0;
 
   @override
   Widget build(BuildContext context) {
@@ -180,228 +205,238 @@ class _CourseCardState extends State<_CourseCard> {
     final bool isStarted = progressCount > 0;
 
     return GestureDetector(
+      onTapDown: (_) => setState(() => _scale = 0.97),
+      onTapUp: (_) => setState(() => _scale = 1.0),
+      onTapCancel: () => setState(() => _scale = 1.0),
       onTap: () {
         SoundService.playClick();
         setState(() => _expanded = !_expanded);
       },
-      child: Opacity(
-        opacity: isCompleted ? 0.85 : 1.0,
-        child: Container(
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.hardEdge,
-          child: Stack(
-            children: [
-              Positioned(
-                right: -20,
-                top: -20,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: accentColor.withOpacity(0.15),
+      child: AnimatedScale(
+        scale: _scale,
+        duration: const Duration(milliseconds: 150),
+        child: Opacity(
+          opacity: isCompleted ? 0.85 : 1.0,
+          child: Container(
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: Stack(
+              children: [
+                Positioned(
+                  right: -20,
+                  top: -20,
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: accentColor.withValues(alpha: 0.15),
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                left: -10,
-                bottom: -20,
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: accentColor.withOpacity(0.10),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: accentColor.withOpacity(0.25),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              widget.course['emoji'],
-                              style: const TextStyle(fontSize: 34),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.course['title'],
-                                style: GoogleFonts.quicksand(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF1A2E45),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                widget.course['subtitle'],
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF4A6580),
-                                  height: 1.4,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          _expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                          color: accentColor,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '$progressCount / $totalSteps lessons',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: accentColor,
-                          ),
-                        ),
-                        Text(
-                          '${(progressFraction * 100).toInt()}%',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: accentColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: LinearProgressIndicator(
-                        value: progressFraction,
-                        minHeight: 8,
-                        backgroundColor: Colors.white.withOpacity(0.5),
-                        valueColor: AlwaysStoppedAnimation<Color>(accentColor),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    if (!isCompleted)
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => widget.onStart(lessonId),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: accentColor,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            isStarted ? 'Continue' : 'Start Lesson',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (isCompleted)
-                      SizedBox(
-                        width: double.infinity,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 13),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Completed',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: accentColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    AnimatedCrossFade(
-                      duration: const Duration(milliseconds: 300),
-                      crossFadeState: _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                      firstChild: const SizedBox(width: double.infinity),
-                      secondChild: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          const SizedBox(height: 16),
-                          ...steps.asMap().entries.map((entry) {
-                            final isDone = (entry.key + 1) <= progressCount;
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 6),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    isDone ? Icons.check_circle : Icons.radio_button_unchecked,
-                                    size: 18,
-                                    color: isDone ? accentColor : Colors.grey,
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: accentColor.withValues(alpha: 0.25),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Hero(
+                                tag: 'hero_$lessonId',
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: Text(
+                                    widget.course['emoji'],
+                                    style: const TextStyle(fontSize: 34),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      entry.value,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: isDone ? const Color(0xFF1A2E45) : Colors.grey.shade500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            );
-                          }).toList(),
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.course['title'],
+                                  style: GoogleFonts.quicksand(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFF1A2E45),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  widget.course['subtitle'],
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Color(0xFF4A6580),
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          AnimatedRotation(
+                            turns: _expanded ? 0.5 : 0,
+                            duration: const Duration(milliseconds: 300),
+                            child: Icon(Icons.keyboard_arrow_down, color: accentColor),
+                          ),
                         ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '$progressCount / $totalSteps lessons',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: accentColor,
+                            ),
+                          ),
+                          Text(
+                            '${(progressFraction * 100).toInt()}%',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: accentColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      TweenAnimationBuilder<double>(
+                        duration: const Duration(milliseconds: 1000),
+                        curve: Curves.easeOutCubic,
+                        tween: Tween<double>(begin: 0, end: progressFraction),
+                        builder: (context, value, _) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: LinearProgressIndicator(
+                              value: value,
+                              minHeight: 8,
+                              backgroundColor: Colors.white.withValues(alpha: 0.5),
+                              valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      if (!isCompleted)
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () => widget.onStart(lessonId),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: accentColor,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              isStarted ? 'Continue' : 'Start Lesson',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (isCompleted)
+                        SizedBox(
+                          width: double.infinity,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Completed',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: accentColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        child: _expanded
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 16),
+                                  ...steps.asMap().entries.map((entry) {
+                                    final isDone = (entry.key + 1) <= progressCount;
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 6),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            isDone ? Icons.check_circle : Icons.radio_button_unchecked,
+                                            size: 18,
+                                            color: isDone ? accentColor : Colors.grey,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              entry.value,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                                color: isDone ? const Color(0xFF1A2E45) : Colors.grey.shade500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                ],
+                              )
+                            : const SizedBox(width: double.infinity),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

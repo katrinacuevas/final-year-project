@@ -3,7 +3,7 @@ import '../screens/dashboard_screen.dart';
 import '../screens/courses_screen.dart';
 import '../screens/achievements_screen.dart';
 import '../screens/profile_screen.dart';
-import '../services/sound_service.dart'; 
+import '../services/sound_service.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -14,18 +14,48 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
+  late PageController _pageController;
 
-  final List<Widget> _screens = [
-    const DashboardScreen(),
-    const CoursesScreen(),
-    const AchievementsScreen(),
-    const ProfileScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onTabTapped(int index) {
+    if (_currentIndex != index) {
+      SoundService.playClick();
+      _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        children: const [
+          DashboardScreen(),
+          CoursesScreen(),
+          AchievementsScreen(),
+          ProfileScreen(),
+        ],
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -47,25 +77,25 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   icon: Icons.home,
                   label: 'Home',
                   index: 0,
-                  color: const Color(0xFF00BFA5),
+                  color: Colors.blue,
                 ),
                 _buildNavItem(
                   icon: Icons.menu_book,
                   label: 'Lessons',
                   index: 1,
-                  color: const Color(0xFF9C27B0),
+                  color: Colors.purple,
                 ),
                 _buildNavItem(
                   icon: Icons.emoji_events,
                   label: 'Achievements',
                   index: 2,
-                  color: const Color(0xFFFFC107),
+                  color: Colors.amber,
                 ),
                 _buildNavItem(
                   icon: Icons.person,
                   label: 'Profile',
                   index: 3,
-                  color: const Color(0xFFE91E63),
+                  color: Colors.pink,
                 ),
               ],
             ),
@@ -84,38 +114,33 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final bool isSelected = _currentIndex == index;
 
     return GestureDetector(
-      onTap: () {
-        if (_currentIndex != index) {
-          SoundService.playClick();
-        }
-
-        setState(() {
-          _currentIndex = index;
-        });
-      },
+      onTap: () => _onTabTapped(index),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
+              color: isSelected ? color.withValues(alpha: 0.12) : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               icon,
-              color: isSelected ? color : Colors.grey,
+              color: isSelected ? color : Colors.grey.shade400,
               size: 28,
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            label,
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
             style: TextStyle(
               fontSize: 12,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? color : Colors.grey,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+              color: isSelected ? color : Colors.grey.shade500,
             ),
+            child: Text(label),
           ),
         ],
       ),

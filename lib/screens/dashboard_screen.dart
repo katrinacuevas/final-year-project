@@ -26,10 +26,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (mounted) setState(() {});
   }
 
+  Widget _animateIn(Widget child, int index) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 800),
+      curve: Interval((index * 0.1).clamp(0.0, 0.5), 1.0, curve: Curves.easeOutCubic),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 40 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 234, 255, 251),
+      backgroundColor: const Color.fromARGB(255, 224, 241, 255),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: SingleChildScrollView(
@@ -38,67 +56,78 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: ListenableBuilder(
             listenable: UserService.instance,
             builder: (context, child) {
-              final passwordProgress =
-                  UserService.instance.getProgress('password_power');
-              final phishingProgress =
-                  UserService.instance.getProgress('phishing_detective');
+              final passwordProgress = UserService.instance.getProgress('password_power');
+              final phishingProgress = UserService.instance.getProgress('phishing_detective');
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const WelcomeCard(),
+                  _animateIn(const WelcomeCard(), 0),
                   const SizedBox(height: 10),
-                  const DailyChallengeCard(),
+                  _animateIn(const DailyChallengeCard(), 1),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Learning Tasks',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1F355E),
+                  _animateIn(
+                    const Text(
+                      'Learning Tasks',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1F355E),
+                      ),
                     ),
+                    2,
                   ),
                   const SizedBox(height: 16),
-                  LearningTaskCard(
-                    emoji: '🔐',
-                    iconColor: const Color(0xFFFFB347),
-                    bgColor: const Color(0xFFFFF3E0),
-                    title: 'Password Power',
-                    subtitle: 'Learn to create a strong password!',
-                    progress: passwordProgress?.stepsCompleted ?? 0,
-                    totalLessons: passwordProgress?.totalSteps ?? 4,
-                    stepsList: [],
-                    onTap: () async {
-                      SoundService.playClick();
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PasswordPowerScreen(),
-                        ),
-                      );
-                      _refresh();
-                    },
+                  _animateIn(
+                    LearningTaskCard(
+                      emoji: '🔐',
+                      iconColor: const Color(0xFFFFB347),
+                      bgColor: const Color(0xFFFFF3E0),
+                      title: 'Password Power',
+                      subtitle: 'Learn to create a strong password!',
+                      progress: passwordProgress?.stepsCompleted ?? 0,
+                      totalLessons: passwordProgress?.totalSteps ?? 4,
+                      stepsList: const [],
+                      onTap: () async {
+                        SoundService.playClick();
+                        await Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            transitionDuration: const Duration(milliseconds: 600),
+                            pageBuilder: (context, anim, second) => const PasswordPowerScreen(),
+                            transitionsBuilder: (context, anim, second, child) => FadeTransition(opacity: anim, child: child),
+                          ),
+                        );
+                        _refresh();
+                      },
+                    ),
+                    3,
                   ),
                   const SizedBox(height: 12),
-                  LearningTaskCard(
-                    emoji: '🎣',
-                    iconColor: const Color.fromARGB(255, 103, 122, 204),
-                    bgColor: const Color.fromARGB(255, 190, 203, 231),
-                    title: 'Phishing Detective',
-                    subtitle: 'Become an expert at spotting fake messages!',
-                    progress: phishingProgress?.stepsCompleted ?? 0,
-                    totalLessons: phishingProgress?.totalSteps ?? 6,
-                    stepsList: [],
-                    onTap: () async {
-                      SoundService.playClick();
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PhishingDetectiveScreen(),
-                        ),
-                      );
-                      _refresh();
-                    },
+                  _animateIn(
+                    LearningTaskCard(
+                      emoji: '🎣',
+                      iconColor: const Color(0xFF26A69A),
+                      bgColor: const Color(0xFFE0F2F1),
+                      title: 'Phishing Detective',
+                      subtitle: 'Become an expert at spotting fake messages!',
+                      progress: phishingProgress?.stepsCompleted ?? 0,
+                      totalLessons: phishingProgress?.totalSteps ?? 6,
+                      stepsList: const [],
+                      onTap: () async {
+                        SoundService.playClick();
+                        await Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            transitionDuration: const Duration(milliseconds: 600),
+                            pageBuilder: (context, anim, second) => const PhishingDetectiveScreen(),
+                            transitionsBuilder: (context, anim, second, child) => FadeTransition(opacity: anim, child: child),
+                          ),
+                        );
+                        _refresh();
+                      },
+                    ),
+                    4,
                   ),
                 ],
               );

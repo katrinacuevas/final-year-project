@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LearningTaskCard extends StatelessWidget {
+class LearningTaskCard extends StatefulWidget {
   final String emoji;
   final Color iconColor;
   final Color bgColor;
@@ -25,241 +25,165 @@ class LearningTaskCard extends StatelessWidget {
     required this.onTap,
   });
 
-  bool get _isCompleted => progress >= totalLessons && totalLessons > 0;
-  bool get _isStarted => progress > 0;
-  double get _progressFraction =>
-      totalLessons > 0 ? (progress / totalLessons).clamp(0.0, 1.0) : 0.0;
+  @override
+  State<LearningTaskCard> createState() => _LearningTaskCardState();
+}
+
+class _LearningTaskCardState extends State<LearningTaskCard> {
+  double _scale = 1.0;
+
+  bool get _isCompleted => widget.progress >= widget.totalLessons && widget.totalLessons > 0;
+  bool get _isStarted => widget.progress > 0;
+  double get _progressFraction => widget.totalLessons > 0 ? (widget.progress / widget.totalLessons).clamp(0.0, 1.0) : 0.0;
 
   @override
   Widget build(BuildContext context) {
-    final Color accentColor = iconColor;
-    final Color cardBg = bgColor;
-
     return GestureDetector(
-      onTap: _isCompleted ? null : onTap,
-      child: Opacity(
-        opacity: _isCompleted ? 0.85 : 1.0,
-        child: Container(
-          decoration: BoxDecoration(
-            color: cardBg,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.hardEdge,
-          child: Stack(
-            children: [
-              Positioned(
-                right: -20,
-                top: -20,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: accentColor.withValues(alpha: 0.15),
+      onTapDown: (_) => setState(() => _scale = 0.96),
+      onTapUp: (_) => setState(() => _scale = 1.0),
+      onTapCancel: () => setState(() => _scale = 1.0),
+      onTap: _isCompleted ? null : widget.onTap,
+      child: AnimatedScale(
+        scale: _scale,
+        duration: const Duration(milliseconds: 150),
+        child: Opacity(
+          opacity: _isCompleted ? 0.85 : 1.0,
+          child: Container(
+            decoration: BoxDecoration(
+              color: widget.bgColor,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: Stack(
+              children: [
+                Positioned(
+                  right: -20,
+                  top: -20,
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget.iconColor.withValues(alpha: 0.15),
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                left: -10,
-                bottom: -20,
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: accentColor.withValues(alpha: 0.10),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: accentColor.withValues(alpha: 0.25),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: widget.iconColor.withValues(alpha: 0.25),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Hero(
+                                tag: 'hero_${widget.title}',
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: Text(widget.emoji, style: const TextStyle(fontSize: 34)),
+                                ),
                               ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              emoji,
-                              style: const TextStyle(fontSize: 34),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                style: GoogleFonts.quicksand(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF1A2E45),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                subtitle,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF4A6580),
-                                  height: 1.4,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '$progress / $totalLessons lessons',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: accentColor,
-                          ),
-                        ),
-                        Text(
-                          '${(_progressFraction * 100).toInt()}%',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: accentColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    TweenAnimationBuilder<double>(
-                      duration: const Duration(milliseconds: 900),
-                      curve: Curves.easeOutCubic,
-                      tween: Tween<double>(begin: 0, end: _progressFraction),
-                      builder: (context, value, _) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: LinearProgressIndicator(
-                            value: value,
-                            minHeight: 8,
-                            backgroundColor: Colors.white.withValues(alpha: 0.5),
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(accentColor),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Column(
-                      children: stepsList.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final step = entry.value;
-                        final stepNumber = index + 1;
-                        final isDone = stepNumber <= progress;
-
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: Row(
-                            children: [
-                              Icon(
-                                isDone
-                                    ? Icons.check_circle
-                                    : Icons.radio_button_unchecked,
-                                size: 18,
-                                color:
-                                    isDone ? accentColor : Colors.grey,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  step,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: isDone
-                                        ? const Color(0xFF1A2E45)
-                                        : Colors.grey.shade500,
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.title,
+                                  style: GoogleFonts.quicksand(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFF1A2E45),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 14),
-                    if (!_isCompleted)
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: onTap,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: accentColor,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                                const SizedBox(height: 4),
+                                Text(
+                                  widget.subtitle,
+                                  style: const TextStyle(fontSize: 13, color: Color(0xFF4A6580), height: 1.4),
+                                ),
+                              ],
                             ),
                           ),
-                          child: Text(
-                            _isStarted ? 'Continue' : 'Start Lesson',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
+                        ],
                       ),
-                    if (_isCompleted)
-                      SizedBox(
-                        width: double.infinity,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 13),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(12),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${widget.progress} / ${widget.totalLessons} lessons',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: widget.iconColor),
                           ),
-                          child: Center(
+                          Text(
+                            '${(_progressFraction * 100).toInt()}%',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: widget.iconColor),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      TweenAnimationBuilder<double>(
+                        duration: const Duration(milliseconds: 900),
+                        curve: Curves.easeOutCubic,
+                        tween: Tween<double>(begin: 0, end: _progressFraction),
+                        builder: (context, value, _) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: LinearProgressIndicator(
+                              value: value,
+                              minHeight: 8,
+                              backgroundColor: Colors.white.withValues(alpha: 0.5),
+                              valueColor: AlwaysStoppedAnimation<Color>(widget.iconColor),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      if (!_isCompleted)
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: widget.onTap,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: widget.iconColor,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
                             child: Text(
-                              'Completed',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: accentColor,
-                              ),
+                              _isStarted ? 'Continue' : 'Start Lesson',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                             ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
