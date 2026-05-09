@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
 import 'password/password_screen.dart';
@@ -18,28 +19,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _refresh();
+    refresh();
   }
 
-  Future<void> _refresh() async {
+  Future<void> refresh() async {
     await UserService.instance.loadAllProgress();
     if (mounted) setState(() {});
   }
 
-  Widget _animateIn(Widget child, int index) {
+  Widget animateIn(Widget child, int index) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 800),
-      curve: Interval((index * 0.1).clamp(0.0, 0.5), 1.0, curve: Curves.easeOutCubic),
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, 40 * (1 - value)),
-            child: child,
-          ),
-        );
-      },
+      duration: const Duration(milliseconds: 700),
+      curve: Interval(
+        (index * 0.1).clamp(0.0, 0.5),
+        1.0,
+        curve: Curves.easeOutCubic,
+      ),
+      builder: (context, value, child) => Opacity(
+        opacity: value,
+        child: Transform.translate(
+          offset: Offset(0, 30 * (1 - value)),
+          child: child,
+        ),
+      ),
       child: child,
     );
   }
@@ -47,94 +50,141 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 224, 241, 255),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(20),
-          child: ListenableBuilder(
-            listenable: UserService.instance,
-            builder: (context, child) {
-              final passwordProgress = UserService.instance.getProgress('password_power');
-              final phishingProgress = UserService.instance.getProgress('phishing_detective');
+      backgroundColor: const Color(0xFF0D1117),
+      body: Stack(
+        children: [
+          Positioned.fill(child: CustomPaint(painter: DashboardGridPainter())),
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: refresh,
+              color: const Color(0xFF00D1FF),
+              backgroundColor: const Color(0xFF161B2E),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+                child: ListenableBuilder(
+                  listenable: UserService.instance,
+                  builder: (context, child) {
+                    final passwordProgress =
+                        UserService.instance.getProgress('password_power');
+                    final phishingProgress =
+                        UserService.instance.getProgress('phishing_detective');
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _animateIn(const WelcomeCard(), 0),
-                  const SizedBox(height: 10),
-                  _animateIn(const DailyChallengeCard(), 1),
-                  const SizedBox(height: 10),
-                  _animateIn(
-                    const Text(
-                      'Learning Tasks',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1F355E),
-                      ),
-                    ),
-                    2,
-                  ),
-                  const SizedBox(height: 16),
-                  _animateIn(
-                    LearningTaskCard(
-                      emoji: '🔐',
-                      iconColor: const Color(0xFFFFB347),
-                      bgColor: const Color(0xFFFFF3E0),
-                      title: 'Password Power',
-                      subtitle: 'Learn to create a strong password!',
-                      progress: passwordProgress?.stepsCompleted ?? 0,
-                      totalLessons: passwordProgress?.totalSteps ?? 4,
-                      stepsList: const [],
-                      onTap: () async {
-                        SoundService.playClick();
-                        await Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            transitionDuration: const Duration(milliseconds: 600),
-                            pageBuilder: (context, anim, second) => const PasswordPowerScreen(),
-                            transitionsBuilder: (context, anim, second, child) => FadeTransition(opacity: anim, child: child),
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        animateIn(const WelcomeCard(), 0),
+                        const SizedBox(height: 14),
+                        animateIn(const DailyChallengeCard(), 1),
+                        const SizedBox(height: 24),
+                        animateIn(
+                          Row(
+                            children: [
+                              const Icon(Icons.bolt_rounded,
+                                  color: Color(0xFF00D1FF), size: 16),
+                              const SizedBox(width: 6),
+                              Text(
+                                'LEARNING TASKS',
+                                style: GoogleFonts.fredoka(
+                                  color: const Color(0xFF00D1FF),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                        _refresh();
-                      },
-                    ),
-                    3,
-                  ),
-                  const SizedBox(height: 12),
-                  _animateIn(
-                    LearningTaskCard(
-                      emoji: '🎣',
-                      iconColor: const Color(0xFF26A69A),
-                      bgColor: const Color(0xFFE0F2F1),
-                      title: 'Phishing Detective',
-                      subtitle: 'Become an expert at spotting fake messages!',
-                      progress: phishingProgress?.stepsCompleted ?? 0,
-                      totalLessons: phishingProgress?.totalSteps ?? 6,
-                      stepsList: const [],
-                      onTap: () async {
-                        SoundService.playClick();
-                        await Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            transitionDuration: const Duration(milliseconds: 600),
-                            pageBuilder: (context, anim, second) => const PhishingDetectiveScreen(),
-                            transitionsBuilder: (context, anim, second, child) => FadeTransition(opacity: anim, child: child),
+                          2,
+                        ),
+                        const SizedBox(height: 12),
+                        animateIn(
+                          LearningTaskCard(
+                            emoji: '🔐',
+                            accentColor: const Color(0xFFFFC857),
+                            title: 'Password Power',
+                            subtitle: 'Learn to create a strong password!',
+                            progress: passwordProgress?.stepsCompleted ?? 0,
+                            totalLessons: passwordProgress?.totalSteps ?? 4,
+                            onTap: () async {
+                              SoundService.playClick();
+                              await Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  transitionDuration:
+                                      const Duration(milliseconds: 600),
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const PasswordPowerScreen(),
+                                  transitionsBuilder: (context, animation,
+                                          secondaryAnimation, child) =>
+                                      FadeTransition(
+                                          opacity: animation, child: child),
+                                ),
+                              );
+                              refresh();
+                            },
                           ),
-                        );
-                        _refresh();
-                      },
-                    ),
-                    4,
-                  ),
-                ],
-              );
-            },
+                          3,
+                        ),
+                        const SizedBox(height: 12),
+                        animateIn(
+                          LearningTaskCard(
+                            emoji: '🎣',
+                            accentColor: const Color(0xFF4FC3F7),
+                            title: 'Phishing Detective',
+                            subtitle:
+                                'Become an expert at spotting fake messages!',
+                            progress: phishingProgress?.stepsCompleted ?? 0,
+                            totalLessons: phishingProgress?.totalSteps ?? 6,
+                            onTap: () async {
+                              SoundService.playClick();
+                              await Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  transitionDuration:
+                                      const Duration(milliseconds: 600),
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const PhishingDetectiveScreen(),
+                                  transitionsBuilder: (context, animation,
+                                          secondaryAnimation, child) =>
+                                      FadeTransition(
+                                          opacity: animation, child: child),
+                                ),
+                              );
+                              refresh();
+                            },
+                          ),
+                          4,
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
+}
+
+class DashboardGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF00D1FF).withValues(alpha: 0.04)
+      ..strokeWidth = 1;
+    const spacing = 40.0;
+    for (double x = 0; x < size.width; x += spacing) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += spacing) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

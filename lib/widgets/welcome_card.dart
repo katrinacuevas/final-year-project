@@ -5,20 +5,11 @@ import 'package:final_year_project/services/user_service.dart';
 class WelcomeCard extends StatelessWidget {
   const WelcomeCard({super.key});
 
-  Color _getLevelColor(int level) {
-    if (level >= 5) return Colors.orange;
-    if (level >= 4) return Colors.cyan;
-    if (level >= 3) return Colors.green;
-    if (level >= 2) return Colors.purple;
-    if (level >= 1) return Colors.pink;
-    return Colors.blue;
-  }
-
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: UserService.instance,
-      builder: (context, _) {
+      builder: (context, child) {
         final svc = UserService.instance;
         final profile = svc.profile;
         final xp = svc.xp;
@@ -30,55 +21,55 @@ class WelcomeCard extends StatelessWidget {
             xpCeiling > 0 ? (xp / xpCeiling).clamp(0.0, 1.0) : 1.0;
 
         final List<String> greetings = [
-          "Ready for a mission,",
+          'Ready for a mission,',
           "Let's get learning,",
-          "Great to see you,",
-          "Awesome to have you back,",
-          "Ready to level up,"
+          'Great to see you,',
+          'Awesome to have you back,',
+          'Ready to level up,',
         ];
         final String greeting = greetings[name.length % greetings.length];
 
-        final avatarColor = profile != null
+        final Color avatarColor = profile != null
             ? Color(int.parse(profile.avatarColour))
-            : const Color(0xFFFFE4B5);
-
-        final levelColor = _getLevelColor(level);
-        final Color lightLevelColor = levelColor.withValues(alpha: 0.15);
+            : const Color(0xFFFFC857);
 
         return Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: lightLevelColor,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            color: const Color(0xFF161B2E),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: const Color(0xFF00D1FF).withValues(alpha: 0.2),
+              width: 1.5,
+            ),
           ),
           child: Row(
             children: [
               TweenAnimationBuilder<double>(
-                tween: Tween<double>(begin: 0.8, end: 1.0),
-                duration: const Duration(milliseconds: 500),
+                tween: Tween<double>(begin: 0.6, end: 1.0),
+                duration: const Duration(milliseconds: 600),
                 curve: Curves.easeOutBack,
-                builder: (context, scale, child) {
-                  return Transform.scale(scale: scale, child: child);
-                },
+                builder: (context, scale, child) =>
+                    Transform.scale(scale: scale, child: child),
                 child: Container(
-                  width: 80,
-                  height: 80,
+                  width: 76,
+                  height: 76,
                   decoration: BoxDecoration(
-                    color: avatarColor,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: levelColor, width: 3.0),
+                    borderRadius: BorderRadius.circular(22),
+                    gradient: LinearGradient(
+                      colors: [avatarColor, const Color(0xFF0D1117)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    border: Border.all(
+                      color: avatarColor.withValues(alpha: 0.7),
+                      width: 2,
+                    ),
                   ),
                   child: Center(
                     child: Text(
                       profile?.avatarEmoji ?? '🧒',
-                      style: const TextStyle(fontSize: 42),
+                      style: const TextStyle(fontSize: 38),
                     ),
                   ),
                 ),
@@ -90,20 +81,20 @@ class WelcomeCard extends StatelessWidget {
                   children: [
                     RichText(
                       text: TextSpan(
-                        style: GoogleFonts.quicksand(
-                          color: const Color(0xFF1A2E45),
-                          fontSize: 18,
+                        style: GoogleFonts.fredoka(
+                          color: Colors.white54,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
                         children: [
-                          TextSpan(
-                            text: '$greeting ',
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w500),
-                          ),
+                          TextSpan(text: '$greeting '),
                           TextSpan(
                             text: '$name!',
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w800),
+                            style: GoogleFonts.fredoka(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ],
                       ),
@@ -111,23 +102,27 @@ class WelcomeCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 3),
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: levelColor,
-                        borderRadius: BorderRadius.circular(12),
+                        color: const Color(0xFF00D1FF).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: const Color(0xFF00D1FF).withValues(alpha: 0.4),
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.star,
-                              color: Colors.yellow, size: 14),
+                          const Icon(Icons.star_rounded,
+                              color: Color(0xFF00D1FF), size: 12),
                           const SizedBox(width: 4),
                           Text(
-                            'Level $level',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                            'LEVEL $level',
+                            style: GoogleFonts.fredoka(
+                              color: const Color(0xFF00D1FF),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ],
@@ -135,37 +130,32 @@ class WelcomeCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     TweenAnimationBuilder<double>(
-                      duration: const Duration(milliseconds: 1500),
-                      curve: Curves.elasticOut,
+                      duration: const Duration(milliseconds: 1200),
+                      curve: Curves.easeOutCubic,
                       tween: Tween<double>(begin: 0, end: totalProgress),
-                      builder: (context, value, child) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: LinearProgressIndicator(
-                            value: value,
-                            minHeight: 10,
-                            backgroundColor: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(20),
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              value >= 1.0 ? Colors.green : levelColor,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          '$xp / $xpCeiling XP',
-                          style: GoogleFonts.quicksand(
-                            fontSize: 11,
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.w700,
+                      builder: (context, value, child) => ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: LinearProgressIndicator(
+                          value: value,
+                          minHeight: 7,
+                          backgroundColor:
+                              const Color(0xFF00D1FF).withValues(alpha: 0.1),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            value >= 1.0
+                                ? const Color(0xFF00E676)
+                                : const Color(0xFF00D1FF),
                           ),
                         ),
-                      ],
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '$xp / $xpCeiling XP',
+                      style: GoogleFonts.fredoka(
+                        fontSize: 11,
+                        color: Colors.white38,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),

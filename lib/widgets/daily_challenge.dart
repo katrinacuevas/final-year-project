@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
 import '../screens/daily_screen.dart';
@@ -10,192 +11,213 @@ class DailyChallengeCard extends StatefulWidget {
   State<DailyChallengeCard> createState() => _DailyChallengeCardState();
 }
 
-class _DailyChallengeCardState extends State<DailyChallengeCard> {
-  bool _completed = false;
+class _DailyChallengeCardState extends State<DailyChallengeCard>
+    with SingleTickerProviderStateMixin {
+  bool completed = false;
+  late AnimationController pulseCtrl;
+  late Animation<double> pulseAnim;
 
   @override
   void initState() {
     super.initState();
-    _checkCompleted();
+    checkCompleted();
+
+    pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+
+    pulseAnim = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(parent: pulseCtrl, curve: Curves.easeInOut),
+    );
   }
 
-  void _checkCompleted() {
+  @override
+  void dispose() {
+    pulseCtrl.dispose();
+    super.dispose();
+  }
+
+  void checkCompleted() {
     final progress = UserService.instance.getProgress('daily_challenge');
-    setState(() => _completed = progress?.completed ?? false);
+    setState(() => completed = progress?.completed ?? false);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_completed) return const SizedBox.shrink();
+    if (completed) return const SizedBox.shrink();
 
-    const Color accentColor = Color(0xFFFFB347);
-    const Color cardBg = Color(0xFFFFFDE7);
+    const Color accent = Color(0xFFFFC857);
 
     return GestureDetector(
       onTap: () async {
         SoundService.playClick();
         await Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const DailyChallengeScreen()),
+          MaterialPageRoute(
+              builder: (context) => const DailyChallengeScreen()),
         );
-        _checkCompleted();
+        checkCompleted();
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
+      child: AnimatedBuilder(
+        animation: pulseAnim,
+        builder: (context, child) => Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF161B2E),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: accent.withValues(alpha: 0.35),
+              width: 1.5,
             ),
-          ],
+            boxShadow: [
+              BoxShadow(
+                color: accent.withValues(alpha: 0.12 * pulseAnim.value),
+                blurRadius: 24,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: child,
         ),
-        clipBehavior: Clip.hardEdge,
-        child: Stack(
-          children: [
-            Positioned(
-              right: -20, top: -20,
-              child: Container(
-                width: 120, height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: accentColor.withValues(alpha: 0.15),
-                ),
-              ),
-            ),
-            Positioned(
-              left: -10, bottom: -20,
-              child: Container(
-                width: 80, height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: accentColor.withValues(alpha: 0.10),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 64, height: 64,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: [
-                            BoxShadow(
-                              color: accentColor.withValues(alpha: 0.25),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Center(
-                          child: Text('⚡', style: TextStyle(fontSize: 34)),
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: accentColor.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                'Daily Challenge',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF7A4500),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            const Text(
-                              'Spot the Fake Email',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF1A2E45),
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            const Text(
-                              'Can you spot which email is trying to trick you?',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFF4A6580),
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: accentColor.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          '✨ +50 XP',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF7A4500),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                          color: accent.withValues(alpha: 0.4)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.bolt_rounded,
+                            color: accent, size: 12),
+                        const SizedBox(width: 4),
+                        Text(
+                          'DAILY CHALLENGE',
+                          style: GoogleFonts.fredoka(
+                            color: accent,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.8,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 14),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        SoundService.playClick();
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const DailyChallengeScreen()),
-                        );
-                        _checkCompleted();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: accentColor,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 13),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                  const Spacer(),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00E676).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: const Color(0xFF00E676).withValues(alpha: 0.4),
                       ),
-                      child: const Text('Play Now',
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w700)),
+                    ),
+                    child: Text(
+                      '✨ +50 XP',
+                      style: GoogleFonts.fredoka(
+                        color: const Color(0xFF00E676),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        colors: [
+                          accent,
+                          const Color(0xFF0D1117),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      border: Border.all(
+                          color: accent.withValues(alpha: 0.6), width: 1.5),
+                    ),
+                    child: const Center(
+                      child: Text('⚡', style: TextStyle(fontSize: 30)),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Spot the Fake Email',
+                          style: GoogleFonts.fredoka(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Can you spot which email is trying to trick you?',
+                          style: GoogleFonts.fredoka(
+                            fontSize: 13,
+                            color: Colors.white54,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    SoundService.playClick();
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const DailyChallengeScreen()),
+                    );
+                    checkCompleted();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: accent,
+                    foregroundColor: const Color(0xFF0D1117),
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                  child: Text(
+                    'Play Now →',
+                    style: GoogleFonts.fredoka(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/courses_screen.dart';
 import '../screens/achievements_screen.dart';
@@ -13,25 +14,25 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int _currentIndex = 0;
-  late PageController _pageController;
+  int currentIndex = 0;
+  late PageController pageController;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: _currentIndex);
+    pageController = PageController(initialPage: currentIndex);
   }
 
   @override
   void dispose() {
-    _pageController.dispose();
+    pageController.dispose();
     super.dispose();
   }
 
-  void _onTabTapped(int index) {
-    if (_currentIndex != index) {
+  void onTabTapped(int index) {
+    if (currentIndex != index) {
       SoundService.playClick();
-      _pageController.animateToPage(
+      pageController.animateToPage(
         index,
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
@@ -42,13 +43,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF0D1117),
       body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        controller: pageController,
+        onPageChanged: (index) => setState(() => currentIndex = index),
         children: const [
           DashboardScreen(),
           CoursesScreen(),
@@ -58,44 +56,39 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
+          color: const Color(0xFF161B2E),
+          border: Border(
+            top: BorderSide(
+              color: const Color(0xFF00D1FF).withValues(alpha: 0.15),
+              width: 1,
             ),
-          ],
+          ),
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(
-                  icon: Icons.home,
+                buildNavItem(
+                  icon: Icons.home_rounded,
                   label: 'Home',
                   index: 0,
-                  color: Colors.blue,
                 ),
-                _buildNavItem(
-                  icon: Icons.menu_book,
+                buildNavItem(
+                  icon: Icons.menu_book_rounded,
                   label: 'Lessons',
                   index: 1,
-                  color: Colors.purple,
                 ),
-                _buildNavItem(
-                  icon: Icons.emoji_events,
-                  label: 'Achievements',
+                buildNavItem(
+                  icon: Icons.emoji_events_rounded,
+                  label: 'Badges',
                   index: 2,
-                  color: Colors.amber,
                 ),
-                _buildNavItem(
-                  icon: Icons.person,
+                buildNavItem(
+                  icon: Icons.person_rounded,
                   label: 'Profile',
                   index: 3,
-                  color: Colors.pink,
                 ),
               ],
             ),
@@ -105,44 +98,59 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     );
   }
 
-  Widget _buildNavItem({
+  Widget buildNavItem({
     required IconData icon,
     required String label,
     required int index,
-    required Color color,
   }) {
-    final bool isSelected = _currentIndex == index;
+    final bool isSelected = currentIndex == index;
 
     return GestureDetector(
-      onTap: () => _onTabTapped(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isSelected ? color.withValues(alpha: 0.12) : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
+      onTap: () => onTabTapped(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF00D1FF).withValues(alpha: 0.12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: isSelected
+              ? Border.all(
+                  color: const Color(0xFF00D1FF).withValues(alpha: 0.3),
+                  width: 1,
+                )
+              : null,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedScale(
+              scale: isSelected ? 1.1 : 1.0,
+              duration: const Duration(milliseconds: 250),
+              child: Icon(
+                icon,
+                color: isSelected
+                    ? const Color(0xFF00D1FF)
+                    : Colors.white.withValues(alpha: 0.3),
+                size: 26,
+              ),
             ),
-            child: Icon(
-              icon,
-              color: isSelected ? color : Colors.grey.shade400,
-              size: 28,
+            const SizedBox(height: 4),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 250),
+              style: GoogleFonts.fredoka(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isSelected
+                    ? const Color(0xFF00D1FF)
+                    : Colors.white.withValues(alpha: 0.3),
+              ),
+              child: Text(label),
             ),
-          ),
-          const SizedBox(height: 4),
-          AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 300),
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-              color: isSelected ? color : Colors.grey.shade500,
-            ),
-            child: Text(label),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

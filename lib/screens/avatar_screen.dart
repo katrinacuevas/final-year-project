@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:final_year_project/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -16,134 +17,104 @@ class AvatarScreen extends StatefulWidget {
 
 class _AvatarScreenState extends State<AvatarScreen>
     with TickerProviderStateMixin {
-  int _selectedIndex = 0;
-  bool _saving = false;
+  int selectedIndex = 0;
+  bool saving = false;
 
-  late AnimationController _floatingCtrl;
-  late Animation<double> _floatingAnim;
-  late AnimationController _glowCtrl;
-  late Animation<double> _glowAnim;
+  late AnimationController floatingCtrl;
+  late Animation<double> floatingAnim;
+  late AnimationController glowCtrl;
+  late Animation<double> glowAnim;
 
-  final List<Map<String, dynamic>> _avatars = [
+  final List<Map<String, dynamic>> avatars = [
     {
       'emoji': '🐱',
       'name': 'Pixel Cat',
-      'rarity': 'RARE',
-      'rarityColor': const Color(0xFF00D1FF),
       'desc': 'Puzzle-solving cyber expert',
       'color': const Color(0xFFFFC857),
     },
     {
       'emoji': '🦊',
       'name': 'Fox Agent',
-      'rarity': 'EPIC',
-      'rarityColor': const Color(0xFFBA68C8),
       'desc': 'Fast-thinking internet detective',
       'color': const Color(0xFFFF8A65),
     },
     {
       'emoji': '🐸',
       'name': 'Frog Scout',
-      'rarity': 'COMMON',
-      'rarityColor': const Color(0xFF81C784),
       'desc': 'Explorer of hidden secrets',
       'color': const Color(0xFF81C784),
     },
     {
-      'emoji': '🧙',
-      'name': 'Cyber Wizard',
-      'rarity': 'EPIC',
-      'rarityColor': const Color(0xFFBA68C8),
-      'desc': 'Master of online tricks',
-      'color': const Color(0xFFBA68C8),
-    },
-    {
       'emoji': '🤖',
       'name': 'Bot Defender',
-      'rarity': 'RARE',
-      'rarityColor': const Color(0xFF00D1FF),
       'desc': 'Blocks sneaky scammers',
       'color': const Color(0xFF4FC3F7),
     },
     {
       'emoji': '👾',
       'name': 'Pixel Beast',
-      'rarity': 'LEGENDARY',
-      'rarityColor': const Color(0xFFFFD700),
       'desc': 'Elite cyber guardian',
       'color': const Color(0xFF6C63FF),
     },
     {
-      'emoji': '🧑‍🚀',
-      'name': 'Space Agent',
-      'rarity': 'RARE',
-      'rarityColor': const Color(0xFF00D1FF),
-      'desc': 'Protects the cyber galaxy',
-      'color': const Color(0xFFFFB74D),
-    },
-    {
-      'emoji': '🦸',
-      'name': 'Cyber Hero',
-      'rarity': 'EPIC',
-      'rarityColor': const Color(0xFFBA68C8),
-      'desc': 'Stops online villains',
-      'color': const Color(0xFFF06292),
+      'emoji': '🐉',
+      'name': 'Data Dragon',
+      'desc': 'Guardian of secret info',
+      'color': const Color(0xFFEF5350),
     },
   ];
 
-  final List<String> _mascotMessages = [
+  final List<String> mascotMessages = [
     "Pixel Cat — that's me!\nA purrfect choice, agent! 🐱",
     "Fox Agent! Cunning and clever —\njust like a real detective!",
     "Frog Scout reporting for duty!\nReady to leap into action!",
-    "Cyber Wizard! Ancient powers\nmeet modern cyber skills!",
     "Bot Defender! No scammer\nstands a chance against you!",
-    "Pixel Beast — LEGENDARY status!\nThe ultimate cyber guardian!",
-    "Space Agent! Protecting\nthe galaxy from online threats!",
-    "Cyber Hero! Villains beware —\nyou're on the case!",
+    "Pixel Beast! The ultimate\ncyber guardian is ready!",
+    "Data Dragon! Breathing fire\nat anyone who steals data!",
   ];
 
   @override
   void initState() {
     super.initState();
 
-    _floatingCtrl = AnimationController(
+    floatingCtrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
     )..repeat(reverse: true);
 
-    _floatingAnim = Tween<double>(begin: -8, end: 8).animate(
-      CurvedAnimation(parent: _floatingCtrl, curve: Curves.easeInOut),
+    floatingAnim = Tween<double>(begin: -8, end: 8).animate(
+      CurvedAnimation(parent: floatingCtrl, curve: Curves.easeInOut),
     );
 
-    _glowCtrl = AnimationController(
+    glowCtrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    _glowAnim = Tween<double>(begin: 0.4, end: 1.0).animate(
-      CurvedAnimation(parent: _glowCtrl, curve: Curves.easeInOut),
+    glowAnim = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(parent: glowCtrl, curve: Curves.easeInOut),
     );
   }
 
   @override
   void dispose() {
-    _floatingCtrl.dispose();
-    _glowCtrl.dispose();
+    floatingCtrl.dispose();
+    glowCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _finish() async {
-    if (_saving) return;
+  Future<void> finish() async {
+    if (saving) return;
     SoundService.playClick();
-    setState(() => _saving = true);
+    setState(() => saving = true);
 
     try {
-      final av = _avatars[_selectedIndex];
+      final av = avatars[selectedIndex];
 
       final profile = UserProfile(
         uid: UserService.instance.uid!,
         username: widget.username,
-        avatarIndex: _selectedIndex,
+        avatarIndex: selectedIndex,
         avatarEmoji: av['emoji'] as String,
         avatarName: av['name'] as String,
         avatarColour:
@@ -157,14 +128,16 @@ class _AvatarScreenState extends State<AvatarScreen>
       Navigator.of(context).pushAndRemoveUntil(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 700),
-          pageBuilder: (_, __, ___) => const WelcomeFlash(),
-          transitionsBuilder: (_, animation, __, child) =>
-              FadeTransition(opacity: animation, child: child),
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const WelcomeFlash(),
+          transitionsBuilder:
+              (context, animation, secondaryAnimation, child) =>
+                  FadeTransition(opacity: animation, child: child),
         ),
         (route) => false,
       );
     } catch (e) {
-      setState(() => _saving = false);
+      setState(() => saving = false);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -177,259 +150,63 @@ class _AvatarScreenState extends State<AvatarScreen>
 
   @override
   Widget build(BuildContext context) {
-    final selected = _avatars[_selectedIndex];
+    final selected = avatars[selectedIndex];
     final selectedColor = selected['color'] as Color;
-    final rarityColor = selected['rarityColor'] as Color;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D1117),
       body: Stack(
         children: [
-          Positioned.fill(child: CustomPaint(painter: _GridPainter())),
+          Positioned.fill(child: CustomPaint(painter: GridPainter())),
           SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-                  child: Column(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              SoundService.playClick();
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                              width: 42, height: 42,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF161B2E),
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                    color: const Color(0xFF00D1FF)
-                                        .withOpacity(0.3)),
-                              ),
-                              child: const Icon(Icons.arrow_back_rounded,
-                                  color: Color(0xFF00D1FF), size: 20),
-                            ),
-                          ).animate().scale(),
-                          const SizedBox(width: 14),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF00D1FF).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                  color:
-                                      const Color(0xFF00D1FF).withOpacity(0.4)),
-                            ),
-                            child: Row(children: [
-                              const Icon(Icons.person_pin_rounded,
-                                  color: Color(0xFF00D1FF), size: 14),
-                              const SizedBox(width: 6),
-                              Text('AGENT SETUP — STEP 2 OF 2',
-                                  style: GoogleFonts.fredoka(
-                                      color: const Color(0xFF00D1FF),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.5)),
-                            ]),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          AnimatedBuilder(
-                            animation: _floatingAnim,
-                            builder: (_, child) => Transform.translate(
-                              offset: Offset(0, _floatingAnim.value),
-                              child: child,
-                            ),
-                            child: SizedBox(
-                              width: 100,
-                              height: 100,
-                              child: Lottie.asset(
-                                'assets/animations/cat.json',
-                                repeat: true,
-                                fit: BoxFit.contain,
-                              ),
+                      GestureDetector(
+                        onTap: () {
+                          SoundService.playClick();
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF161B2E),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: const Color(0xFF00D1FF).withValues(alpha: 0.3),
                             ),
                           ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 350),
-                              transitionBuilder: (child, anim) =>
-                                  FadeTransition(opacity: anim, child: child),
-                              child: Container(
-                                key: ValueKey(_selectedIndex),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF161B2E),
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(18),
-                                    topRight: Radius.circular(18),
-                                    bottomRight: Radius.circular(18),
-                                    bottomLeft: Radius.circular(4),
-                                  ),
-                                  border: Border.all(
-                                      color: const Color(0xFF00D1FF)
-                                          .withOpacity(0.3),
-                                      width: 1.5),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: const Color(0xFF00D1FF)
-                                            .withOpacity(0.08),
-                                        blurRadius: 12),
-                                  ],
-                                ),
-                                child: Text(
-                                  _mascotMessages[_selectedIndex],
-                                  style: GoogleFonts.fredoka(
-                                      fontSize: 13,
-                                      color: Colors.white,
-                                      height: 1.5,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-                      Text(
-                        'CHOOSE YOUR\nCYBER PARTNER',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.fredoka(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          height: 1.1,
+                          child: const Icon(Icons.arrow_back_rounded,
+                              color: Color(0xFF00D1FF), size: 20),
                         ),
-                      ).animate().fade().slideY(begin: 0.2),
-                      const SizedBox(height: 6),
-                      Text(
-                        widget.username,
-                        style: GoogleFonts.fredoka(
-                          fontSize: 18,
-                          color: const Color(0xFFFFC857),
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
-                      ).animate().fade(),
-                      const SizedBox(height: 16),
-                      AnimatedBuilder(
-                        animation: _floatingAnim,
-                        builder: (_, child) => Transform.translate(
-                          offset: Offset(0, _floatingAnim.value * 0.5),
-                          child: child,
-                        ),
-                        child: AnimatedBuilder(
-                          animation: _glowAnim,
-                          builder: (_, child) => Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: selectedColor
-                                      .withOpacity(0.5 * _glowAnim.value),
-                                  blurRadius: 35,
-                                  spreadRadius: 4,
-                                ),
-                              ],
-                            ),
-                            child: child,
-                          ),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 350),
-                            width: 130,
-                            height: 130,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(36),
-                              gradient: LinearGradient(
-                                colors: [
-                                  selectedColor,
-                                  const Color(0xFF161B2E),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              border: Border.all(
-                                  color: selectedColor.withOpacity(0.6),
-                                  width: 2.5),
-                            ),
-                            child: Center(
-                              child: Text(
-                                selected['emoji'] as String,
-                                style: const TextStyle(fontSize: 68),
-                              ),
-                            ),
+                      ).animate().scale(),
+                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF00D1FF).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: const Color(0xFF00D1FF).withValues(alpha: 0.4),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: Column(
-                          key: ValueKey(_selectedIndex),
+                        child: Row(
                           children: [
+                            const Icon(Icons.person_pin_rounded,
+                                color: Color(0xFF00D1FF), size: 14),
+                            const SizedBox(width: 6),
                             Text(
-                              selected['name'] as String,
+                              'AGENT SETUP — STEP 2 OF 2',
                               style: GoogleFonts.fredoka(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 14, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: rarityColor.withOpacity(0.15),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                        color: rarityColor.withOpacity(0.6)),
-                                  ),
-                                  child: Row(children: [
-                                    Icon(
-                                      selected['rarity'] == 'LEGENDARY'
-                                          ? Icons.auto_awesome
-                                          : selected['rarity'] == 'EPIC'
-                                              ? Icons.diamond_rounded
-                                              : selected['rarity'] == 'RARE'
-                                                  ? Icons.star_rounded
-                                                  : Icons.circle,
-                                      color: rarityColor,
-                                      size: 14,
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      selected['rarity'] as String,
-                                      style: GoogleFonts.fredoka(
-                                        color: rarityColor,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ]),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              selected['desc'] as String,
-                              style: GoogleFonts.fredoka(
-                                color: Colors.white54,
-                                fontSize: 14,
+                                color: const Color(0xFF00D1FF),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
                               ),
                             ),
                           ],
@@ -437,165 +214,389 @@ class _AvatarScreenState extends State<AvatarScreen>
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 14),
-                Expanded(
-                  child: GridView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: _avatars.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 0.78,
-                    ),
-                    itemBuilder: (_, i) {
-                      final av = _avatars[i];
-                      final isSelected = i == _selectedIndex;
-                      final avColor = av['color'] as Color;
-                      final avRarity = av['rarityColor'] as Color;
-
-                      return GestureDetector(
-                        onTap: () {
-                          SoundService.playClick();
-                          setState(() => _selectedIndex = i);
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(22),
-                            color: isSelected
-                                ? avColor.withOpacity(0.18)
-                                : const Color(0xFF161B2E),
-                            border: Border.all(
-                              color: isSelected
-                                  ? avColor
-                                  : const Color(0xFF00D1FF).withOpacity(0.1),
-                              width: isSelected ? 2.5 : 1.5,
-                            ),
-                            boxShadow: isSelected
-                                ? [
-                                    BoxShadow(
-                                      color: avColor.withOpacity(0.35),
-                                      blurRadius: 16,
-                                      spreadRadius: 1,
-                                    )
-                                  ]
-                                : [],
+                  const SizedBox(height: 28),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      AnimatedBuilder(
+                        animation: floatingAnim,
+                        builder: (context, child) => Transform.translate(
+                          offset: Offset(0, floatingAnim.value),
+                          child: child,
+                        ),
+                        child: SizedBox(
+                          width: 110,
+                          height: 110,
+                          child: Lottie.asset(
+                            'assets/animations/cat.json',
+                            repeat: true,
+                            fit: BoxFit.contain,
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              AnimatedScale(
-                                duration: const Duration(milliseconds: 250),
-                                scale: isSelected ? 1.15 : 1.0,
-                                child: Text(
-                                  av['emoji'] as String,
-                                  style: const TextStyle(fontSize: 32),
-                                ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 350),
+                          transitionBuilder: (child, animation) =>
+                              FadeTransition(opacity: animation, child: child),
+                          child: Container(
+                            key: ValueKey(selectedIndex),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1A1F35),
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(18),
+                                topRight: Radius.circular(18),
+                                bottomRight: Radius.circular(18),
+                                bottomLeft: Radius.circular(4),
                               ),
-                              const SizedBox(height: 6),
-                              Text(
-                                av['name'] as String,
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                style: GoogleFonts.fredoka(
-                                  color: isSelected ? Colors.white : Colors.white54,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.2,
-                                ),
+                              border: Border.all(
+                                color: const Color(0xFF00D1FF).withValues(alpha: 0.3),
+                                width: 1.5,
                               ),
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: avRarity.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF00D1FF).withValues(alpha: 0.1),
+                                  blurRadius: 12,
                                 ),
-                                child: Text(
-                                  av['rarity'] as String,
-                                  style: GoogleFonts.fredoka(
-                                    color: isSelected ? avRarity : avRarity.withOpacity(0.5),
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
-                              ),
-                              if (isSelected)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 4),
-                                  child: Icon(Icons.check_circle_rounded,
-                                      color: avColor, size: 14),
-                                ).animate().scale(),
-                            ],
-                          ),
-                        ).animate().fade().slideY(
-                              begin: 0.2,
-                              delay: Duration(milliseconds: i * 60),
+                              ],
                             ),
-                      );
-                    },
+                            child: Text(
+                              mascotMessages[selectedIndex],
+                              style: GoogleFonts.fredoka(
+                                fontSize: 13,
+                                color: Colors.white,
+                                height: 1.5,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
-                  child: AnimatedBuilder(
-                    animation: _glowAnim,
-                    builder: (_, child) => Container(
+                  const SizedBox(height: 28),
+                  Text(
+                    'CHOOSE YOUR\nCYBER PARTNER',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.fredoka(
+                      fontSize: 32,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      height: 1.1,
+                    ),
+                  ).animate().fade().slideY(begin: 0.2),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 44,
+                    child: DefaultTextStyle(
+                      style: GoogleFonts.fredoka(
+                        fontSize: 17,
+                        color: const Color(0xFF00D1FF),
+                        fontWeight: FontWeight.w600,
+                      ),
+                      child: AnimatedTextKit(
+                        repeatForever: true,
+                        animatedTexts: [
+                          TypewriterAnimatedText(
+                            'Your partner fights scammers by your side!',
+                            speed: const Duration(milliseconds: 75),
+                          ),
+                          TypewriterAnimatedText(
+                            'Each avatar has a unique cyber power!',
+                            speed: const Duration(milliseconds: 75),
+                          ),
+                          TypewriterAnimatedText(
+                            'Pick the one that matches your style!',
+                            speed: const Duration(milliseconds: 75),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  AnimatedBuilder(
+                    animation: glowAnim,
+                    builder: (context, child) => Container(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(26),
+                        borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF00D1FF)
-                                .withOpacity(0.35 * _glowAnim.value),
-                            blurRadius: 20,
-                            spreadRadius: 1,
+                            color: selectedColor.withValues(
+                                alpha: 0.18 * glowAnim.value),
+                            blurRadius: 28,
+                            spreadRadius: 2,
                           ),
                         ],
                       ),
                       child: child,
                     ),
-                    child: SizedBox(
-                      width: double.infinity,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF161B2E),
+                        borderRadius: BorderRadius.circular(28),
+                        border: Border.all(
+                          color: const Color(0xFF00D1FF).withValues(alpha: 0.2),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'YOUR CYBER PARTNER',
+                            style: GoogleFonts.fredoka(
+                              color: const Color(0xFF00D1FF),
+                              fontSize: 12,
+                              letterSpacing: 1.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: Row(
+                              key: ValueKey(selectedIndex),
+                              children: [
+                                AnimatedBuilder(
+                                  animation: glowAnim,
+                                  builder: (context, child) => Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: selectedColor.withValues(
+                                              alpha: 0.45 * glowAnim.value),
+                                          blurRadius: 28,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                    child: child,
+                                  ),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 350),
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(22),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          selectedColor,
+                                          const Color(0xFF0D1117),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      border: Border.all(
+                                        color: selectedColor.withValues(alpha: 0.7),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        selected['emoji'] as String,
+                                        style: const TextStyle(fontSize: 40),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        selected['name'] as String,
+                                        style: GoogleFonts.fredoka(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        selected['desc'] as String,
+                                        style: GoogleFonts.fredoka(
+                                          color: Colors.white54,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          Text(
+                            'PICK YOUR PARTNER',
+                            style: GoogleFonts.fredoka(
+                              color: Colors.white38,
+                              fontSize: 11,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: avatars.length,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              mainAxisSpacing: 10,
+                              crossAxisSpacing: 10,
+                              childAspectRatio: 0.9,
+                            ),
+                            itemBuilder: (context, i) {
+                              final av = avatars[i];
+                              final isSelected = i == selectedIndex;
+                              final avColor = av['color'] as Color;
+
+                              return GestureDetector(
+                                onTap: () {
+                                  SoundService.playClick();
+                                  setState(() => selectedIndex = i);
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 250),
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: isSelected
+                                        ? avColor.withValues(alpha: 0.18)
+                                        : const Color(0xFF0D1117),
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? avColor
+                                          : const Color(0xFF00D1FF)
+                                              .withValues(alpha: 0.12),
+                                      width: isSelected ? 2.5 : 1.5,
+                                    ),
+                                    boxShadow: isSelected
+                                        ? [
+                                            BoxShadow(
+                                              color: avColor.withValues(alpha: 0.3),
+                                              blurRadius: 14,
+                                              spreadRadius: 1,
+                                            ),
+                                          ]
+                                        : [],
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      AnimatedScale(
+                                        duration:
+                                            const Duration(milliseconds: 250),
+                                        scale: isSelected ? 1.15 : 1.0,
+                                        child: Text(
+                                          av['emoji'] as String,
+                                          style: const TextStyle(fontSize: 34),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        av['name'] as String,
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                        style: GoogleFonts.fredoka(
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.white54,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          height: 1.2,
+                                        ),
+                                      ),
+                                      if (isSelected)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 5),
+                                          child: Icon(
+                                            Icons.check_circle_rounded,
+                                            color: avColor,
+                                            size: 14,
+                                          ),
+                                        ).animate().scale(),
+                                    ],
+                                  ),
+                                ).animate().fade().slideY(
+                                      begin: 0.2,
+                                      delay: Duration(milliseconds: i * 55),
+                                    ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ).animate().fade().slideY(begin: 0.3),
+                  const SizedBox(height: 28),
+                  SizedBox(
+                    width: double.infinity,
+                    child: AnimatedBuilder(
+                      animation: glowAnim,
+                      builder: (context, child) => Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(26),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF00D1FF)
+                                  .withValues(alpha: 0.4 * glowAnim.value),
+                              blurRadius: 20,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: child,
+                      ),
                       child: ElevatedButton(
-                        onPressed: _saving ? null : _finish,
+                        onPressed: saving ? null : finish,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF00D1FF),
                           disabledBackgroundColor:
-                              const Color(0xFF00D1FF).withOpacity(0.3),
+                              const Color(0xFF00D1FF).withValues(alpha: 0.3),
                           foregroundColor: const Color(0xFF0D1117),
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(26)),
+                            borderRadius: BorderRadius.circular(26),
+                          ),
                           elevation: 0,
                         ),
-                        child: _saving
+                        child: saving
                             ? const SizedBox(
-                                width: 22, height: 22,
+                                width: 22,
+                                height: 22,
                                 child: CircularProgressIndicator(
-                                    color: Color(0xFF0D1117), strokeWidth: 2.5))
+                                  color: Color(0xFF0D1117),
+                                  strokeWidth: 2.5,
+                                ),
+                              )
                             : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   const Icon(Icons.rocket_launch_rounded,
                                       size: 20),
                                   const SizedBox(width: 10),
-                                  Text('Deploy Agent →',
-                                      style: GoogleFonts.fredoka(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w700)),
+                                  Text(
+                                    'Deploy Agent →',
+                                    style: GoogleFonts.fredoka(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                 ],
                               ),
                       ),
                     ),
                   ).animate().fade().scale(),
-                ),
-              ],
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
         ],
@@ -604,11 +605,11 @@ class _AvatarScreenState extends State<AvatarScreen>
   }
 }
 
-class _GridPainter extends CustomPainter {
+class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF00D1FF).withOpacity(0.04)
+      ..color = const Color(0xFF00D1FF).withValues(alpha: 0.04)
       ..strokeWidth = 1;
     const spacing = 40.0;
     for (double x = 0; x < size.width; x += spacing) {

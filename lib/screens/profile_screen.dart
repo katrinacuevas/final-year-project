@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/user_service.dart';
 
-const List<Map<String, dynamic>> _kCourses = [
+const List<Map<String, dynamic>> profileCourses = [
   {
     'lessonId': 'password_power',
     'title': 'Password Power',
-    'emoji': '🔒',
-    'iconColor': Color(0xFFFFB347),
-    'bgColor': Color(0xFFFFF3E0),
+    'emoji': '🔐',
+    'accentColor': Color(0xFFFFC857),
     'totalSteps': 4,
     'milestones': [
       {'step': 1, 'emoji': '🔑', 'name': 'First Key', 'desc': 'Started your first lesson'},
@@ -20,8 +19,7 @@ const List<Map<String, dynamic>> _kCourses = [
     'lessonId': 'phishing_detective',
     'title': 'Phishing Detective',
     'emoji': '🎣',
-    'iconColor': Color(0xFF26A69A),
-    'bgColor': Color(0xFFE0F2F1),
+    'accentColor': Color(0xFF4FC3F7),
     'totalSteps': 6,
     'milestones': [
       {'step': 1, 'emoji': '👀', 'name': 'Eagle Eyes', 'desc': 'Spotted your first scenario'},
@@ -33,8 +31,7 @@ const List<Map<String, dynamic>> _kCourses = [
     'lessonId': 'baiting_pro',
     'title': 'Baiting Pro',
     'emoji': '🎁',
-    'iconColor': Color(0xFFFF7F7F),
-    'bgColor': Color(0xFFFFEBEB),
+    'accentColor': Color(0xFFFF8A65),
     'totalSteps': 6,
     'milestones': [
       {'step': 1, 'emoji': '🧐', 'name': 'Suspicious', 'desc': 'Started investigating baiting'},
@@ -46,8 +43,7 @@ const List<Map<String, dynamic>> _kCourses = [
     'lessonId': 'pretexting',
     'title': 'Pretexting',
     'emoji': '🎭',
-    'iconColor': Color(0xFFB39DDB),
-    'bgColor': Color(0xFFF0EBFF),
+    'accentColor': Color(0xFFBA68C8),
     'totalSteps': 5,
     'milestones': [
       {'step': 1, 'emoji': '🤔', 'name': 'Curious', 'desc': 'Started learning pretexting'},
@@ -57,7 +53,7 @@ const List<Map<String, dynamic>> _kCourses = [
   },
 ];
 
-const List<Map<String, String>> _kSafetyRules = [
+const List<Map<String, String>> safetyRules = [
   {
     'icon': '🔒',
     'title': 'Keep passwords strong & private',
@@ -71,11 +67,11 @@ const List<Map<String, String>> _kSafetyRules = [
   {
     'icon': '🎁',
     'title': 'If it seems too good, it probably is',
-    'detail': 'Free prizes, gift cards, and "you\'ve won!" messages are almost always scams designed to trick you.',
+    'detail': "Free prizes, gift cards, and \"you've won!\" messages are almost always scams designed to trick you.",
   },
   {
     'icon': '🎭',
-    'title': 'Verify who you\'re talking to',
+    'title': "Verify who you're talking to",
     'detail': 'Anyone can pretend to be someone else online. Always verify identities before sharing personal information.',
   },
   {
@@ -93,36 +89,28 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _loading = true;
-  int _taskPage = 0;
-  int _badgePage = 0;
-  final List<bool> _ruleExpanded = List.generate(_kSafetyRules.length, (_) => false);
+  bool loading = true;
+  int taskPage = 0;
+  int badgePage = 0;
+  late List<bool> ruleExpanded;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    ruleExpanded = List.generate(safetyRules.length, (index) => false);
+    load();
   }
 
-  Future<void> _load() async {
-    setState(() => _loading = true);
+  Future<void> load() async {
+    setState(() => loading = true);
     await UserService.instance.loadAllProgress();
     await UserService.instance.refreshProfile();
-    if (mounted) setState(() => _loading = false);
+    if (mounted) setState(() => loading = false);
   }
 
-  Color _getLevelColor(int level) {
-    if (level >= 5) return Colors.orange;
-    if (level >= 4) return Colors.cyan;
-    if (level >= 3) return Colors.green;
-    if (level >= 2) return Colors.purple;
-    if (level >= 1) return Colors.pink;
-    return Colors.blue;
-  }
-
-  List<Map<String, dynamic>> get _earnedBadges {
+  List<Map<String, dynamic>> get earnedBadges {
     final List<Map<String, dynamic>> badges = [];
-    for (final course in _kCourses) {
+    for (final course in profileCourses) {
       final lessonId = course['lessonId'] as String;
       final milestones = course['milestones'] as List;
       final p = UserService.instance.getProgress(lessonId);
@@ -134,8 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'emoji': milestone['emoji'],
             'name': milestone['name'],
             'desc': milestone['desc'],
-            'iconColor': course['iconColor'],
-            'bgColor': course['bgColor'],
+            'accentColor': course['accentColor'],
             'courseTitle': course['title'],
           });
         }
@@ -144,11 +131,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return badges;
   }
 
-  List<Map<String, dynamic>> get _completedCourses {
-    return _kCourses.where((course) {
+  List<Map<String, dynamic>> get completedCourses {
+    return profileCourses.where((course) {
       final p = UserService.instance.getProgress(course['lessonId'] as String);
       return p?.completed ?? false;
     }).toList();
+  }
+
+  Widget buildPageDots(int count, int activePage) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        count,
+        (i) => AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          width: activePage == i ? 16 : 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: activePage == i
+                ? const Color(0xFF00D1FF)
+                : const Color(0xFF00D1FF).withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -156,453 +164,599 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final svc = UserService.instance;
     final profile = svc.profile;
     final String name = profile?.username ?? 'Explorer';
-    final String emoji = profile?.avatarEmoji ?? '👤';
+    final String avatarEmoji = profile?.avatarEmoji ?? '👤';
     final int xp = svc.xp;
     final int level = svc.level;
     final int nextXp = svc.xpNeededForNextLevel;
-    
-    double totalProgress = 0.0;
-    if (nextXp > 0) {
-      totalProgress = (xp / nextXp).clamp(0.0, 1.0);
-    } else if (xp > 0) {
-      totalProgress = 1.0;
-    }
+    final double totalProgress =
+        nextXp > 0 ? (xp / nextXp).clamp(0.0, 1.0) : (xp > 0 ? 1.0 : 0.0);
 
-    final Color levelColor = _getLevelColor(level);
-    final Color lightLevelColor = levelColor.withOpacity(0.1);
-
-    Color avatarBg;
+    Color avatarColor;
     try {
-      avatarBg = Color(int.parse(profile?.avatarColour ?? '0xFFFFE4B5'));
-    } catch (_) {
-      avatarBg = const Color(0xFFFFE4B5);
+      avatarColor = Color(int.parse(profile?.avatarColour ?? '0xFFFFC857'));
+    } catch (e) {
+      avatarColor = const Color(0xFFFFC857);
     }
 
-    final badges = _earnedBadges;
-    final completed = _completedCourses;
+    final badges = earnedBadges;
+    final completed = completedCourses;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 217, 229),
-      body: SafeArea(
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
-                onRefresh: _load,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 20),
-                      TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        duration: const Duration(milliseconds: 800),
-                        curve: Curves.easeOutBack,
-                        builder: (context, value, child) {
-                          return Opacity(
-                            opacity: value.clamp(0.0, 1.0),
-                            child: Transform.translate(
-                              offset: Offset(0, 30 * (1 - value)),
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: lightLevelColor,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: levelColor.withOpacity(0.05),
-                                blurRadius: 15,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Column(
+      backgroundColor: const Color(0xFF0D1117),
+      body: Stack(
+        children: [
+          Positioned.fill(child: CustomPaint(painter: ProfileGridPainter())),
+          SafeArea(
+            child: loading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: const Color(0xFF00D1FF),
+                      backgroundColor:
+                          const Color(0xFF00D1FF).withValues(alpha: 0.1),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: load,
+                    color: const Color(0xFF00D1FF),
+                    backgroundColor: const Color(0xFF161B2E),
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              TweenAnimationBuilder<double>(
-                                tween: Tween(begin: 0.0, end: 1.0),
-                                duration: const Duration(milliseconds: 1000),
-                                curve: Curves.elasticOut,
-                                builder: (context, value, child) => Transform.scale(scale: value, child: child),
-                                child: Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: avatarBg,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: levelColor, width: 4),
-                                  ),
-                                  child: Center(
-                                    child: Text(emoji, style: const TextStyle(fontSize: 50)),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      name,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.quicksand(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w800,
-                                        color: const Color(0xFF1A2E45),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: levelColor,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      '⭐ Level $level',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Level Progress', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: levelColor)),
-                                  Text('$xp / $nextXp XP', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: levelColor)),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: TweenAnimationBuilder<double>(
-                                  duration: const Duration(milliseconds: 1500),
-                                  curve: Curves.easeInOutQuart,
-                                  tween: Tween<double>(begin: 0, end: totalProgress),
-                                  builder: (context, value, _) => LinearProgressIndicator(
-                                    value: value,
-                                    minHeight: 12,
-                                    backgroundColor: const Color(0xFFF0F4F8),
-                                    valueColor: AlwaysStoppedAnimation<Color>(levelColor),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
+                              const Icon(Icons.person_rounded,
+                                  color: Color(0xFF00D1FF), size: 16),
+                              const SizedBox(width: 6),
+                              Text(
+                                'MY PROFILE',
+                                style: GoogleFonts.fredoka(
+                                  color: const Color(0xFF00D1FF),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.5,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      _SectionHeader(title: 'Tasks Completed'),
-                      const SizedBox(height: 4),
-                      SizedBox(
-                        height: 130,
-                        child: completed.isEmpty
-                            ? Center(
-                                child: Text(
-                                  'No courses completed yet — keep going! 💪',
-                                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                          const SizedBox(height: 20),
+                          TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 0.0, end: 1.0),
+                            duration: const Duration(milliseconds: 800),
+                            curve: Curves.easeOutBack,
+                            builder: (context, value, child) => Opacity(
+                              opacity: value.clamp(0.0, 1.0),
+                              child: Transform.translate(
+                                offset: Offset(0, 30 * (1 - value)),
+                                child: child,
+                              ),
+                            ),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF161B2E),
+                                borderRadius: BorderRadius.circular(28),
+                                border: Border.all(
+                                  color: const Color(0xFF00D1FF)
+                                      .withValues(alpha: 0.2),
+                                  width: 1.5,
                                 ),
-                              )
-                            : PageView.builder(
-                                itemCount: completed.length,
-                                onPageChanged: (p) => setState(() => _taskPage = p),
-                                itemBuilder: (_, i) {
-                                  final course = completed[i];
-                                  final iconColor = course['iconColor'] as Color;
-                                  final bgColor = course['bgColor'] as Color;
-                                  return AnimatedScale(
-                                    duration: const Duration(milliseconds: 400),
-                                    scale: _taskPage == i ? 1.0 : 0.9,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(18),
-                                        decoration: BoxDecoration(
-                                          color: bgColor,
-                                          borderRadius: BorderRadius.circular(20),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: iconColor.withOpacity(0.15),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 3),
-                                            ),
+                              ),
+                              child: Column(
+                                children: [
+                                  TweenAnimationBuilder<double>(
+                                    tween: Tween(begin: 0.0, end: 1.0),
+                                    duration:
+                                        const Duration(milliseconds: 1000),
+                                    curve: Curves.elasticOut,
+                                    builder: (context, value, child) =>
+                                        Transform.scale(
+                                            scale: value, child: child),
+                                    child: Container(
+                                      width: 100,
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(28),
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            avatarColor,
+                                            const Color(0xFF0D1117),
                                           ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
                                         ),
-                                        child: Row(children: [
-                                          Container(
-                                            width: 56,
-                                            height: 56,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(14),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: iconColor.withOpacity(0.2),
-                                                  blurRadius: 8,
-                                                  offset: const Offset(0, 3),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                course['emoji'] as String,
-                                                style: const TextStyle(fontSize: 28),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 14),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  course['title'] as String,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45)),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                                  decoration: BoxDecoration(
-                                                    color: iconColor.withOpacity(0.15),
-                                                    borderRadius: BorderRadius.circular(10),
-                                                  ),
-                                                  child: Text(
-                                                    '✅ Completed!',
-                                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: iconColor),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ]),
+                                        border: Border.all(
+                                          color:
+                                              avatarColor.withValues(alpha: 0.7),
+                                          width: 2.5,
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          avatarEmoji,
+                                          style:
+                                              const TextStyle(fontSize: 50),
+                                        ),
                                       ),
                                     ),
-                                  );
-                                },
-                              ),
-                      ),
-                      if (completed.length > 1) ...[
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            completed.length,
-                            (i) => AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              margin: const EdgeInsets.symmetric(horizontal: 3),
-                              width: _taskPage == i ? 16 : 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: _taskPage == i ? const Color(0xFF1A2E45) : Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 28),
-                      _SectionHeader(title: 'Badges Earned'),
-                      const SizedBox(height: 4),
-                      badges.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: Text(
-                                'Complete lessons to earn badges! 🏅',
-                                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-                              ),
-                            )
-                          : SizedBox(
-                              height: 130,
-                              child: PageView.builder(
-                                itemCount: badges.length,
-                                onPageChanged: (p) => setState(() => _badgePage = p),
-                                itemBuilder: (_, i) {
-                                  final badge = badges[i];
-                                  final iconColor = badge['iconColor'] as Color;
-                                  final bgColor = badge['bgColor'] as Color;
-                                  return AnimatedScale(
-                                    duration: const Duration(milliseconds: 400),
-                                    scale: _badgePage == i ? 1.0 : 0.9,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(18),
-                                        decoration: BoxDecoration(
-                                          color: bgColor,
-                                          borderRadius: BorderRadius.circular(20),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: iconColor.withOpacity(0.15),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Row(children: [
-                                          Container(
-                                            width: 56,
-                                            height: 56,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(color: iconColor.withOpacity(0.4), width: 2),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: iconColor.withOpacity(0.2),
-                                                  blurRadius: 8,
-                                                  offset: const Offset(0, 3),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                badge['emoji'] as String,
-                                                style: const TextStyle(fontSize: 28),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 14),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  badge['name'] as String,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45)),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  badge['desc'] as String,
-                                                  maxLines: 2,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: const TextStyle(fontSize: 12, color: Color(0xFF5A7A95), height: 1.3),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  badge['courseTitle'] as String,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: iconColor),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ]),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                      if (badges.length > 1) ...[
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            badges.length,
-                            (i) => AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              margin: const EdgeInsets.symmetric(horizontal: 3),
-                              width: _badgePage == i ? 16 : 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: _badgePage == i ? const Color(0xFF1A2E45) : Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 28),
-                      _SectionHeader(title: 'My Safety Rules'),
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 30),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.06),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: _kSafetyRules.asMap().entries.map((e) {
-                            final i = e.key;
-                            final rule = e.value;
-                            return Column(
-                              children: [
-                                _RuleAccordion(
-                                  icon: rule['icon']!,
-                                  title: rule['title']!,
-                                  detail: rule['detail']!,
-                                  expanded: _ruleExpanded[i],
-                                  onTap: () => setState(() => _ruleExpanded[i] = !_ruleExpanded[i]),
-                                ),
-                                if (i != _kSafetyRules.length - 1)
-                                  const Divider(
-                                    height: 1,
-                                    indent: 20,
-                                    endIndent: 20,
-                                    color: Color(0xFFF0F4F8),
                                   ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          name,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.fredoka(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 5),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF00D1FF)
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                            color: const Color(0xFF00D1FF)
+                                                .withValues(alpha: 0.4),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.star_rounded,
+                                                color: Color(0xFF00D1FF),
+                                                size: 13),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              'LEVEL $level',
+                                              style: GoogleFonts.fredoka(
+                                                color: const Color(0xFF00D1FF),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'LEVEL PROGRESS',
+                                        style: GoogleFonts.fredoka(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white38,
+                                          letterSpacing: 1.0,
+                                        ),
+                                      ),
+                                      Text(
+                                        '$xp / $nextXp XP',
+                                        style: GoogleFonts.fredoka(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: const Color(0xFF00D1FF),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TweenAnimationBuilder<double>(
+                                    duration:
+                                        const Duration(milliseconds: 1400),
+                                    curve: Curves.easeInOutQuart,
+                                    tween: Tween<double>(
+                                        begin: 0, end: totalProgress),
+                                    builder: (context, value, child) =>
+                                        ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: LinearProgressIndicator(
+                                        value: value,
+                                        minHeight: 10,
+                                        backgroundColor: const Color(0xFF00D1FF)
+                                            .withValues(alpha: 0.1),
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                          value >= 1.0
+                                              ? const Color(0xFF00E676)
+                                              : const Color(0xFF00D1FF),
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(20),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          ProfileSectionHeader(title: 'Tasks Completed'),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 110,
+                            child: completed.isEmpty
+                                ? Center(
+                                    child: Text(
+                                      'No courses completed yet — keep going! 💪',
+                                      style: GoogleFonts.fredoka(
+                                        fontSize: 14,
+                                        color: Colors.white38,
+                                      ),
+                                    ),
+                                  )
+                                : PageView.builder(
+                                    itemCount: completed.length,
+                                    onPageChanged: (p) =>
+                                        setState(() => taskPage = p),
+                                    itemBuilder: (context, i) {
+                                      final course = completed[i];
+                                      final Color accent =
+                                          course['accentColor'] as Color;
+                                      return AnimatedScale(
+                                        duration:
+                                            const Duration(milliseconds: 350),
+                                        scale: taskPage == i ? 1.0 : 0.92,
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 4),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF161B2E),
+                                              borderRadius:
+                                                  BorderRadius.circular(22),
+                                              border: Border.all(
+                                                color: const Color(0xFF00E676)
+                                                    .withValues(alpha: 0.4),
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 56,
+                                                  height: 56,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16),
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        accent,
+                                                        const Color(0xFF0D1117),
+                                                      ],
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                    ),
+                                                    border: Border.all(
+                                                      color: accent.withValues(
+                                                          alpha: 0.6),
+                                                      width: 1.5,
+                                                    ),
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      course['emoji'] as String,
+                                                      style: const TextStyle(
+                                                          fontSize: 26),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 14),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        course['title']
+                                                            as String,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style:
+                                                            GoogleFonts.fredoka(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 5),
+                                                      Container(
+                                                        padding: const EdgeInsets
+                                                            .symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 3),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: const Color(
+                                                                  0xFF00E676)
+                                                              .withValues(
+                                                                  alpha: 0.12),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(12),
+                                                          border: Border.all(
+                                                            color: const Color(
+                                                                    0xFF00E676)
+                                                                .withValues(
+                                                                    alpha: 0.4),
+                                                          ),
+                                                        ),
+                                                        child: Text(
+                                                          '✅ Completed!',
+                                                          style: GoogleFonts
+                                                              .fredoka(
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: const Color(
+                                                                0xFF00E676),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                          ),
+                          if (completed.length > 1) ...[
+                            const SizedBox(height: 10),
+                            buildPageDots(completed.length, taskPage),
+                          ],
+                          const SizedBox(height: 28),
+                          ProfileSectionHeader(title: 'Badges Earned'),
+                          const SizedBox(height: 12),
+                          badges.isEmpty
+                              ? Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
+                                  child: Text(
+                                    'Complete lessons to earn badges! 🏅',
+                                    style: GoogleFonts.fredoka(
+                                      fontSize: 14,
+                                      color: Colors.white38,
+                                    ),
+                                  ),
+                                )
+                              : SizedBox(
+                                  height: 110,
+                                  child: PageView.builder(
+                                    itemCount: badges.length,
+                                    onPageChanged: (p) =>
+                                        setState(() => badgePage = p),
+                                    itemBuilder: (context, i) {
+                                      final badge = badges[i];
+                                      final Color accent =
+                                          badge['accentColor'] as Color;
+                                      return AnimatedScale(
+                                        duration:
+                                            const Duration(milliseconds: 350),
+                                        scale: badgePage == i ? 1.0 : 0.92,
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 4),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF161B2E),
+                                              borderRadius:
+                                                  BorderRadius.circular(22),
+                                              border: Border.all(
+                                                color: accent.withValues(
+                                                    alpha: 0.35),
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 56,
+                                                  height: 56,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16),
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        accent,
+                                                        const Color(0xFF0D1117),
+                                                      ],
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                    ),
+                                                    border: Border.all(
+                                                      color: accent.withValues(
+                                                          alpha: 0.6),
+                                                      width: 1.5,
+                                                    ),
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      badge['emoji'] as String,
+                                                      style: const TextStyle(
+                                                          fontSize: 26),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 14),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        badge['name'] as String,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style:
+                                                            GoogleFonts.fredoka(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        badge['desc'] as String,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style:
+                                                            GoogleFonts.fredoka(
+                                                          fontSize: 12,
+                                                          color: Colors.white54,
+                                                          height: 1.3,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 3),
+                                                      Text(
+                                                        badge['courseTitle']
+                                                            as String,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style:
+                                                            GoogleFonts.fredoka(
+                                                          fontSize: 11,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: accent,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                          if (badges.length > 1) ...[
+                            const SizedBox(height: 10),
+                            buildPageDots(badges.length, badgePage),
+                          ],
+                          const SizedBox(height: 28),
+                          ProfileSectionHeader(title: 'My Safety Rules'),
+                          const SizedBox(height: 4),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF161B2E),
+                              borderRadius: BorderRadius.circular(28),
+                              border: Border.all(
+                                color: const Color(0xFF00D1FF)
+                                    .withValues(alpha: 0.2),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Column(
+                              children: safetyRules.asMap().entries.map((e) {
+                                final i = e.key;
+                                final rule = e.value;
+                                return Column(
+                                  children: [
+                                    RuleAccordion(
+                                      icon: rule['icon']!,
+                                      title: rule['title']!,
+                                      detail: rule['detail']!,
+                                      expanded: ruleExpanded[i],
+                                      onTap: () => setState(
+                                          () => ruleExpanded[i] = !ruleExpanded[i]),
+                                    ),
+                                    if (i != safetyRules.length - 1)
+                                      Divider(
+                                        height: 1,
+                                        indent: 20,
+                                        endIndent: 20,
+                                        color: const Color(0xFF00D1FF)
+                                            .withValues(alpha: 0.08),
+                                      ),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _SectionHeader extends StatelessWidget {
+class ProfileSectionHeader extends StatelessWidget {
   final String title;
-  const _SectionHeader({required this.title});
+  const ProfileSectionHeader({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Text(
-        title,
-        style: GoogleFonts.quicksand(
-          fontSize: 20,
-          fontWeight: FontWeight.w800,
-          color: const Color(0xFF1F355E),
+    return Row(
+      children: [
+        const Icon(Icons.chevron_right_rounded,
+            color: Color(0xFF00D1FF), size: 16),
+        const SizedBox(width: 4),
+        Text(
+          title.toUpperCase(),
+          style: GoogleFonts.fredoka(
+            color: const Color(0xFF00D1FF),
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.5,
+          ),
         ),
-      ),
+      ],
     );
   }
 }
 
-class _RuleAccordion extends StatelessWidget {
+class RuleAccordion extends StatelessWidget {
   final String icon, title, detail;
   final bool expanded;
   final VoidCallback onTap;
 
-  const _RuleAccordion({
+  const RuleAccordion({
+    super.key,
     required this.icon,
     required this.title,
     required this.detail,
@@ -617,33 +771,57 @@ class _RuleAccordion extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: expanded ? const Color(0xFFF8FAFF) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+          color: expanded
+              ? const Color(0xFF00D1FF).withValues(alpha: 0.05)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(28),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              Text(icon, style: const TextStyle(fontSize: 22)),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF1A2E45))),
-              ),
-              AnimatedRotation(
-                turns: expanded ? 0.5 : 0,
-                duration: const Duration(milliseconds: 200),
-                child: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF9AABBF), size: 22),
-              ),
-            ]),
+            Row(
+              children: [
+                Text(icon, style: const TextStyle(fontSize: 22)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: GoogleFonts.fredoka(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                AnimatedRotation(
+                  turns: expanded ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 250),
+                  child: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: const Color(0xFF00D1FF).withValues(alpha: 0.5),
+                    size: 22,
+                  ),
+                ),
+              ],
+            ),
             AnimatedCrossFade(
               firstChild: const SizedBox(width: double.infinity),
               secondChild: Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Text(detail, style: const TextStyle(fontSize: 13, color: Color(0xFF5A7A95), height: 1.5)),
+                padding: const EdgeInsets.only(top: 10, left: 34),
+                child: Text(
+                  detail,
+                  style: GoogleFonts.fredoka(
+                    fontSize: 13,
+                    color: Colors.white54,
+                    height: 1.5,
+                  ),
+                ),
               ),
-              crossFadeState: expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+              crossFadeState: expanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
               duration: const Duration(milliseconds: 250),
             ),
           ],
@@ -651,4 +829,23 @@ class _RuleAccordion extends StatelessWidget {
       ),
     );
   }
+}
+
+class ProfileGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF00D1FF).withValues(alpha: 0.04)
+      ..strokeWidth = 1;
+    const spacing = 40.0;
+    for (double x = 0; x < size.width; x += spacing) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += spacing) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

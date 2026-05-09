@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'package:final_year_project/services/user_service.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:google_fonts/google_fonts.dart';
 import 'username_screen.dart';
 import '../widgets/loading_dots.dart';
 import '../widgets/navigation_bar.dart';
@@ -14,187 +15,224 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _logoScale;
-  late Animation<double> _logoFade;
-  late Animation<double> _textFade;
-  late Animation<Offset> _textSlide;
-  late Animation<double> _shimmer;
+  late AnimationController ctrl;
+  late Animation<double> logoScale;
+  late Animation<double> logoFade;
+  late Animation<double> glowPulse;
+  late Animation<double> textFade;
+  late Animation<Offset> textSlide;
+  late Animation<double> dotsFade;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 2000));
 
-    _logoScale = Tween<double>(begin: 0.4, end: 1.0).animate(
-        CurvedAnimation(parent: _ctrl, curve: const Interval(0.0, 0.5, curve: Curves.elasticOut)));
+    ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    );
 
-    _logoFade = Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(parent: _ctrl, curve: const Interval(0.0, 0.3, curve: Curves.easeIn)));
+    logoScale = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(
+        parent: ctrl,
+        curve: const Interval(0.0, 0.5, curve: Curves.elasticOut),
+      ),
+    );
 
-    _textFade = Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(parent: _ctrl, curve: const Interval(0.45, 0.75, curve: Curves.easeIn)));
+    logoFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: ctrl,
+        curve: const Interval(0.0, 0.3, curve: Curves.easeIn),
+      ),
+    );
 
-    _textSlide = Tween<Offset>(begin: const Offset(0, 0.4), end: Offset.zero).animate(
-        CurvedAnimation(parent: _ctrl, curve: const Interval(0.45, 0.75, curve: Curves.easeOut)));
+    glowPulse = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(
+        parent: ctrl,
+        curve: const Interval(0.4, 1.0, curve: Curves.easeInOut),
+      ),
+    );
 
-    _shimmer = Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(parent: _ctrl, curve: const Interval(0.7, 1.0, curve: Curves.easeInOut)));
+    textFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: ctrl,
+        curve: const Interval(0.45, 0.75, curve: Curves.easeIn),
+      ),
+    );
 
-    _ctrl.forward();
+    textSlide = Tween<Offset>(
+      begin: const Offset(0, 0.4),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: ctrl,
+        curve: const Interval(0.45, 0.75, curve: Curves.easeOut),
+      ),
+    );
 
-    Timer(const Duration(milliseconds: 3000), () {
-      if (mounted) {
-        final destination = UserService.instance.hasProfile
+    dotsFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: ctrl,
+        curve: const Interval(0.75, 1.0, curve: Curves.easeIn),
+      ),
+    );
+
+    ctrl.forward();
+
+    Timer(const Duration(milliseconds: 3200), () {
+      if (!mounted) return;
+      final destination = UserService.instance.hasProfile
           ? const MainNavigationScreen()
           : const UsernameScreen();
-        
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 600),
-            pageBuilder: (context, animation, secondaryAnimation) => destination,
-            transitionsBuilder: (context, anim, secondaryAnim, child) =>
-              FadeTransition(opacity: anim, child: child),
-          ),
-        );
-      }
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 600),
+          pageBuilder: (context, animation, secondaryAnimation) => destination,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(opacity: animation, child: child),
+        ),
+      );
     });
   }
 
   @override
   void dispose() {
-    _ctrl.dispose();
+    ctrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF1A2E45), Color(0xFF2C5282), Color(0xFF4A90D9)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Stack(
-          children: [
-            ..._buildBubbles(),
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AnimatedBuilder(
-                    animation: _ctrl,
-                    builder: (_, _) => FadeTransition(
-                      opacity: _logoFade,
+      backgroundColor: const Color(0xFF0D1117),
+      body: Stack(
+        children: [
+          Positioned.fill(child: CustomPaint(painter: SplashGridPainter())),
+          Center(
+            child: AnimatedBuilder(
+              animation: ctrl,
+              builder: (context, child) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FadeTransition(
+                      opacity: logoFade,
                       child: ScaleTransition(
-                        scale: _logoScale,
+                        scale: logoScale,
                         child: Container(
-                          width: 120, height: 120,
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(32),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
+                            shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF4A90D9).withValues(alpha: 0.5),
-                                blurRadius: 30,
-                                spreadRadius: 5,
+                                color: const Color(0xFF00D1FF)
+                                    .withValues(alpha: 0.45 * glowPulse.value),
+                                blurRadius: 50,
+                                spreadRadius: 8,
                               ),
                             ],
                           ),
-                          child: const Center(
-                            child: Text('🛡️', style: TextStyle(fontSize: 64)),
+                          child: Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF161B2E),
+                              borderRadius: BorderRadius.circular(34),
+                              border: Border.all(
+                                color: const Color(0xFF00D1FF)
+                                    .withValues(alpha: 0.5),
+                                width: 2,
+                              ),
+                            ),
+                            child: const Center(
+                              child: Text('🛡️',
+                                  style: TextStyle(fontSize: 62)),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 28),
-                  AnimatedBuilder(
-                    animation: _ctrl,
-                    builder: (_, _) => FadeTransition(
-                      opacity: _textFade,
+                    const SizedBox(height: 32),
+                    FadeTransition(
+                      opacity: textFade,
                       child: SlideTransition(
-                        position: _textSlide,
+                        position: textSlide,
                         child: Column(
                           children: [
-                            const Text(
+                            Text(
                               'CyberShield',
-                              style: TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w900,
+                              style: GoogleFonts.fredoka(
+                                fontSize: 40,
+                                fontWeight: FontWeight.w700,
                                 color: Colors.white,
-                                letterSpacing: 1.5,
+                                letterSpacing: 1.0,
                               ),
                             ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Stay Safe Online 🌐',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white.withValues(alpha: 0.8),
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.5,
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF00D1FF)
+                                    .withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: const Color(0xFF00D1FF)
+                                      .withValues(alpha: 0.4),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.language_rounded,
+                                      color: Color(0xFF00D1FF), size: 14),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'STAY SAFE ONLINE',
+                                    style: GoogleFonts.fredoka(
+                                      fontSize: 13,
+                                      color: const Color(0xFF00D1FF),
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 1.0,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 48),
-                  AnimatedBuilder(
-                    animation: _ctrl,
-                    builder: (_, _) => FadeTransition(
-                      opacity: _shimmer,
+                    const SizedBox(height: 52),
+                    FadeTransition(
+                      opacity: dotsFade,
                       child: const LoadingDots(),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-
-  List<Widget> _buildBubbles() {
-    final bubbles = [
-      _Bubble(size: 80, top: 60, left: -20, opacity: 0.08),
-      _Bubble(size: 120, top: 100, right: -30, opacity: 0.06),
-      _Bubble(size: 60, top: 250, left: 30, opacity: 0.10),
-      _Bubble(size: 100, bottom: 180, right: 20, opacity: 0.07),
-      _Bubble(size: 50, bottom: 100, left: 60, opacity: 0.09),
-      _Bubble(size: 140, bottom: -40, right: -40, opacity: 0.05),
-    ];
-    return bubbles.map((b) {
-      return Positioned(
-        top: b.top,
-        left: b.left,
-        right: b.right,
-        bottom: b.bottom,
-        child: Container(
-          width: b.size,
-          height: b.size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: b.opacity),
-          ),
-        ),
-      );
-    }).toList();
-  }
 }
 
-class _Bubble {
-  final double size, opacity;
-  final double? top, left, right, bottom;
-  const _Bubble({required this.size, required this.opacity, this.top, this.left, this.right, this.bottom});
+class SplashGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF00D1FF).withValues(alpha: 0.04)
+      ..strokeWidth = 1;
+    const spacing = 40.0;
+    for (double x = 0; x < size.width; x += spacing) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += spacing) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

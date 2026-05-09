@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
 
-const List<Map<String, dynamic>> _kCourses = [
+const List<Map<String, dynamic>> achievementCourses = [
   {
     'lessonId': 'password_power',
     'title': 'Password Power',
     'subtitle': 'Learning to create super strong, secure passwords!',
     'totalSteps': 4,
     'xpReward': 100,
-    'bgColor': Color(0xFFFFF3E0),
-    'iconColor': Color(0xFFFFB347),
-    'progressColor': Color(0xFFFFB347),
-    'accentColor': Color(0xFFFF5722),
-    'courseEmoji': '🔒',
+    'accentColor': Color(0xFFFFC857),
+    'courseEmoji': '🔐',
     'milestones': [
       {'step': 1, 'emoji': '🔑', 'name': 'First Key', 'desc': 'Started your first lesson'},
       {'step': 2, 'emoji': '🛡️', 'name': 'Shield Up', 'desc': 'Halfway through the course'},
@@ -26,10 +24,7 @@ const List<Map<String, dynamic>> _kCourses = [
     'subtitle': 'Becoming an expert at spotting fake messages!',
     'totalSteps': 6,
     'xpReward': 150,
-    'bgColor': Color(0xFFE0F2F1),
-    'iconColor': Color(0xFF26A69A),
-    'progressColor': Color(0xFF26A69A),
-    'accentColor': Color(0xFF2E7D32),
+    'accentColor': Color(0xFF4FC3F7),
     'courseEmoji': '🎣',
     'milestones': [
       {'step': 1, 'emoji': '👀', 'name': 'Eagle Eyes', 'desc': 'Spotted your first scenario'},
@@ -43,10 +38,7 @@ const List<Map<String, dynamic>> _kCourses = [
     'subtitle': 'Investigating suspicious offers that are too good to be true!',
     'totalSteps': 6,
     'xpReward': 200,
-    'bgColor': Color(0xFFFFEBEB),
-    'iconColor': Color(0xFFFF7F7F),
-    'progressColor': Color(0xFFFF7F7F),
-    'accentColor': Color(0xFFFF5252),
+    'accentColor': Color(0xFFFF8A65),
     'courseEmoji': '🎁',
     'milestones': [
       {'step': 1, 'emoji': '🧐', 'name': 'Suspicious', 'desc': 'Started investigating baiting'},
@@ -60,10 +52,7 @@ const List<Map<String, dynamic>> _kCourses = [
     'subtitle': 'Learning to spot people who pretend to be someone else!',
     'totalSteps': 5,
     'xpReward': 180,
-    'bgColor': Color(0xFFF0EBFF),
-    'iconColor': Color(0xFFB39DDB),
-    'progressColor': Color(0xFFB39DDB),
-    'accentColor': Color(0xFF7C4DFF),
+    'accentColor': Color(0xFFBA68C8),
     'courseEmoji': '🎭',
     'milestones': [
       {'step': 1, 'emoji': '🤔', 'name': 'Curious', 'desc': 'Started learning pretexting'},
@@ -81,179 +70,283 @@ class AchievementsScreen extends StatefulWidget {
 }
 
 class _AchievementsScreenState extends State<AchievementsScreen> {
-  String _selectedFilter = 'All';
-  bool _loading = true;
+  String selectedFilter = 'All';
+  bool loading = true;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    load();
   }
 
-  Future<void> _load() async {
-    setState(() => _loading = true);
+  Future<void> load() async {
+    setState(() => loading = true);
     await UserService.instance.loadAllProgress();
     await UserService.instance.refreshProfile();
-    if (mounted) setState(() => _loading = false);
+    if (mounted) setState(() => loading = false);
   }
 
-  int get _totalSteps => _kCourses.fold(0, (s, c) => s + (c['totalSteps'] as int));
+  int get totalSteps =>
+      achievementCourses.fold(0, (s, c) => s + (c['totalSteps'] as int));
 
-  int get _completedSteps {
+  int get completedSteps {
     int t = 0;
-    for (final c in _kCourses) {
-      t += UserService.instance.getProgress(c['lessonId'] as String)?.stepsCompleted ?? 0;
+    for (final c in achievementCourses) {
+      t += UserService.instance
+              .getProgress(c['lessonId'] as String)
+              ?.stepsCompleted ??
+          0;
     }
     return t;
   }
 
-  int get _completedCourses => _kCourses
-      .where((c) => UserService.instance.getProgress(c['lessonId'] as String)?.completed ?? false)
+  int get completedCourses => achievementCourses
+      .where((c) =>
+          UserService.instance
+              .getProgress(c['lessonId'] as String)
+              ?.completed ??
+          false)
       .length;
 
-  double get _overallProgress => _totalSteps == 0 ? 0 : (_completedSteps / _totalSteps).clamp(0.0, 1.0);
+  double get overallProgress =>
+      totalSteps == 0 ? 0 : (completedSteps / totalSteps).clamp(0.0, 1.0);
 
-  List<Map<String, dynamic>> get _filtered {
-    switch (_selectedFilter) {
+  List<Map<String, dynamic>> get filtered {
+    switch (selectedFilter) {
       case 'Completed':
-        return _kCourses.where((c) => UserService.instance.getProgress(c['lessonId'] as String)?.completed ?? false).toList();
-      case 'In progress':
-        return _kCourses.where((c) {
-          final p = UserService.instance.getProgress(c['lessonId'] as String);
+        return achievementCourses
+            .where((c) =>
+                UserService.instance
+                    .getProgress(c['lessonId'] as String)
+                    ?.completed ??
+                false)
+            .toList();
+      case 'In Progress':
+        return achievementCourses.where((c) {
+          final p =
+              UserService.instance.getProgress(c['lessonId'] as String);
           return p != null && !p.completed && p.stepsCompleted > 0;
         }).toList();
-      case 'Not Complete':
-        return _kCourses.where((c) => !(UserService.instance.getProgress(c['lessonId'] as String)?.completed ?? false)).toList();
+      case 'Not Started':
+        return achievementCourses.where((c) {
+          final p =
+              UserService.instance.getProgress(c['lessonId'] as String);
+          return p == null || p.stepsCompleted == 0;
+        }).toList();
       default:
-        return _kCourses;
+        return achievementCourses;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 240, 197),
-      body: SafeArea(
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
-                onRefresh: _load,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildStatsCard(),
-                      const SizedBox(height: 10),
-                      _buildFilterTabs(),
-                      const SizedBox(height: 16),
-                      ..._filtered.asMap().entries.map((entry) {
-                        return TweenAnimationBuilder<double>(
-                          duration: Duration(milliseconds: 400 + (entry.key * 100)),
-                          tween: Tween(begin: 0.0, end: 1.0),
-                          curve: Curves.easeOutCubic,
-                          builder: (context, value, child) {
-                            return Opacity(
-                              opacity: value,
-                              child: Transform.translate(
-                                offset: Offset(0, 30 * (1 - value)),
-                                child: child,
+      backgroundColor: const Color(0xFF0D1117),
+      body: Stack(
+        children: [
+          Positioned.fill(
+              child: CustomPaint(painter: AchievementsGridPainter())),
+          SafeArea(
+            child: loading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: const Color(0xFF00D1FF),
+                      backgroundColor:
+                          const Color(0xFF00D1FF).withValues(alpha: 0.1),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: load,
+                    color: const Color(0xFF00D1FF),
+                    backgroundColor: const Color(0xFF161B2E),
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.emoji_events_rounded,
+                                  color: Color(0xFF00D1FF), size: 16),
+                              const SizedBox(width: 6),
+                              Text(
+                                'ACHIEVEMENTS',
+                                style: GoogleFonts.fredoka(
+                                  color: const Color(0xFF00D1FF),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.5,
+                                ),
                               ),
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 14),
-                            child: _AchievementCard(course: entry.value),
+                            ],
                           ),
-                        );
-                      }),
-                      if (_filtered.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 32),
-                          child: Center(
-                            child: Text(
-                              _selectedFilter == 'Completed'
-                                  ? 'No courses completed yet — keep going! 💪'
-                                  : _selectedFilter == 'In progress'
-                                      ? 'No courses started yet!'
-                                      : 'All courses complete! 🎉',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Your Cyber\nMilestones',
+                            style: GoogleFonts.fredoka(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              height: 1.1,
                             ),
                           ),
-                        ),
-                      const SizedBox(height: 5),
-                    ],
+                          const SizedBox(height: 20),
+                          buildStatsCard(),
+                          const SizedBox(height: 16),
+                          buildFilterTabs(),
+                          const SizedBox(height: 16),
+                          ...filtered.asMap().entries.map((entry) {
+                            return TweenAnimationBuilder<double>(
+                              duration: Duration(
+                                  milliseconds: 400 + (entry.key * 100)),
+                              tween: Tween(begin: 0.0, end: 1.0),
+                              curve: Curves.easeOutCubic,
+                              builder: (context, value, child) => Opacity(
+                                opacity: value,
+                                child: Transform.translate(
+                                  offset: Offset(0, 30 * (1 - value)),
+                                  child: child,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 14),
+                                child: AchievementCard(course: entry.value),
+                              ),
+                            );
+                          }),
+                          if (filtered.isEmpty)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 40),
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      selectedFilter == 'Completed'
+                                          ? '🎯'
+                                          : selectedFilter == 'In Progress'
+                                              ? '🚀'
+                                              : '🎉',
+                                      style: const TextStyle(fontSize: 48),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      selectedFilter == 'Completed'
+                                          ? 'No courses completed yet\nKeep going, agent! 💪'
+                                          : selectedFilter == 'In Progress'
+                                              ? 'No courses in progress yet!\nStart a lesson to begin.'
+                                              : 'All courses started! 🎉',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.fredoka(
+                                        fontSize: 16,
+                                        color: Colors.white38,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildStatsCard() {
-    final pct = (_overallProgress * 100).round();
+  Widget buildStatsCard() {
+    final pct = (overallProgress * 100).round();
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF161B2E),
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(
+          color: const Color(0xFF00D1FF).withValues(alpha: 0.2),
+          width: 1.5,
+        ),
       ),
       child: Column(
         children: [
-          const SizedBox(height: 24),
+          Text(
+            'OVERALL PROGRESS',
+            style: GoogleFonts.fredoka(
+              color: const Color(0xFF00D1FF),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 20),
           SizedBox(
             width: 150,
             height: 150,
-            child: Stack(alignment: Alignment.center, children: [
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0, end: _overallProgress),
-                duration: const Duration(milliseconds: 1200),
-                curve: Curves.elasticOut,
-                builder: (_, v, __) => SizedBox(
-                  width: 150,
-                  height: 150,
-                  child: CircularProgressIndicator(
-                    value: v,
-                    strokeWidth: 13,
-                    strokeCap: StrokeCap.round,
-                    backgroundColor: const Color(0xFFF0F4FF),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF26A69A)),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: overallProgress),
+                  duration: const Duration(milliseconds: 1200),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, v, child) => SizedBox(
+                    width: 150,
+                    height: 150,
+                    child: CircularProgressIndicator(
+                      value: v,
+                      strokeWidth: 12,
+                      strokeCap: StrokeCap.round,
+                      backgroundColor:
+                          const Color(0xFF00D1FF).withValues(alpha: 0.1),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        overallProgress >= 1.0
+                            ? const Color(0xFF00E676)
+                            : const Color(0xFF00D1FF),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              Column(mainAxisSize: MainAxisSize.min, children: [
-                Text('$pct%',
-                    style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w900, color: Color(0xFF1A2E45))),
-                const Text('Complete',
-                    style: TextStyle(fontSize: 13, color: Color(0xFF7A9BB5), fontWeight: FontWeight.w600)),
-              ]),
-            ]),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '$pct%',
+                      style: GoogleFonts.fredoka(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      'Complete',
+                      style: GoogleFonts.fredoka(
+                        fontSize: 13,
+                        color: Colors.white38,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _StatPill(
-                  label: '$_completedCourses / ${_kCourses.length}',
-                  sub: 'courses',
-                  bgColor: const Color(0xFFE3F0FC),
-                  textColor: const Color(0xFF1565C0)),
+              StatPill(
+                label: '$completedCourses / ${achievementCourses.length}',
+                sub: 'courses',
+              ),
               const SizedBox(width: 10),
-              _StatPill(
-                  label: '$_completedSteps / $_totalSteps',
-                  sub: 'steps',
-                  bgColor: const Color(0xFFE3F0FC),
-                  textColor: const Color(0xFF1565C0)),
+              StatPill(
+                label: '$completedSteps / $totalSteps',
+                sub: 'steps',
+              ),
             ],
           ),
         ],
@@ -261,39 +354,46 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     );
   }
 
-  Widget _buildFilterTabs() {
-    final filters = ['All', 'Completed', 'In progress', 'Not Complete'];
+  Widget buildFilterTabs() {
+    final filters = ['All', 'Completed', 'In Progress', 'Not Started'];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: filters.map((f) {
-          final isSelected = _selectedFilter == f;
+          final isSelected = selectedFilter == f;
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(
-              onTap: () async {
+              onTap: () {
                 SoundService.playClick();
-                setState(() => _selectedFilter = f);
+                setState(() => selectedFilter = f);
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF1A2E45) : Colors.white,
-                  border: Border.all(
-                    color: isSelected ? const Color(0xFF1A2E45) : Colors.grey.shade300,
-                  ),
+                  color: isSelected
+                      ? const Color(0xFF00D1FF)
+                      : const Color(0xFF161B2E),
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: isSelected
-                      ? [BoxShadow(color: const Color(0xFF1A2E45).withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 3))]
-                      : [],
+                  border: Border.all(
+                    color: isSelected
+                        ? const Color(0xFF00D1FF)
+                        : const Color(0xFF00D1FF).withValues(alpha: 0.2),
+                    width: 1.5,
+                  ),
                 ),
-                child: Text(f,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey.shade600,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      fontSize: 14,
-                    )),
+                child: Text(
+                  f,
+                  style: GoogleFonts.fredoka(
+                    color: isSelected
+                        ? const Color(0xFF0D1117)
+                        : Colors.white54,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
               ),
             ),
           );
@@ -303,181 +403,238 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 }
 
-class _AchievementCard extends StatefulWidget {
+class AchievementCard extends StatefulWidget {
   final Map<String, dynamic> course;
-  const _AchievementCard({required this.course});
+  const AchievementCard({super.key, required this.course});
 
   @override
-  State<_AchievementCard> createState() => _AchievementCardState();
+  State<AchievementCard> createState() => _AchievementCardState();
 }
 
-class _AchievementCardState extends State<_AchievementCard> {
-  bool _expanded = false;
-  bool _isPressed = false;
+class _AchievementCardState extends State<AchievementCard> {
+  bool expanded = false;
+  bool isPressed = false;
 
   @override
   Widget build(BuildContext context) {
-    final lessonId = widget.course['lessonId'] as String;
-    final bgColor = widget.course['bgColor'] as Color;
-    final iconColor = widget.course['iconColor'] as Color;
-    final accentColor = widget.course['accentColor'] as Color;
-    final milestones = widget.course['milestones'] as List;
+    final String lessonId = widget.course['lessonId'] as String;
+    final Color accent = widget.course['accentColor'] as Color;
+    final List milestones = widget.course['milestones'] as List;
 
     final p = UserService.instance.getProgress(lessonId);
-    final steps = p?.stepsCompleted ?? 0;
-    final badgesEarned = milestones.where((m) => steps >= (m['step'] as int)).length;
+    final int steps = p?.stepsCompleted ?? 0;
+    final int totalSteps = widget.course['totalSteps'] as int;
+    final double progressFraction =
+        totalSteps > 0 ? (steps / totalSteps).clamp(0.0, 1.0) : 0.0;
+    final bool isCompleted = steps >= totalSteps && totalSteps > 0;
+    final int badgesEarned =
+        milestones.where((m) => steps >= (m['step'] as int)).length;
 
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
-      onTap: () async {
+      onTapDown: (details) => setState(() => isPressed = true),
+      onTapUp: (details) => setState(() => isPressed = false),
+      onTapCancel: () => setState(() => isPressed = false),
+      onTap: () {
         SoundService.playClick();
-        setState(() => _expanded = !_expanded);
+        setState(() => expanded = !expanded);
       },
       child: AnimatedScale(
-        scale: _isPressed ? 0.98 : 1.0,
-        duration: const Duration(milliseconds: 100),
+        scale: isPressed ? 0.98 : 1.0,
+        duration: const Duration(milliseconds: 120),
         child: Container(
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: bgColor,
+            color: const Color(0xFF161B2E),
             borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: iconColor.withOpacity(0.18),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            border: Border.all(
+              color: isCompleted
+                  ? const Color(0xFF00E676).withValues(alpha: 0.4)
+                  : accent.withValues(alpha: 0.3),
+              width: 1.5,
+            ),
           ),
-          clipBehavior: Clip.hardEdge,
-          child: Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Positioned(
-                right: -20,
-                top: -20,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: iconColor.withOpacity(0.12)),
-                ),
-              ),
-              Positioned(
-                left: -10,
-                bottom: -20,
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: iconColor.withOpacity(0.08)),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              Row(
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        colors: [accent, const Color(0xFF0D1117)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      border: Border.all(
+                        color: accent.withValues(alpha: 0.6),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        widget.course['courseEmoji'] as String,
+                        style: const TextStyle(fontSize: 30),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(color: iconColor.withOpacity(0.25), blurRadius: 10, offset: const Offset(0, 4)),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              widget.course['courseEmoji'] as String,
-                              style: const TextStyle(fontSize: 34),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                widget.course['title'] as String,
+                                style: GoogleFonts.fredoka(
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                          ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 9, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: accent.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                    color: accent.withValues(alpha: 0.4)),
+                              ),
+                              child: Text(
+                                '🏅 $badgesEarned / ${milestones.length}',
+                                style: GoogleFonts.fredoka(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: accent,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      widget.course['title'] as String,
-                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45)),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: iconColor.withOpacity(0.18),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      '🏅 $badgesEarned / ${milestones.length}',
-                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: accentColor),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                widget.course['subtitle'] as String,
-                                style: const TextStyle(fontSize: 13, color: Color(0xFF4A6580), height: 1.4),
-                              ),
-                            ],
+                        const SizedBox(height: 4),
+                        Text(
+                          widget.course['subtitle'] as String,
+                          style: GoogleFonts.fredoka(
+                            fontSize: 13,
+                            color: Colors.white54,
+                            height: 1.4,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
-                    Center(
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Text(
-                          _expanded ? 'Hide badges' : 'View badges',
-                          style: TextStyle(fontSize: 12, color: iconColor, fontWeight: FontWeight.w700),
-                        ),
-                        AnimatedRotation(
-                          turns: _expanded ? 0.5 : 0,
-                          duration: const Duration(milliseconds: 200),
-                          child: Icon(Icons.keyboard_arrow_down, color: iconColor, size: 22),
-                        ),
-                      ]),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '$steps / $totalSteps steps',
+                    style: GoogleFonts.fredoka(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isCompleted ? const Color(0xFF00E676) : accent,
                     ),
-                    AnimatedCrossFade(
-                      firstChild: const SizedBox(width: double.infinity),
-                      secondChild: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 12),
-                          Divider(color: iconColor.withOpacity(0.2), thickness: 1.5),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: milestones.asMap().entries.map((e) {
-                              final m = e.value as Map<String, dynamic>;
-                              final earned = steps >= (m['step'] as int);
-                              return Expanded(
-                                child: _MilestoneBadge(
-                                  emoji: m['emoji'] as String,
-                                  name: m['name'] as String,
-                                  desc: m['desc'] as String,
-                                  earned: earned,
-                                  accentColor: accentColor,
-                                  iconColor: iconColor,
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
+                  ),
+                  Text(
+                    '${(progressFraction * 100).toInt()}%',
+                    style: GoogleFonts.fredoka(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isCompleted ? const Color(0xFF00E676) : accent,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 1000),
+                curve: Curves.easeOutCubic,
+                tween: Tween<double>(begin: 0, end: progressFraction),
+                builder: (context, value, child) => ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: value,
+                    minHeight: 7,
+                    backgroundColor: accent.withValues(alpha: 0.12),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      isCompleted ? const Color(0xFF00E676) : accent,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    expanded ? 'Hide badges' : 'View badges',
+                    style: GoogleFonts.fredoka(
+                      fontSize: 13,
+                      color: const Color(0xFF00D1FF).withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  AnimatedRotation(
+                    turns: expanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 250),
+                    child: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: const Color(0xFF00D1FF).withValues(alpha: 0.6),
+                      size: 20,
+                    ),
+                  ),
+                ],
+              ),
+              AnimatedCrossFade(
+                firstChild: const SizedBox(width: double.infinity),
+                secondChild: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 16),
+                    Divider(
+                      color: const Color(0xFF00D1FF).withValues(alpha: 0.12),
+                      thickness: 1,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'BADGES',
+                      style: GoogleFonts.fredoka(
+                        color: Colors.white38,
+                        fontSize: 11,
+                        letterSpacing: 1.2,
                       ),
-                      crossFadeState: _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                      duration: const Duration(milliseconds: 250),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: milestones.asMap().entries.map((e) {
+                        final m = e.value as Map<String, dynamic>;
+                        final earned = steps >= (m['step'] as int);
+                        return Expanded(
+                          child: MilestoneBadge(
+                            emoji: m['emoji'] as String,
+                            name: m['name'] as String,
+                            desc: m['desc'] as String,
+                            earned: earned,
+                            accent: accent,
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ],
                 ),
+                crossFadeState: expanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 250),
               ),
             ],
           ),
@@ -487,18 +644,18 @@ class _AchievementCardState extends State<_AchievementCard> {
   }
 }
 
-class _MilestoneBadge extends StatelessWidget {
+class MilestoneBadge extends StatelessWidget {
   final String emoji, name, desc;
   final bool earned;
-  final Color accentColor, iconColor;
+  final Color accent;
 
-  const _MilestoneBadge({
+  const MilestoneBadge({
+    super.key,
     required this.emoji,
     required this.name,
     required this.desc,
     required this.earned,
-    required this.accentColor,
-    required this.iconColor,
+    required this.accent,
   });
 
   @override
@@ -506,89 +663,225 @@ class _MilestoneBadge extends StatelessWidget {
     return GestureDetector(
       onTap: () => showDialog(
         context: context,
-        builder: (_) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          backgroundColor: Colors.white,
-          content: Column(mainAxisSize: MainAxisSize.min, children: [
-            TweenAnimationBuilder<double>(
-              duration: const Duration(milliseconds: 600),
-              tween: Tween(begin: 0.0, end: 1.0),
-              curve: Curves.elasticOut,
-              builder: (context, value, child) => Transform.scale(scale: value, child: child),
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: earned ? accentColor.withOpacity(0.15) : Colors.grey.shade100,
+        builder: (context) => Dialog(
+          backgroundColor: const Color(0xFF161B2E),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+            side: BorderSide(
+              color: earned
+                  ? accent.withValues(alpha: 0.4)
+                  : const Color(0xFF00D1FF).withValues(alpha: 0.15),
+              width: 1.5,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 600),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  curve: Curves.elasticOut,
+                  builder: (context, value, child) =>
+                      Transform.scale(scale: value, child: child),
+                  child: Container(
+                    width: 90,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(26),
+                      gradient: LinearGradient(
+                        colors: earned
+                            ? [accent, const Color(0xFF0D1117)]
+                            : [
+                                Colors.white12,
+                                const Color(0xFF0D1117),
+                              ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      border: Border.all(
+                        color: earned
+                            ? accent.withValues(alpha: 0.6)
+                            : Colors.white12,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        earned ? emoji : '🔒',
+                        style: const TextStyle(fontSize: 42),
+                      ),
+                    ),
+                  ),
                 ),
-                child: Center(child: Text(earned ? emoji : '🔒', style: const TextStyle(fontSize: 40))),
-              ),
+                const SizedBox(height: 16),
+                Text(
+                  name,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.fredoka(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  desc,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.fredoka(
+                    fontSize: 14,
+                    color: Colors.white54,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: earned
+                        ? accent.withValues(alpha: 0.15)
+                        : const Color(0xFF00D1FF).withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: earned
+                          ? accent.withValues(alpha: 0.5)
+                          : const Color(0xFF00D1FF).withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Text(
+                    earned ? '✅  Unlocked!' : '🔒  Keep going to unlock',
+                    style: GoogleFonts.fredoka(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: earned ? accent : Colors.white38,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 14),
-            Text(name, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF1A2E45))),
-            const SizedBox(height: 6),
-            Text(desc, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, color: Color(0xFF7A9BB5))),
-            const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: earned ? accentColor.withOpacity(0.12) : const Color(0xFFEFF4FB),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Text(
-                earned ? '✅ Unlocked!' : '🔒 Keep going to unlock',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: earned ? accentColor : const Color(0xFF9AABBF)),
-              ),
-            ),
-          ]),
+          ),
         ),
       ),
-      child: Column(children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: earned ? iconColor.withOpacity(0.18) : Colors.white.withOpacity(0.6),
-            border: Border.all(color: earned ? iconColor : Colors.grey.shade300, width: earned ? 2.5 : 1.5),
-            boxShadow: earned ? [BoxShadow(color: iconColor.withOpacity(0.35), blurRadius: 10, offset: const Offset(0, 4))] : [],
+      child: Column(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: 62,
+            height: 62,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              gradient: LinearGradient(
+                colors: earned
+                    ? [accent.withValues(alpha: 0.3), const Color(0xFF0D1117)]
+                    : [Colors.white.withValues(alpha: 0.04), const Color(0xFF0D1117)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              border: Border.all(
+                color: earned
+                    ? accent.withValues(alpha: 0.7)
+                    : Colors.white.withValues(alpha: 0.1),
+                width: earned ? 2 : 1.5,
+              ),
+              boxShadow: earned
+                  ? [
+                      BoxShadow(
+                        color: accent.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : [],
+            ),
+            child: Center(
+              child: Text(
+                earned ? emoji : '🔒',
+                style: TextStyle(fontSize: earned ? 28 : 22),
+              ),
+            ),
           ),
-          child: Center(child: Text(earned ? emoji : '🔒', style: TextStyle(fontSize: earned ? 28 : 22))),
-        ),
-        const SizedBox(height: 6),
-        Text(name,
+          const SizedBox(height: 7),
+          Text(
+            name,
             textAlign: TextAlign.center,
             maxLines: 2,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: earned ? const Color(0xFF1A2E45) : Colors.grey.shade400)),
-      ]),
+            style: GoogleFonts.fredoka(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: earned ? Colors.white : Colors.white24,
+              height: 1.2,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _StatPill extends StatelessWidget {
+class StatPill extends StatelessWidget {
   final String label, sub;
-  final Color bgColor, textColor;
-  const _StatPill({
+
+  const StatPill({
+    super.key,
     required this.label,
     required this.sub,
-    required this.bgColor,
-    required this.textColor,
   });
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: textColor.withOpacity(0.2), width: 1.5),
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF00D1FF).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: const Color(0xFF00D1FF).withValues(alpha: 0.3),
+          width: 1.5,
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: textColor)),
-          const SizedBox(width: 4),
-          Text(sub, style: TextStyle(fontSize: 11, color: textColor.withOpacity(0.7), fontWeight: FontWeight.w600)),
-        ]),
-      );
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.fredoka(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF00D1FF),
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            sub,
+            style: GoogleFonts.fredoka(
+              fontSize: 12,
+              color: const Color(0xFF00D1FF).withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AchievementsGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF00D1FF).withValues(alpha: 0.04)
+      ..strokeWidth = 1;
+    const spacing = 40.0;
+    for (double x = 0; x < size.width; x += spacing) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += spacing) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
