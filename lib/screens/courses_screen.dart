@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
-import 'baiting/baiting_screen.dart';
-import 'phishing/phishing_screen.dart';
-import 'pretexting/pretexting_screen.dart';
-import 'password/password_screen.dart';
+import 'baiting_screen.dart';
+import 'phishing_screen.dart';
+import 'pretexting_screen.dart';
+import 'password_screen.dart';
 
 const List<Map<String, dynamic>> coursesMeta = [
   {
@@ -13,13 +13,15 @@ const List<Map<String, dynamic>> coursesMeta = [
     'emoji': '🔐',
     'title': 'Password Power',
     'subtitle': 'Create passwords so strong, no hacker can crack them!',
-    'totalSteps': 4,
+    'totalSteps': 6,
     'accentColor': Color(0xFFFFC857),
     'steps': [
-      'Introduction',
       'Why passwords matter',
-      'Weak passwords',
-      'Strong passwords',
+      'Spot weak passwords',
+      'The 4 rules',
+      'The passphrase trick',
+      'Quiz',
+      'Build your own',
     ],
   },
   {
@@ -177,7 +179,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Choose Your\nNext Mission',
+                                    'Choose Your Next Mission',
                                     style: GoogleFonts.fredoka(
                                       fontSize: 32,
                                       fontWeight: FontWeight.w700,

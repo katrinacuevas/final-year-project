@@ -8,11 +8,11 @@ const List<Map<String, dynamic>> profileCourses = [
     'title': 'Password Power',
     'emoji': '🔐',
     'accentColor': Color(0xFFFFC857),
-    'totalSteps': 4,
+    'totalSteps': 6,
     'milestones': [
       {'step': 1, 'emoji': '🔑', 'name': 'First Key', 'desc': 'Started your first lesson'},
-      {'step': 2, 'emoji': '🛡️', 'name': 'Shield Up', 'desc': 'Halfway through the course'},
-      {'step': 4, 'emoji': '🏅', 'name': 'Password Master', 'desc': 'Completed Password Power!'},
+      {'step': 3, 'emoji': '🛡️', 'name': 'Shield Up', 'desc': 'Halfway through the course'},
+      {'step': 6, 'emoji': '🏅', 'name': 'Password Master', 'desc': 'Completed Password Power!'},
     ],
   },
   {
