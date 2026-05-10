@@ -740,7 +740,7 @@ class _QuizStepState extends State<_QuizStep> {
                               fontWeight: FontWeight.w600,
                               color: textColor)),
                     ),
-                    if (trailing != null) trailing!,
+                    ?trailing,
                   ]),
                 ),
               ),
@@ -1051,36 +1051,15 @@ class _CompleteStepState extends State<_CompleteStep> {
     return 1;
   }
 
-  String get _emoji {
-    if (_stars == 3) return '🏆';
-    if (_stars == 2) return '🎉';
-    return '💪';
-  }
-
-  String get _title {
-    if (_stars == 3) return 'Perfect Score!';
-    if (_stars == 2) return 'Great Effort!';
-    return 'Good Try!';
-  }
-
-  String get _subtitle {
-    if (_stars == 3) return "You've completed Password Power!";
-    if (_stars == 2) return 'You got \${widget.score} out of \${widget.total} — solid work!';
-    return 'You got \${widget.score} out of \${widget.total} — review the lessons and try again!';
-  }
-
   String get _encouragement {
-    if (_stars == 3) return 'You nailed every question! 🌟';
-    if (_stars == 2) return 'Almost there — revisit the tricky bits to get full marks!';
-    return "Don't give up — each attempt makes you smarter and safer online!";
+    final pct = widget.total == 0 ? 0.0 : widget.score / widget.total;
+    if (pct >= 0.6) return "So close! Just a couple more to go — you've got this!";
+    if (pct >= 0.4) return "Good start! Review the lessons and give it another shot.";
+    return "Don't worry — each attempt makes you smarter and safer online!";
   }
 
-  Future<void> finish(BuildContext ctx) async {
+    Future<void> finish(BuildContext ctx) async {
     if (claiming) return;
-    if (_stars < 3) {
-      await RetryDialog.show(ctx, lessonId: 'password_power', score: widget.score, total: widget.total, onRetry: widget.onRetry);
-      return;
-    }
     setState(() => claiming = true);
     try {
       await UserService.instance.saveProgress(LessonProgress(
@@ -1089,14 +1068,81 @@ class _CompleteStepState extends State<_CompleteStep> {
       if (!ctx.mounted) return;
       await XpAward.show(ctx, lessonId: 'password_power', amount: 200);
       widget.onDone();
-    } catch (e) {
-      debugPrint('Error finishing lesson: \$e');
-      widget.onDone();
-    }
+    } catch (e) { debugPrint('Error: $e'); widget.onDone(); }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_stars < 3) {
+      // ── Retry view ────────────────────────────────────────────────────────
+      final int missed = widget.total - widget.score;
+      return SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+        child: Column(children: [
+          Container(
+            width: 110, height: 110,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              color: _kCard,
+              border: Border.all(color: _kRed.withValues(alpha: 0.4), width: 2),
+            ),
+            child: const Center(child: Text('📖', style: TextStyle(fontSize: 54))),
+          ).animate().scale(curve: Curves.elasticOut),
+          const SizedBox(height: 20),
+          Text('Not quite there yet!',
+            style: GoogleFonts.fredoka(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white)),
+          const SizedBox(height: 8),
+          Text(_encouragement, textAlign: TextAlign.center,
+            style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54, height: 1.5)),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: _kCard, borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: _kAccent.withValues(alpha: 0.15)),
+            ),
+            child: Row(children: [
+              Expanded(child: Column(children: [
+                Text('${widget.score}',
+                  style: GoogleFonts.fredoka(fontSize: 36, fontWeight: FontWeight.w700, color: _kGreen)),
+                Text('correct', style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
+              ])),
+              Container(width: 1, height: 44, color: Colors.white12),
+              Expanded(child: Column(children: [
+                Text('$missed',
+                  style: GoogleFonts.fredoka(fontSize: 36, fontWeight: FontWeight.w700, color: _kRed)),
+                Text('to review', style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
+              ])),
+              Container(width: 1, height: 44, color: Colors.white12),
+              Expanded(child: Column(children: [
+                Text('${widget.total}',
+                  style: GoogleFonts.fredoka(fontSize: 36, fontWeight: FontWeight.w700, color: Colors.white54)),
+                Text('total', style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
+              ])),
+            ]),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: _kAccent.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: _kAccent.withValues(alpha: 0.25)),
+            ),
+            child: Row(children: [
+              const Text('💡', style: TextStyle(fontSize: 18)),
+              const SizedBox(width: 10),
+              Expanded(child: Text(
+                'You need to get every question right to complete the lesson and earn your XP.',
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+            ]),
+          ),
+          const SizedBox(height: 28),
+          _NextButton(onTap: widget.onRetry, label: '🔄  Try Again'),
+        ]),
+      );
+    }
+
+    // ── Success view ────────────────────────────────────────────────────────
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
       child: Column(children: [
@@ -1104,21 +1150,21 @@ class _CompleteStepState extends State<_CompleteStep> {
           width: 110, height: 110,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
-            gradient: LinearGradient(
-              colors: [_stars == 3 ? const Color(0xFFFFD700) : _stars == 2 ? _kAccent : _kCard, _kBg],
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFFD700), _kBg],
               begin: Alignment.topLeft, end: Alignment.bottomRight,
             ),
-            border: Border.all(
-              color: (_stars == 3 ? const Color(0xFFFFD700) : _stars == 2 ? _kAccent : Colors.white24).withValues(alpha: 0.6), width: 2),
+            border: Border.all(color: Color(0xFFFFD700).withValues(alpha: 0.6), width: 2),
           ),
-          child: Center(child: Text(_emoji, style: const TextStyle(fontSize: 54))),
+          child: const Center(child: Text('🏆', style: TextStyle(fontSize: 54))),
         ).animate().scale(curve: Curves.elasticOut),
         const SizedBox(height: 20),
-        Text(_title, style: GoogleFonts.fredoka(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
+        Text('Perfect Score! 🎉',
+          style: GoogleFonts.fredoka(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
         const SizedBox(height: 8),
-        Text(_subtitle, textAlign: TextAlign.center,
+        Text("You've completed this lesson!",
           style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54)),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         Container(
           width: double.infinity, padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
@@ -1126,88 +1172,51 @@ class _CompleteStepState extends State<_CompleteStep> {
             border: Border.all(color: _kAccent.withValues(alpha: 0.15)),
           ),
           child: Column(children: [
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(3, (i) =>
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 3),
-                child: Text(
-                  i < _stars ? '⭐' : '☆',
-                  style: TextStyle(fontSize: 32, color: i < _stars ? const Color(0xFFFFD700) : Colors.white12),
-                ),
-              ),
-            )),
-            const SizedBox(height: 10),
-            Text(
-              _stars == 3 ? '3 Stars — Amazing!' : _stars == 2 ? '2 Stars — Well Done!' : '1 Star — Keep Practising!',
-              style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFD700).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFFD700).withValues(alpha: 0.4)),
-              ),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                const Text('⭐', style: TextStyle(fontSize: 22)),
-                const SizedBox(width: 8),
-                Text('+\$_awardedXp XP', style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFFFFD700))),
-              ])),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: _kAccent.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: _kAccent.withValues(alpha: 0.3)),
-              ),
-              child: Text('\${widget.score} / \${widget.total} correct',
-                style: GoogleFonts.fredoka(fontSize: 13, color: _kAccent, fontWeight: FontWeight.w700)),
-            ),
+          const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text('⭐', style: TextStyle(fontSize: 30)),
+            SizedBox(width: 4),
+            Text('⭐', style: TextStyle(fontSize: 30)),
+            SizedBox(width: 4),
+            Text('⭐', style: TextStyle(fontSize: 30)),
           ]),
-        ),
-        const SizedBox(height: 14),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: _stars >= 2 ? _kGreen.withValues(alpha: 0.07) : _kAccent.withValues(alpha: 0.07),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: _stars >= 2 ? _kGreen.withValues(alpha: 0.3) : _kAccent.withValues(alpha: 0.3)),
-          ),
-          child: Row(children: [
-            Text(_stars >= 2 ? '🌟' : '📖', style: const TextStyle(fontSize: 20)),
-            const SizedBox(width: 10),
-            Expanded(child: Text(_encouragement,
-              style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white70, height: 1.4))),
-          ]),
-        ),
+          const SizedBox(height: 8),
+          Text('3 Stars — Amazing!',
+            style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              color: Color(0xFFFFD700).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Color(0xFFFFD700).withValues(alpha: 0.4)),
+            ),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              const Text('⭐', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 8),
+              Text('+200 XP',
+                style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFFFFD700))),
+            ])),
+        ])),
         const SizedBox(height: 16),
-        _InfoCard(
-          color: _kAccent, emoji: '🏅',
-          title: 'Badge Unlocked: Password Master!',
-          body: "You know how to build a password that even hackers can't crack — AND you made one yourself!",
-        ),
+        _InfoCard(color: _kAccent, emoji: '🏅', title: 'Badge Unlocked: Password Master!',
+          body: "You know how to build a password that even hackers can't crack — AND you made one yourself!"),
         const SizedBox(height: 20),
         Align(alignment: Alignment.centerLeft,
-          child: Text('WHAT YOU LEARNED', style: GoogleFonts.fredoka(fontSize: 11, color: Colors.white38, letterSpacing: 1.2))),
+          child: Text('WHAT YOU LEARNED',
+            style: GoogleFonts.fredoka(fontSize: 11, color: Colors.white38, letterSpacing: 1.2))),
         const SizedBox(height: 10),
-        _SummaryTile(emoji: '🏠', text: 'Why passwords protect your online life'),
-        _SummaryTile(emoji: '😬', text: 'How to spot a weak, hackable password'),
-        _SummaryTile(emoji: '💪', text: 'The 4 rules of a strong password'),
-        _SummaryTile(emoji: '🧠', text: 'The passphrase trick'),
-        _SummaryTile(emoji: '🛠️', text: 'Built your very own strong password!'),
+      _SummaryTile(emoji: '🏠', text: 'Why passwords protect your online life'),
+      _SummaryTile(emoji: '😬', text: 'How to spot a weak, hackable password'),
+      _SummaryTile(emoji: '💪', text: 'The 4 rules of a strong password'),
+      _SummaryTile(emoji: '🧠', text: 'The passphrase trick'),
+      _SummaryTile(emoji: '🛠️', text: 'Built your very own strong password!'),
         const SizedBox(height: 28),
-        _NextButton(
-        onTap: () => finish(context),
-        enabled: _stars < 3 ? true : !claiming,
-        label: _stars < 3 ? '🔄  Try Again' : (claiming ? 'Claiming...' : '🎉  Claim your XP!'),
-      ),
+        _NextButton(onTap: () => finish(context), enabled: !claiming,
+          label: claiming ? 'Claiming...' : '🎉  Claim your XP!'),
       ]),
     );
   }
 }
-
-// ─── Shared Components ────────────────────────────────────────────────────────
 
 class _LessonProgressBar extends StatelessWidget {
   final int current;

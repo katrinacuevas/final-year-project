@@ -181,16 +181,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Your Cyber Achievements!',
-                            style: GoogleFonts.fredoka(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              height: 1.1,
-                            ),
-                          ),
                           const SizedBox(height: 20),
                           buildStatsCard(),
                           const SizedBox(height: 16),

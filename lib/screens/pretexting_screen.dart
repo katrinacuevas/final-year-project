@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:characters/characters.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:final_year_project/services/user_service.dart';
@@ -771,6 +772,8 @@ class _FinalChallengeState extends State<_FinalChallenge> {
       'title': 'The "IT Teacher"',
       'roomName': 'MrDavies_ITSupport',
       'roomAvatar': '🖥️',
+      'strangerEmoji': '🧑‍💻',
+      'strangerColour': '0xFF1565C0',
       'messages': [
         {'from': 'stranger', 'text': 'Hi! I\'m Mr Davies, the new IT cover teacher. I\'m doing an account audit today 🖥️', 'delay': 700},
         {'from': 'you',      'text': 'Oh… okay?',                                                                            'delay': 1200},
@@ -797,6 +800,8 @@ class _FinalChallengeState extends State<_FinalChallenge> {
       'title': 'The "Old Friend"',
       'roomName': 'Mia_PrimarySchool',
       'roomAvatar': '👧',
+      'strangerEmoji': '🕵️',
+      'strangerColour': '0xFF6A1B9A',
       'messages': [
         {'from': 'stranger', 'text': 'Heyyy! It\'s Mia from your old primary school 😄 Do you remember me??', 'delay': 700},
         {'from': 'you',      'text': 'Oh hey! I think I remember you?',                                         'delay': 1200},
@@ -954,9 +959,13 @@ class _FinalChallengeState extends State<_FinalChallenge> {
                 isYou: isYou,
                 senderName: isYou ? 'You' : scenario['roomName'] as String,
                 scrollCtrl: _scrollCtrl,
+                userEmoji: UserService.instance.profile?.avatarEmoji ?? '🧒',
+                userColour: Color(int.parse(UserService.instance.profile?.avatarColour ?? '0xFF00D1FF')),
+                strangerEmoji: scenario['strangerEmoji'] as String,
+                strangerColour: Color(int.parse(scenario['strangerColour'] as String)),
               );
             }),
-            if (isTyping) _TypingIndicator(key: ValueKey('typing_$scenarioIndex')),
+            if (isTyping) _TypingIndicator(key: ValueKey('typing_$scenarioIndex'), strangerColour: Color(int.parse(scenario['strangerColour'] as String))),
             if (choicePhase && !showFeedback) ...[
               const SizedBox(height: 8),
               _ChoicePrompt(
@@ -1025,7 +1034,21 @@ class _AnimatedChatBubble extends StatefulWidget {
   final String text, senderName;
   final bool isYou;
   final ScrollController scrollCtrl;
-  const _AnimatedChatBubble({super.key, required this.text, required this.isYou, required this.senderName, required this.scrollCtrl});
+  final String userEmoji;
+  final Color userColour;
+  final String strangerEmoji;
+  final Color strangerColour;
+  const _AnimatedChatBubble({
+    super.key,
+    required this.text,
+    required this.isYou,
+    required this.senderName,
+    required this.scrollCtrl,
+    required this.userEmoji,
+    required this.userColour,
+    required this.strangerEmoji,
+    required this.strangerColour,
+  });
   @override
   State<_AnimatedChatBubble> createState() => _AnimatedChatBubbleState();
 }
@@ -1051,23 +1074,27 @@ class _AnimatedChatBubbleState extends State<_AnimatedChatBubble> with SingleTic
     _startTyping();
   }
 
+    List<String> _chars = [];
+
   void _startTyping() {
-    if (widget.isYou) {
-      setState(() => _displayed = widget.text);
-      return;
-    }
-    _typeTimer = Timer.periodic(const Duration(milliseconds: 28), (t) {
-      if (!mounted) { t.cancel(); return; }
-      if (_charIndex >= widget.text.length) { t.cancel(); return; }
-      _charIndex++;
-      setState(() => _displayed = widget.text.substring(0, _charIndex));
-      if (_charIndex % 5 == 0 && widget.scrollCtrl.hasClients) {
-        widget.scrollCtrl.animateTo(
-          widget.scrollCtrl.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 80),
-          curve: Curves.easeOut,
-        );
-      }
+    _chars = widget.text.characters.toList();
+    final int msPerChar = widget.isYou ? 22 : 28;
+    final int startDelay = widget.isYou ? 300 : 0;
+    Future.delayed(Duration(milliseconds: startDelay), () {
+      if (!mounted) return;
+      _typeTimer = Timer.periodic(Duration(milliseconds: msPerChar), (t) {
+        if (!mounted) { t.cancel(); return; }
+        if (_charIndex >= _chars.length) { t.cancel(); return; }
+        _charIndex++;
+        setState(() => _displayed = _chars.sublist(0, _charIndex).join());
+        if (_charIndex % 5 == 0 && widget.scrollCtrl.hasClients) {
+          widget.scrollCtrl.animateTo(
+            widget.scrollCtrl.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 80),
+            curve: Curves.easeOut,
+          );
+        }
+      });
     });
   }
 
@@ -1134,7 +1161,8 @@ class _AnimatedChatBubbleState extends State<_AnimatedChatBubble> with SingleTic
 }
 
 class _TypingIndicator extends StatefulWidget {
-  const _TypingIndicator({super.key});
+  final Color strangerColour;
+  const _TypingIndicator({super.key, required this.strangerColour});
   @override
   State<_TypingIndicator> createState() => _TypingIndicatorState();
 }
@@ -1177,7 +1205,7 @@ class _TypingIndicatorState extends State<_TypingIndicator> with SingleTickerPro
               width: 7, height: 7,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _kAccent.withValues(alpha: 0.3 + 0.6 * _dotAnims[i].value),
+                color: widget.strangerColour.withValues(alpha: 0.3 + 0.6 * _dotAnims[i].value),
               ),
             ),
           ),
@@ -1413,42 +1441,15 @@ class _CompleteStepState extends State<_CompleteStep> {
     return 1;
   }
 
-  int get _awardedXp {
-    if (_stars == 3) return 180;
-    if (_stars == 2) return (180 * 0.7).round();
-    return (180 * 0.4).round();
-  }
-
-  String get _emoji {
-    if (_stars == 3) return '🏆';
-    if (_stars == 2) return '🎉';
-    return '💪';
-  }
-
-  String get _title {
-    if (_stars == 3) return 'Perfect Score!';
-    if (_stars == 2) return 'Great Effort!';
-    return 'Good Try!';
-  }
-
-  String get _subtitle {
-    if (_stars == 3) return "You've completed Pretexting!";
-    if (_stars == 2) return 'You got ${widget.score} out of ${widget.total} — solid work!';
-    return 'You got ${widget.score} out of ${widget.total} — review the lessons and try again!';
-  }
-
   String get _encouragement {
-    if (_stars == 3) return 'You nailed every question! 🌟';
-    if (_stars == 2) return 'Almost there — revisit the tricky bits to get full marks!';
-    return "Don't give up — each attempt makes you smarter and safer online!";
+    final pct = widget.total == 0 ? 0.0 : widget.score / widget.total;
+    if (pct >= 0.6) return "So close! Just a couple more to go — you've got this!";
+    if (pct >= 0.4) return "Good start! Review the lessons and give it another shot.";
+    return "Don't worry — each attempt makes you smarter and safer online!";
   }
 
-  Future<void> _finish(BuildContext context) async {
+    Future<void> _finish(BuildContext context) async {
     if (claiming) return;
-    if (_stars < 3) {
-      await RetryDialog.show(context, lessonId: 'pretexting', score: widget.score, total: widget.total, onRetry: widget.onRetry);
-      return;
-    }
     setState(() => claiming = true);
     try {
       await UserService.instance.saveProgress(LessonProgress(
@@ -1461,93 +1462,144 @@ class _CompleteStepState extends State<_CompleteStep> {
   }
 
   @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-    padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-    child: Column(children: [
-      Container(
-        width: 110, height: 110,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          gradient: LinearGradient(
-            colors: [_stars == 3 ? const Color(0xFFFFD700) : _stars == 2 ? _kAccent : _kCard, _kBg],
-            begin: Alignment.topLeft, end: Alignment.bottomRight,
-          ),
-          border: Border.all(
-            color: (_stars == 3 ? const Color(0xFFFFD700) : _stars == 2 ? _kAccent : Colors.white24).withValues(alpha: 0.6), width: 2),
-        ),
-        child: Center(child: Text(_emoji, style: const TextStyle(fontSize: 54))),
-      ).animate().scale(curve: Curves.elasticOut),
-      const SizedBox(height: 20),
-      Text(_title, style: GoogleFonts.fredoka(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
-      const SizedBox(height: 8),
-      Text(_subtitle, textAlign: TextAlign.center,
-        style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54)),
-      const SizedBox(height: 20),
-      _WhiteCard(child: Column(children: [
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(3, (i) =>
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 3),
-            child: Text(
-              i < _stars ? '⭐' : '☆',
-              style: TextStyle(fontSize: 32, color: i < _stars ? const Color(0xFFFFD700) : Colors.white12),
+  Widget build(BuildContext context) {
+    if (_stars < 3) {
+      // ── Retry view ────────────────────────────────────────────────────────
+      final int missed = widget.total - widget.score;
+      return SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+        child: Column(children: [
+          Container(
+            width: 110, height: 110,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              color: _kCard,
+              border: Border.all(color: _kRed.withValues(alpha: 0.4), width: 2),
             ),
+            child: const Center(child: Text('📖', style: TextStyle(fontSize: 54))),
+          ).animate().scale(curve: Curves.elasticOut),
+          const SizedBox(height: 20),
+          Text('Not quite there yet!',
+            style: GoogleFonts.fredoka(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white)),
+          const SizedBox(height: 8),
+          Text(_encouragement, textAlign: TextAlign.center,
+            style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54, height: 1.5)),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: _kCard, borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: _kAccent.withValues(alpha: 0.15)),
+            ),
+            child: Row(children: [
+              Expanded(child: Column(children: [
+                Text('\${widget.score}',
+                  style: GoogleFonts.fredoka(fontSize: 36, fontWeight: FontWeight.w700, color: _kGreen)),
+                Text('correct', style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
+              ])),
+              Container(width: 1, height: 44, color: Colors.white12),
+              Expanded(child: Column(children: [
+                Text('\$missed',
+                  style: GoogleFonts.fredoka(fontSize: 36, fontWeight: FontWeight.w700, color: _kRed)),
+                Text('to review', style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
+              ])),
+              Container(width: 1, height: 44, color: Colors.white12),
+              Expanded(child: Column(children: [
+                Text('\${widget.total}',
+                  style: GoogleFonts.fredoka(fontSize: 36, fontWeight: FontWeight.w700, color: Colors.white54)),
+                Text('total', style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
+              ])),
+            ]),
           ),
-        )),
-        const SizedBox(height: 10),
-        Text(
-          _stars == 3 ? '3 Stars — Amazing!' : _stars == 2 ? '2 Stars — Well Done!' : '1 Star — Keep Practising!',
-          style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFD700).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFFFD700).withValues(alpha: 0.4)),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: _kAccent.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: _kAccent.withValues(alpha: 0.25)),
+            ),
+            child: Row(children: [
+              const Text('💡', style: TextStyle(fontSize: 18)),
+              const SizedBox(width: 10),
+              Expanded(child: Text(
+                'You need to get every question right to complete the lesson and earn your XP.',
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+            ]),
           ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            const Text('⭐', style: TextStyle(fontSize: 22)),
-            const SizedBox(width: 8),
-            Text('+$_awardedXp XP', style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFFFFD700))),
-          ])),
-
-      ])),
-      const SizedBox(height: 14),
-      Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: _stars >= 2 ? _kGreen.withValues(alpha: 0.07) : _kAccent.withValues(alpha: 0.07),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _stars >= 2 ? _kGreen.withValues(alpha: 0.3) : _kAccent.withValues(alpha: 0.3)),
-        ),
-        child: Row(children: [
-          Text(_stars >= 2 ? '🌟' : '📖', style: const TextStyle(fontSize: 20)),
-          const SizedBox(width: 10),
-          Expanded(child: Text(_encouragement,
-            style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white70, height: 1.4))),
+          const SizedBox(height: 28),
+          _NextBtn(onTap: widget.onRetry, label: '🔄  Try Again'),
         ]),
-      ),
-      const SizedBox(height: 16),
-      _InfoCard(color: _kAccent, emoji: '🎭', title: 'Badge Unlocked: Pretexting Detective!',
-        body: 'You can now see through fake identities and invented stories!'),
-      const SizedBox(height: 20),
-      Align(alignment: Alignment.centerLeft,
-        child: Text('WHAT YOU LEARNED', style: GoogleFonts.fredoka(fontSize: 11, color: Colors.white38, letterSpacing: 1.2))),
-      const SizedBox(height: 10),
-      const _SummaryRow(emoji: '🎭', text: 'What pretexting is and how it works'),
-      const _SummaryRow(emoji: '🪪', text: 'Common fake identities pretexters use'),
-      const _SummaryRow(emoji: '💻', text: 'How impersonation works online and via email'),
-      const _SummaryRow(emoji: '🧠', text: 'How to trust your instincts with the PAUSE rule'),
-      const _SummaryRow(emoji: '🎬', text: 'Two real-life scenario challenges'),
-      const SizedBox(height: 28),
-      _NextBtn(
-        onTap: () => _finish(context),
-        enabled: _stars < 3 ? true : !claiming,
-        label: _stars < 3 ? '🔄  Try Again' : (claiming ? 'Claiming...' : '🎉  Claim your XP!'),
-      ),
-    ]),
-  );
+      );
+    }
+
+    // ── Success view ────────────────────────────────────────────────────────
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+      child: Column(children: [
+        Container(
+          width: 110, height: 110,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFFD700), _kBg],
+              begin: Alignment.topLeft, end: Alignment.bottomRight,
+            ),
+            border: Border.all(color: Color(0xFFFFD700).withValues(alpha: 0.6), width: 2),
+          ),
+          child: const Center(child: Text('🏆', style: TextStyle(fontSize: 54))),
+        ).animate().scale(curve: Curves.elasticOut),
+        const SizedBox(height: 20),
+        Text('Perfect Score! 🎉',
+          style: GoogleFonts.fredoka(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
+        const SizedBox(height: 8),
+        Text("You've completed this lesson!",
+          style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54)),
+        const SizedBox(height: 24),
+        _WhiteCard(child: Column(children: [
+          const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text('⭐', style: TextStyle(fontSize: 30)),
+            SizedBox(width: 4),
+            Text('⭐', style: TextStyle(fontSize: 30)),
+            SizedBox(width: 4),
+            Text('⭐', style: TextStyle(fontSize: 30)),
+          ]),
+          const SizedBox(height: 8),
+          Text('3 Stars — Amazing!',
+            style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              color: Color(0xFFFFD700).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Color(0xFFFFD700).withValues(alpha: 0.4)),
+            ),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              const Text('⭐', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 8),
+              Text('+180 XP',
+                style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFFFFD700))),
+            ])),
+        ])),
+        const SizedBox(height: 16),
+        _InfoCard(color: _kAccent, emoji: '🎭', title: 'Badge Unlocked: Pretexting Detective!',
+          body: 'You can now see through fake identities and invented stories!'),
+        const SizedBox(height: 20),
+        Align(alignment: Alignment.centerLeft,
+          child: Text('WHAT YOU LEARNED',
+            style: GoogleFonts.fredoka(fontSize: 11, color: Colors.white38, letterSpacing: 1.2))),
+        const SizedBox(height: 10),
+      _SummaryRow(emoji: '🎭', text: 'What pretexting is and how it works'),
+      _SummaryRow(emoji: '🪪', text: 'Common fake identities pretexters use'),
+      _SummaryRow(emoji: '💻', text: 'How impersonation works online and via email'),
+      _SummaryRow(emoji: '🧠', text: 'How to trust your instincts with the PAUSE rule'),
+      _SummaryRow(emoji: '🎬', text: 'Two real-life scenario challenges'),
+        const SizedBox(height: 28),
+        _NextBtn(onTap: () => _finish(context), enabled: !claiming,
+          label: claiming ? 'Claiming...' : '🎉  Claim your XP!'),
+      ]),
+    );
+  }
 }
 
 class _SummaryRow extends StatelessWidget {

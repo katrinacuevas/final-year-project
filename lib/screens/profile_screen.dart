@@ -211,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   color: Color(0xFF00D1FF), size: 16),
                               const SizedBox(width: 6),
                               Text(
-                                'MY PROFILE',
+                                'PROFILE',
                                 style: GoogleFonts.fredoka(
                                   color: const Color(0xFF00D1FF),
                                   fontSize: 12,

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:characters/characters.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:final_year_project/services/user_service.dart';
@@ -669,6 +670,8 @@ class _ChatSimActivityState extends State<_ChatSimActivity> {
       'title': 'Free V-Bucks DM',
       'roomName': 'FortnitePro_X99',
       'roomAvatar': '🎮',
+      'strangerEmoji': '😈',
+      'strangerColour': '0xFFE53935',
       'messages': [
         {'from': 'stranger', 'text': 'Yo!! I know a way to get FREE V-Bucks 💎 Want 10,000 for nothing?', 'delay': 700},
         {'from': 'you',      'text': 'Wait… seriously?? 😮',                                                'delay': 1200},
@@ -691,6 +694,8 @@ class _ChatSimActivityState extends State<_ChatSimActivity> {
       'title': 'The Prize Winner Message',
       'roomName': 'PrizeZone_Official',
       'roomAvatar': '🏆',
+      'strangerEmoji': '🤑',
+      'strangerColour': '0xFFFF8A65',
       'messages': [
         {'from': 'stranger', 'text': 'Congratulations!! 🎉 You\'ve been randomly selected to win a FREE PlayStation 5!', 'delay': 700},
         {'from': 'you',      'text': 'Really?? I never entered anything though… 😕',                                       'delay': 1300},
@@ -713,6 +718,8 @@ class _ChatSimActivityState extends State<_ChatSimActivity> {
       'title': 'The USB Stick Find',
       'roomName': 'SchoolFriend_Liam',
       'roomAvatar': '🧑',
+      'strangerEmoji': '🕵️',
+      'strangerColour': '0xFF7B1FA2',
       'messages': [
         {'from': 'stranger', 'text': 'Oi!! I found this USB on the floor outside school — it says "FUNNY VIDEOS" on it 😂', 'delay': 700},
         {'from': 'you',      'text': 'Haha no way, what\'s on it?? 👀',                                                       'delay': 1200},
@@ -866,9 +873,13 @@ class _ChatSimActivityState extends State<_ChatSimActivity> {
                 isYou: isYou,
                 senderName: isYou ? 'You' : scenario['roomName'] as String,
                 scrollCtrl: _scrollCtrl,
+                userEmoji: UserService.instance.profile?.avatarEmoji ?? '🧒',
+                userColour: Color(int.parse(UserService.instance.profile?.avatarColour ?? '0xFF00D1FF')),
+                strangerEmoji: scenario['strangerEmoji'] as String,
+                strangerColour: Color(int.parse(scenario['strangerColour'] as String)),
               );
             }),
-            if (isTyping) _TypingIndicator(key: ValueKey('typing_$scenarioIndex')),
+            if (isTyping) _TypingIndicator(key: ValueKey('typing_$scenarioIndex'), strangerColour: Color(int.parse(scenario['strangerColour'] as String))),
             if (choicePhase && !showFeedback) ...[
               const SizedBox(height: 8),
               _ChoicePrompt(
@@ -937,7 +948,21 @@ class _AnimatedChatBubble extends StatefulWidget {
   final String text, senderName;
   final bool isYou;
   final ScrollController scrollCtrl;
-  const _AnimatedChatBubble({super.key, required this.text, required this.isYou, required this.senderName, required this.scrollCtrl});
+  final String userEmoji;
+  final Color userColour;
+  final String strangerEmoji;
+  final Color strangerColour;
+  const _AnimatedChatBubble({
+    super.key,
+    required this.text,
+    required this.isYou,
+    required this.senderName,
+    required this.scrollCtrl,
+    required this.userEmoji,
+    required this.userColour,
+    required this.strangerEmoji,
+    required this.strangerColour,
+  });
   @override
   State<_AnimatedChatBubble> createState() => _AnimatedChatBubbleState();
 }
@@ -963,23 +988,27 @@ class _AnimatedChatBubbleState extends State<_AnimatedChatBubble> with SingleTic
     _startTyping();
   }
 
+    List<String> _chars = [];
+
   void _startTyping() {
-    if (widget.isYou) {
-      setState(() => _displayed = widget.text);
-      return;
-    }
-    _typeTimer = Timer.periodic(const Duration(milliseconds: 28), (t) {
-      if (!mounted) { t.cancel(); return; }
-      if (_charIndex >= widget.text.length) { t.cancel(); return; }
-      _charIndex++;
-      setState(() => _displayed = widget.text.substring(0, _charIndex));
-      if (_charIndex % 5 == 0 && widget.scrollCtrl.hasClients) {
-        widget.scrollCtrl.animateTo(
-          widget.scrollCtrl.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 80),
-          curve: Curves.easeOut,
-        );
-      }
+    _chars = widget.text.characters.toList();
+    final int msPerChar = widget.isYou ? 22 : 28;
+    final int startDelay = widget.isYou ? 300 : 0;
+    Future.delayed(Duration(milliseconds: startDelay), () {
+      if (!mounted) return;
+      _typeTimer = Timer.periodic(Duration(milliseconds: msPerChar), (t) {
+        if (!mounted) { t.cancel(); return; }
+        if (_charIndex >= _chars.length) { t.cancel(); return; }
+        _charIndex++;
+        setState(() => _displayed = _chars.sublist(0, _charIndex).join());
+        if (_charIndex % 5 == 0 && widget.scrollCtrl.hasClients) {
+          widget.scrollCtrl.animateTo(
+            widget.scrollCtrl.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 80),
+            curve: Curves.easeOut,
+          );
+        }
+      });
     });
   }
 
@@ -992,53 +1021,68 @@ class _AnimatedChatBubbleState extends State<_AnimatedChatBubble> with SingleTic
 
   @override
   Widget build(BuildContext context) {
-    final String label = widget.isYou
-        ? 'You'
-        : (widget.senderName.length > 22 ? '${widget.senderName.substring(0, 22)}...' : widget.senderName);
+    final String label = widget.isYou ? 'You'
+        : (widget.senderName.characters.length > 18 ? '${widget.senderName.characters.take(18)}...' : widget.senderName);
+    final Color avatarCol = widget.isYou ? widget.userColour : widget.strangerColour;
+    final String avatarEmoji = widget.isYou ? widget.userEmoji : widget.strangerEmoji;
+    final bool typing = _displayed.isEmpty && _charIndex == 0;
+
+    final Widget avatar = Container(
+      width: 36, height: 36,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: avatarCol.withValues(alpha: 0.18),
+        border: Border.all(color: avatarCol.withValues(alpha: 0.5), width: 1.5),
+      ),
+      child: Center(child: Text(avatarEmoji, style: const TextStyle(fontSize: 18))),
+    );
+
+    final Widget bubble = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: widget.isYou ? widget.userColour.withValues(alpha: 0.12) : _kCard,
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(18),
+          topRight: const Radius.circular(18),
+          bottomLeft: Radius.circular(widget.isYou ? 18 : 4),
+          bottomRight: Radius.circular(widget.isYou ? 4 : 18),
+        ),
+        border: Border.all(
+          color: widget.isYou ? widget.userColour.withValues(alpha: 0.35) : widget.strangerColour.withValues(alpha: 0.25),
+        ),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
+      ),
+      child: typing
+          ? _InlineDots(color: avatarCol)
+          : Stack(children: [
+              Text(widget.text,
+                style: GoogleFonts.fredoka(fontSize: 14, color: Colors.transparent, height: 1.45)),
+              Text(_displayed,
+                style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white, height: 1.45)),
+            ]),
+    );
 
     return FadeTransition(
       opacity: _fade,
       child: SlideTransition(
         position: _slide,
         child: Padding(
-          padding: EdgeInsets.only(
-            bottom: 8,
-            left: widget.isYou ? 50 : 0,
-            right: widget.isYou ? 0 : 50,
-          ),
+          padding: const EdgeInsets.only(bottom: 10),
           child: Column(
             crossAxisAlignment: widget.isYou ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.only(bottom: 3, left: 4, right: 4),
+                padding: const EdgeInsets.only(bottom: 4, left: 44, right: 44),
                 child: Text(label,
-                  style: GoogleFonts.fredoka(
-                    fontSize: 10,
-                    color: widget.isYou ? _kCyan.withValues(alpha: 0.6) : _kRed.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w600,
-                  )),
+                  style: GoogleFonts.fredoka(fontSize: 10, fontWeight: FontWeight.w600,
+                    color: avatarCol.withValues(alpha: 0.7))),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: widget.isYou ? _kCyan.withValues(alpha: 0.1) : _kCard,
-                  borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(18),
-                    topRight: const Radius.circular(18),
-                    bottomLeft: Radius.circular(widget.isYou ? 18 : 4),
-                    bottomRight: Radius.circular(widget.isYou ? 4 : 18),
-                  ),
-                  border: Border.all(
-                    color: widget.isYou ? _kCyan.withValues(alpha: 0.3) : _kRed.withValues(alpha: 0.2),
-                  ),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
-                ),
-                child: Stack(children: [
-                  Text(widget.text,
-                    style: GoogleFonts.fredoka(fontSize: 14, color: Colors.transparent, height: 1.45)),
-                  Text(_displayed,
-                    style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white, height: 1.45)),
-                ]),
+              Row(
+                mainAxisAlignment: widget.isYou ? MainAxisAlignment.end : MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: widget.isYou
+                    ? [Flexible(child: bubble), const SizedBox(width: 8), avatar]
+                    : [avatar, const SizedBox(width: 8), Flexible(child: bubble)],
               ),
             ],
           ),
@@ -1048,8 +1092,47 @@ class _AnimatedChatBubbleState extends State<_AnimatedChatBubble> with SingleTic
   }
 }
 
+class _InlineDots extends StatefulWidget {
+  final Color color;
+  const _InlineDots({required this.color});
+  @override
+  State<_InlineDots> createState() => _InlineDotsState();
+}
+
+class _InlineDotsState extends State<_InlineDots> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late List<Animation<double>> _anims;
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))..repeat();
+    _anims = List.generate(3, (i) => Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _ctrl, curve: Interval(i * 0.2, 0.6 + i * 0.2, curve: Curves.easeInOut))));
+  }
+  @override
+  void dispose() { _ctrl.dispose(); super.dispose(); }
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: 20,
+    child: Row(mainAxisSize: MainAxisSize.min, children: List.generate(3, (i) =>
+      AnimatedBuilder(
+        animation: _anims[i],
+        builder: (_, __) => Container(
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          width: 7, height: 7,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: widget.color.withValues(alpha: 0.4 + 0.6 * _anims[i].value),
+          ),
+        ),
+      ),
+    )),
+  );
+}
+
 class _TypingIndicator extends StatefulWidget {
-  const _TypingIndicator({super.key});
+  final Color strangerColour;
+  const _TypingIndicator({super.key, required this.strangerColour});
   @override
   State<_TypingIndicator> createState() => _TypingIndicatorState();
 }
@@ -1334,42 +1417,15 @@ class _CompleteStepState extends State<_CompleteStep> {
     return 1;
   }
 
-  int get _awardedXp {
-    if (_stars == 3) return 200;
-    if (_stars == 2) return (200 * 0.7).round();
-    return (200 * 0.4).round();
-  }
-
-  String get _emoji {
-    if (_stars == 3) return '🏆';
-    if (_stars == 2) return '🎉';
-    return '💪';
-  }
-
-  String get _title {
-    if (_stars == 3) return 'Perfect Score!';
-    if (_stars == 2) return 'Great Effort!';
-    return 'Good Try!';
-  }
-
-  String get _subtitle {
-    if (_stars == 3) return "You've completed Baiting Pro!";
-    if (_stars == 2) return 'You got ${widget.score} out of ${widget.total} — solid work!';
-    return 'You got ${widget.score} out of ${widget.total} — review the lessons and try again!';
-  }
-
   String get _encouragement {
-    if (_stars == 3) return 'You nailed every question! 🌟';
-    if (_stars == 2) return 'Almost there — revisit the tricky bits to get full marks!';
-    return "Don't give up — each attempt makes you smarter and safer online!";
+    final pct = widget.total == 0 ? 0.0 : widget.score / widget.total;
+    if (pct >= 0.6) return "So close! Just a couple more to go — you've got this!";
+    if (pct >= 0.4) return "Good start! Review the lessons and give it another shot.";
+    return "Don't worry — each attempt makes you smarter and safer online!";
   }
 
-  Future<void> _finish(BuildContext context) async {
+    Future<void> _finish(BuildContext context) async {
     if (claiming) return;
-    if (_stars < 3) {
-      await RetryDialog.show(context, lessonId: 'baiting_pro', score: widget.score, total: widget.total, onRetry: widget.onRetry);
-      return;
-    }
     setState(() => claiming = true);
     try {
       await UserService.instance.saveProgress(LessonProgress(
@@ -1382,93 +1438,144 @@ class _CompleteStepState extends State<_CompleteStep> {
   }
 
   @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-    padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-    child: Column(children: [
-      Container(
-        width: 110, height: 110,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          gradient: LinearGradient(
-            colors: [_stars == 3 ? const Color(0xFFFFD700) : _stars == 2 ? _kAccent : _kCard, _kBg],
-            begin: Alignment.topLeft, end: Alignment.bottomRight,
-          ),
-          border: Border.all(
-            color: (_stars == 3 ? const Color(0xFFFFD700) : _stars == 2 ? _kAccent : Colors.white24).withValues(alpha: 0.6), width: 2),
-        ),
-        child: Center(child: Text(_emoji, style: const TextStyle(fontSize: 54))),
-      ).animate().scale(curve: Curves.elasticOut),
-      const SizedBox(height: 20),
-      Text(_title, style: GoogleFonts.fredoka(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
-      const SizedBox(height: 8),
-      Text(_subtitle, textAlign: TextAlign.center,
-        style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54)),
-      const SizedBox(height: 20),
-      _WhiteCard(child: Column(children: [
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(3, (i) =>
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 3),
-            child: Text(
-              i < _stars ? '⭐' : '☆',
-              style: TextStyle(fontSize: 32, color: i < _stars ? const Color(0xFFFFD700) : Colors.white12),
+  Widget build(BuildContext context) {
+    if (_stars < 3) {
+      // ── Retry view ────────────────────────────────────────────────────────
+      final int missed = widget.total - widget.score;
+      return SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+        child: Column(children: [
+          Container(
+            width: 110, height: 110,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              color: _kCard,
+              border: Border.all(color: _kRed.withValues(alpha: 0.4), width: 2),
             ),
+            child: const Center(child: Text('📖', style: TextStyle(fontSize: 54))),
+          ).animate().scale(curve: Curves.elasticOut),
+          const SizedBox(height: 20),
+          Text('Not quite there yet!',
+            style: GoogleFonts.fredoka(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white)),
+          const SizedBox(height: 8),
+          Text(_encouragement, textAlign: TextAlign.center,
+            style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54, height: 1.5)),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: _kCard, borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: _kAccent.withValues(alpha: 0.15)),
+            ),
+            child: Row(children: [
+              Expanded(child: Column(children: [
+                Text('\${widget.score}',
+                  style: GoogleFonts.fredoka(fontSize: 36, fontWeight: FontWeight.w700, color: _kGreen)),
+                Text('correct', style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
+              ])),
+              Container(width: 1, height: 44, color: Colors.white12),
+              Expanded(child: Column(children: [
+                Text('\$missed',
+                  style: GoogleFonts.fredoka(fontSize: 36, fontWeight: FontWeight.w700, color: _kRed)),
+                Text('to review', style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
+              ])),
+              Container(width: 1, height: 44, color: Colors.white12),
+              Expanded(child: Column(children: [
+                Text('\${widget.total}',
+                  style: GoogleFonts.fredoka(fontSize: 36, fontWeight: FontWeight.w700, color: Colors.white54)),
+                Text('total', style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
+              ])),
+            ]),
           ),
-        )),
-        const SizedBox(height: 10),
-        Text(
-          _stars == 3 ? '3 Stars — Amazing!' : _stars == 2 ? '2 Stars — Well Done!' : '1 Star — Keep Practising!',
-          style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFD700).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFFFD700).withValues(alpha: 0.4)),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: _kAccent.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: _kAccent.withValues(alpha: 0.25)),
+            ),
+            child: Row(children: [
+              const Text('💡', style: TextStyle(fontSize: 18)),
+              const SizedBox(width: 10),
+              Expanded(child: Text(
+                'You need to get every question right to complete the lesson and earn your XP.',
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+            ]),
           ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            const Text('⭐', style: TextStyle(fontSize: 22)),
-            const SizedBox(width: 8),
-            Text('+$_awardedXp XP', style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFFFFD700))),
-          ])),
-
-      ])),
-      const SizedBox(height: 14),
-      Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: _stars >= 2 ? _kGreen.withValues(alpha: 0.07) : _kAccent.withValues(alpha: 0.07),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _stars >= 2 ? _kGreen.withValues(alpha: 0.3) : _kAccent.withValues(alpha: 0.3)),
-        ),
-        child: Row(children: [
-          Text(_stars >= 2 ? '🌟' : '📖', style: const TextStyle(fontSize: 20)),
-          const SizedBox(width: 10),
-          Expanded(child: Text(_encouragement,
-            style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white70, height: 1.4))),
+          const SizedBox(height: 28),
+          _NextBtn(onTap: widget.onRetry, label: '🔄  Try Again'),
         ]),
-      ),
-      const SizedBox(height: 16),
-      _InfoCard(color: _kAccent, emoji: '🎁', title: 'Badge Unlocked: Baiting Pro!',
-        body: 'You can now spot a baiting trap before it catches you!'),
-      const SizedBox(height: 20),
-      Align(alignment: Alignment.centerLeft,
-        child: Text('WHAT YOU LEARNED', style: GoogleFonts.fredoka(fontSize: 11, color: Colors.white38, letterSpacing: 1.2))),
-      const SizedBox(height: 10),
-      const _SummaryTile(emoji: '🪤', text: 'What baiting is and how it works'),
-      const _SummaryTile(emoji: '💻', text: 'Online baiting examples'),
-      const _SummaryTile(emoji: '🖲️', text: 'Physical baiting: USB sticks and real-world traps'),
-      const _SummaryTile(emoji: '🚩', text: 'How to spot red flags'),
-      const _SummaryTile(emoji: '🛡️', text: 'What to do when you spot a bait'),
-      const _SummaryTile(emoji: '🔍', text: 'Real vs fake rewards'),
-      const _SummaryTile(emoji: '💬', text: '3 real-life chat simulation scenarios'),
-      const SizedBox(height: 28),
-      _NextBtn(
-        onTap: () => _finish(context),
-        enabled: _stars < 3 ? true : !claiming,
-        label: _stars < 3 ? '🔄  Try Again' : (claiming ? 'Claiming...' : '🎉  Claim your XP!'),
-      ),
-    ]),
-  );
+      );
+    }
+
+    // ── Success view ────────────────────────────────────────────────────────
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+      child: Column(children: [
+        Container(
+          width: 110, height: 110,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFFD700), _kBg],
+              begin: Alignment.topLeft, end: Alignment.bottomRight,
+            ),
+            border: Border.all(color: Color(0xFFFFD700).withValues(alpha: 0.6), width: 2),
+          ),
+          child: const Center(child: Text('🏆', style: TextStyle(fontSize: 54))),
+        ).animate().scale(curve: Curves.elasticOut),
+        const SizedBox(height: 20),
+        Text('Perfect Score! 🎉',
+          style: GoogleFonts.fredoka(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
+        const SizedBox(height: 8),
+        Text("You've completed this lesson!",
+          style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54)),
+        const SizedBox(height: 24),
+        _WhiteCard(child: Column(children: [
+          const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text('⭐', style: TextStyle(fontSize: 30)),
+            SizedBox(width: 4),
+            Text('⭐', style: TextStyle(fontSize: 30)),
+            SizedBox(width: 4),
+            Text('⭐', style: TextStyle(fontSize: 30)),
+          ]),
+          const SizedBox(height: 8),
+          Text('3 Stars — Amazing!',
+            style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              color: Color(0xFFFFD700).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Color(0xFFFFD700).withValues(alpha: 0.4)),
+            ),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              const Text('⭐', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 8),
+              Text('+200 XP',
+                style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFFFFD700))),
+            ])),
+        ])),
+        const SizedBox(height: 16),
+        _InfoCard(color: _kAccent, emoji: '🎁', title: 'Badge Unlocked: Baiting Pro!',
+          body: 'You can now spot a baiting trap before it catches you!'),
+        const SizedBox(height: 20),
+        Align(alignment: Alignment.centerLeft,
+          child: Text('WHAT YOU LEARNED',
+            style: GoogleFonts.fredoka(fontSize: 11, color: Colors.white38, letterSpacing: 1.2))),
+        const SizedBox(height: 10),
+      _SummaryTile(emoji: '🪤', text: 'What baiting is and how it works'),
+      _SummaryTile(emoji: '💻', text: 'Online baiting examples'),
+      _SummaryTile(emoji: '🖲️', text: 'Physical baiting: USB sticks and real-world traps'),
+      _SummaryTile(emoji: '🚩', text: 'How to spot red flags'),
+      _SummaryTile(emoji: '🛡️', text: 'What to do when you spot a bait'),
+      _SummaryTile(emoji: '🔍', text: 'Real vs fake rewards'),
+      _SummaryTile(emoji: '💬', text: '3 real-life chat simulation scenarios'),
+        const SizedBox(height: 28),
+        _NextBtn(onTap: () => _finish(context), enabled: !claiming,
+          label: claiming ? 'Claiming...' : '🎉  Claim your XP!'),
+      ]),
+    );
+  }
 }

@@ -167,7 +167,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
                                           color: Color(0xFF00D1FF), size: 16),
                                       const SizedBox(width: 6),
                                       Text(
-                                        'ALL COURSES',
+                                        'LESSONS',
                                         style: GoogleFonts.fredoka(
                                           color: const Color(0xFF00D1FF),
                                           fontSize: 12,
@@ -176,16 +176,6 @@ class _CoursesScreenState extends State<CoursesScreen> {
                                         ),
                                       ),
                                     ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Choose Your Next Mission',
-                                    style: GoogleFonts.fredoka(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                      height: 1.1,
-                                    ),
                                   ),
                                 ],
                               ),
