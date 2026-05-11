@@ -4,7 +4,7 @@ class PasswordCatMessages {
   static final Random _rng = Random();
 
   static const String lessonIntro =
-      "Hi! I'm Byte! 🐱 Let's learn how to make passwords SO strong that no hacker can ever crack them!";
+      "Let's learn how to make passwords SO strong that no hacker can ever crack them!";
 
   static const List<String> tips = [
     "Hackers use programs that try millions of common passwords in seconds. The simpler yours is, the faster it gets cracked!",

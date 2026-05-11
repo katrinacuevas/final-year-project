@@ -35,6 +35,7 @@ class CatMascot extends StatefulWidget {
 class _CatMascotState extends State<CatMascot> with SingleTickerProviderStateMixin {
   late AnimationController _bounceCtrl;
   late Animation<double> _bounceAnim;
+  late AnimationController _lottieCtrl;
 
   @override
   void initState() {
@@ -44,11 +45,16 @@ class _CatMascotState extends State<CatMascot> with SingleTickerProviderStateMix
     _bounceAnim = Tween<double>(begin: -5, end: 5).animate(
       CurvedAnimation(parent: _bounceCtrl, curve: Curves.easeInOut),
     );
+    _lottieCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 4500), // ← change speed here
+    )..repeat();
   }
 
   @override
   void dispose() {
     _bounceCtrl.dispose();
+    _lottieCtrl.dispose();
     super.dispose();
   }
 
@@ -80,7 +86,7 @@ class _CatMascotState extends State<CatMascot> with SingleTickerProviderStateMix
               height: widget.size,
               child: Lottie.asset(
                 'assets/animations/cat.json',
-                repeat: true,
+                controller: _lottieCtrl,
                 fit: BoxFit.contain,
               ),
             ),
@@ -247,9 +253,10 @@ class InlineCatBanner extends StatefulWidget {
   State<InlineCatBanner> createState() => _InlineCatBannerState();
 }
 
-class _InlineCatBannerState extends State<InlineCatBanner> with SingleTickerProviderStateMixin {
+class _InlineCatBannerState extends State<InlineCatBanner> with TickerProviderStateMixin {
   late AnimationController _bounceCtrl;
   late Animation<double> _bounceAnim;
+  late AnimationController _lottieCtrl;
 
   @override
   void initState() {
@@ -259,10 +266,14 @@ class _InlineCatBannerState extends State<InlineCatBanner> with SingleTickerProv
     _bounceAnim = Tween<double>(begin: -4, end: 4).animate(
       CurvedAnimation(parent: _bounceCtrl, curve: Curves.easeInOut),
     );
+    _lottieCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 4500), // ← change speed here
+    )..repeat();
   }
 
   @override
-  void dispose() { _bounceCtrl.dispose(); super.dispose(); }
+  void dispose() { _bounceCtrl.dispose(); _lottieCtrl.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) => Container(
@@ -280,7 +291,7 @@ class _InlineCatBannerState extends State<InlineCatBanner> with SingleTickerProv
         child: SizedBox(
           width: widget.catSize,
           height: widget.catSize,
-          child: Lottie.asset('assets/animations/cat.json', repeat: true, fit: BoxFit.contain),
+          child: Lottie.asset('assets/animations/cat.json', controller: _lottieCtrl, fit: BoxFit.contain),
         ),
       ),
       const SizedBox(width: 14),
