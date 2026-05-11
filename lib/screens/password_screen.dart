@@ -28,77 +28,61 @@ class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
   void goNext() => setState(() => currentStep++);
 
   void goBack() {
-    if (currentStep > 0) {
-      setState(() => currentStep--);
-    } else {
-      Navigator.pop(context);
-    }
+    if (currentStep > 0) { setState(() => currentStep--); }
+    else { Navigator.pop(context); }
   }
 
   @override
   Widget build(BuildContext context) {
     final bool showProgress = currentStep >= 1 && currentStep <= totalSteps;
     final bool isComplete = currentStep == totalSteps + 1;
-
     return Scaffold(
       backgroundColor: _kBg,
       body: Stack(children: [
         Positioned.fill(child: CustomPaint(painter: _GridPainter())),
-        SafeArea(
-          child: Column(children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              child: Row(children: [
-                if (!isComplete)
-                  GestureDetector(
-                    onTap: () { SoundService.playClick(); goBack(); },
-                    child: Container(
-                      width: 42, height: 42,
-                      decoration: BoxDecoration(
-                        color: _kCard, borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: _kAccent.withValues(alpha: 0.3)),
-                      ),
-                      child: const Icon(Icons.arrow_back_rounded, color: _kAccent, size: 20),
-                    ),
-                  ).animate().scale(),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _kAccent.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: _kAccent.withValues(alpha: 0.4)),
+        SafeArea(child: Column(children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+            child: Row(children: [
+              if (!isComplete)
+                GestureDetector(
+                  onTap: () { SoundService.playClick(); goBack(); },
+                  child: Container(
+                    width: 42, height: 42,
+                    decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: _kAccent.withValues(alpha: 0.3))),
+                    child: const Icon(Icons.arrow_back_rounded, color: _kAccent, size: 20),
                   ),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    const Text('🔐', style: TextStyle(fontSize: 12)),
-                    const SizedBox(width: 6),
-                    Text(
-                      showProgress ? 'LESSON $currentStep OF $totalSteps' : 'PASSWORD POWER',
-                      style: GoogleFonts.fredoka(color: _kAccent, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.5),
-                    ),
-                  ]),
-                ),
-              ]),
-            ),
-            if (showProgress)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                child: _LessonProgressBar(current: currentStep, total: totalSteps),
+                ).animate().scale(),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(color: _kAccent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: _kAccent.withValues(alpha: 0.4))),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Text('🔐', style: TextStyle(fontSize: 12)),
+                  const SizedBox(width: 6),
+                  Text(showProgress ? 'LESSON $currentStep OF $totalSteps' : 'PASSWORD POWER',
+                    style: GoogleFonts.fredoka(color: _kAccent, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
+                ]),
               ),
-            const SizedBox(height: 4),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 350),
-                transitionBuilder: (child, animation) => SlideTransition(
-                  position: Tween<Offset>(begin: const Offset(0.08, 0), end: Offset.zero)
-                      .animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
-                  child: FadeTransition(opacity: animation, child: child),
-                ),
-                child: _buildStep(),
-              ),
+            ]),
+          ),
+          if (showProgress)
+            Padding(padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: _LessonProgressBar(current: currentStep, total: totalSteps)),
+          const SizedBox(height: 4),
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+              transitionBuilder: (child, animation) => SlideTransition(
+                position: Tween<Offset>(begin: const Offset(0.08, 0), end: Offset.zero)
+                    .animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+                child: FadeTransition(opacity: animation, child: child)),
+              child: _buildStep(),
             ),
-          ]),
-        ),
+          ),
+        ])),
       ]),
     );
   }
@@ -113,46 +97,50 @@ class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
       case 5: return _QuizStep(key: const ValueKey(5), onComplete: (s, t) {
         setState(() { _quizScore = s; _quizTotal = t; currentStep++; });
       });
-      case 6: return _BuildPasswordStep(
-        key: const ValueKey(6),
-        onComplete: () async {
-          await UserService.instance.saveProgress(const LessonProgress(
-            lessonId: 'password_power', stepsCompleted: 6, totalSteps: 6, stars: 3, completed: true,
-          ));
-          if (mounted) setState(() => currentStep = 7);
-        },
-      );
-      case 7: return _CompleteStep(
-        key: const ValueKey(7),
-        score: _quizScore,
-        total: _quizTotal,
-        onRetry: () => setState(() => currentStep = 5),
-        onDone: () => Navigator.pop(context),
-      );
+      case 6: return _BuildPasswordStep(key: const ValueKey(6), onComplete: () async {
+        await UserService.instance.saveProgress(const LessonProgress(
+          lessonId: 'password_power', stepsCompleted: 6, totalSteps: 6, stars: 3, completed: true));
+        if (mounted) setState(() => currentStep = 7);
+      });
+      case 7: return _CompleteStep(key: const ValueKey(7), score: _quizScore, total: _quizTotal,
+        onRetry: () => setState(() => currentStep = 5), onDone: () => Navigator.pop(context));
       default: return const SizedBox();
     }
   }
 }
 
+// Helper: cat sitting on top of a button, cat painted first so button covers its bottom
+Widget _catOnButton({required Widget button, required Widget cat, double topPad = 190}) {
+  return Stack(
+    clipBehavior: Clip.hardEdge,
+    children: [
+      Positioned(
+        top: 0,   // ← move cat up/down
+        left: 0,  // ← move cat left/right
+        child: cat,
+      ),
+      Padding(
+        padding: EdgeInsets.only(top: topPad), // ← match to cat height
+        child: button,
+      ),
+    ],
+  );
+}
 
+// ─── Intro ────────────────────────────────────────────────────────────────────
 class _IntroStep extends StatelessWidget {
   final VoidCallback onNext;
   const _IntroStep({super.key, required this.onNext});
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(children: [
-        Container(
-          width: 110, height: 110,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
+        Container(width: 110, height: 110,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30),
             gradient: const LinearGradient(colors: [_kAccent, _kBg], begin: Alignment.topLeft, end: Alignment.bottomRight),
-            border: Border.all(color: _kAccent.withValues(alpha: 0.6), width: 2),
-          ),
-          child: const Center(child: Text('🔐', style: TextStyle(fontSize: 54))),
-        ).animate().scale(curve: Curves.elasticOut),
+            border: Border.all(color: _kAccent.withValues(alpha: 0.6), width: 2)),
+          child: const Center(child: Text('🔐', style: TextStyle(fontSize: 54)))).animate().scale(curve: Curves.elasticOut),
         const SizedBox(height: 20),
         Text('Password Power!', textAlign: TextAlign.center,
           style: GoogleFonts.fredoka(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
@@ -170,32 +158,19 @@ class _IntroStep extends StatelessWidget {
         _InfoCard(color: _kAccent, emoji: '⭐', title: 'Earn +200 XP',
           body: 'Complete everything to earn your Password Master badge!'),
         const SizedBox(height: 28),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            _NextButton(onTap: onNext, label: '▶  Start Lesson'),
-            Positioned(
-              left: 0,   
-              bottom: 50, 
-              child: _CatTipBox(
-                message: PasswordCatMessages.lessonIntro,
-                accentColor: _kAccent,
-              ),
-            ),
-          ],
+        _catOnButton(
+          button: _NextButton(onTap: onNext, label: '▶  Start Lesson'),
+          cat: _CatTipBox(message: PasswordCatMessages.lessonIntro, accentColor: _kAccent),
         ),
-        const SizedBox(height: 90), 
       ]),
     );
   }
 }
 
 // ─── Lesson 1 ─────────────────────────────────────────────────────────────────
-
 class _LessonStep1 extends StatelessWidget {
   final VoidCallback onNext;
   const _LessonStep1({super.key, required this.onNext});
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -203,17 +178,14 @@ class _LessonStep1 extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         _LessonLabel(label: 'WHY PASSWORDS MATTER'),
         const SizedBox(height: 16),
-        Container(
-          width: double.infinity, padding: const EdgeInsets.all(20),
+        Container(width: double.infinity, padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
             border: Border.all(color: _kAccent.withValues(alpha: 0.25))),
           child: Column(children: [
-            const Text('🏠', style: TextStyle(fontSize: 52)),
-            const SizedBox(height: 10),
+            const Text('🏠', style: TextStyle(fontSize: 52)), const SizedBox(height: 10),
             Text('Think of a password like the key to your house!', textAlign: TextAlign.center,
               style: GoogleFonts.fredoka(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white)),
-          ]),
-        ),
+          ])),
         const SizedBox(height: 20),
         Text('What can happen without a good password?',
           style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
@@ -233,11 +205,9 @@ class _LessonStep1 extends StatelessWidget {
 }
 
 // ─── Lesson 2 ─────────────────────────────────────────────────────────────────
-
 class _LessonStep2 extends StatelessWidget {
   final VoidCallback onNext;
   const _LessonStep2({super.key, required this.onNext});
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -258,29 +228,19 @@ class _LessonStep2 extends StatelessWidget {
         const SizedBox(height: 8),
         _WeakPasswordTile(password: 'yourname123', reason: 'Using your own name makes it easy to guess!'),
         const SizedBox(height: 28),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            _NextButton(onTap: onNext),
-            Positioned(
-              left: 0,    // ← move left/right
-              bottom: 50, // ← how high above the button
-              child: _CatTipBox(message: PasswordCatMessages.tips[0]),
-            ),
-          ],
+        _catOnButton(
+          button: _NextButton(onTap: onNext),
+          cat: _CatTipBox(message: PasswordCatMessages.tips[0]),
         ),
-        const SizedBox(height: 90),
       ]),
     );
   }
 }
 
 // ─── Lesson 3 ─────────────────────────────────────────────────────────────────
-
 class _LessonStep3 extends StatelessWidget {
   final VoidCallback onNext;
   const _LessonStep3({super.key, required this.onNext});
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -300,21 +260,18 @@ class _LessonStep3 extends StatelessWidget {
         _RuleCard(number: '4', emoji: '✨', color: _kGreen, title: 'Use SYMBOLS',
           body: 'Characters like ! @ # \$ % make it much stronger.'),
         const SizedBox(height: 18),
-        Container(
-          width: double.infinity, padding: const EdgeInsets.all(18),
+        Container(width: double.infinity, padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(20),
             border: Border.all(color: _kGreen.withValues(alpha: 0.4))),
           child: Column(children: [
             Text('✅  Strong Password Example',
               style: GoogleFonts.fredoka(fontSize: 13, fontWeight: FontWeight.w600, color: _kGreen)),
             const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(color: _kBg, borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: _kGreen.withValues(alpha: 0.2))),
               child: Text('Tr0pic@lFish!2024',
-                style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1)),
-            ),
+                style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1))),
             const SizedBox(height: 10),
             Wrap(spacing: 6, children: [
               _Tag(label: 'Long', color: _kAccent),
@@ -322,8 +279,7 @@ class _LessonStep3 extends StatelessWidget {
               _Tag(label: 'Numbers', color: _kAccent),
               _Tag(label: 'Symbols', color: _kGreen),
             ]),
-          ]),
-        ),
+          ])),
         const SizedBox(height: 28),
         _NextButton(onTap: onNext),
       ]),
@@ -332,11 +288,9 @@ class _LessonStep3 extends StatelessWidget {
 }
 
 // ─── Lesson 4 ─────────────────────────────────────────────────────────────────
-
 class _LessonStep4 extends StatelessWidget {
   final VoidCallback onNext;
   const _LessonStep4({super.key, required this.onNext});
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -347,8 +301,7 @@ class _LessonStep4 extends StatelessWidget {
         Text('Hard to guess, but easy for YOU to remember!',
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
         const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(20),
+        Container(padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
             border: Border.all(color: _kAccent.withValues(alpha: 0.25))),
           child: Column(children: [
@@ -365,18 +318,15 @@ class _LessonStep4 extends StatelessWidget {
             const SizedBox(height: 14),
             const Icon(Icons.arrow_downward_rounded, color: _kAccent, size: 24),
             const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(color: _kGreen.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: _kGreen.withValues(alpha: 0.3))),
               child: Text('Fluffy\$Pizza!Rocket7',
-                style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700, color: _kGreen, letterSpacing: 0.5)),
-            ),
+                style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700, color: _kGreen, letterSpacing: 0.5))),
             const SizedBox(height: 8),
             Text('Add numbers & symbols between the words ✨',
               style: GoogleFonts.fredoka(fontSize: 12, color: Colors.white38)),
-          ]),
-        ),
+          ])),
         const SizedBox(height: 16),
         _InfoCard(color: _kGreen, emoji: '✅', title: 'Easy to remember',
           body: 'A funny image in your head — a fluffy cat eating pizza on a rocket!'),
@@ -394,7 +344,6 @@ class _LessonStep4 extends StatelessWidget {
 }
 
 // ─── Quiz ─────────────────────────────────────────────────────────────────────
-
 class _QuizStep extends StatefulWidget {
   final void Function(int score, int total) onComplete;
   const _QuizStep({super.key, required this.onComplete});
@@ -449,25 +398,19 @@ class _QuizStepState extends State<_QuizStep> {
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text('Quiz Time! 🎯',
             style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white)),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(color: _kGreen.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20),
               border: Border.all(color: _kGreen.withValues(alpha: 0.4))),
             child: Text('${questionIndex + 1} / ${questions.length}',
-              style: GoogleFonts.fredoka(fontWeight: FontWeight.w700, color: _kGreen, fontSize: 13)),
-          ),
+              style: GoogleFonts.fredoka(fontWeight: FontWeight.w700, color: _kGreen, fontSize: 13))),
         ]),
         const SizedBox(height: 10),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: LinearProgressIndicator(
-            value: (questionIndex + 1) / questions.length, minHeight: 6,
+        ClipRRect(borderRadius: BorderRadius.circular(6),
+          child: LinearProgressIndicator(value: (questionIndex + 1) / questions.length, minHeight: 6,
             backgroundColor: _kAccent.withValues(alpha: 0.1),
-            valueColor: const AlwaysStoppedAnimation<Color>(_kAccent)),
-        ),
+            valueColor: const AlwaysStoppedAnimation<Color>(_kAccent))),
         const SizedBox(height: 20),
-        Container(
-          width: double.infinity, padding: const EdgeInsets.all(22),
+        Container(width: double.infinity, padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
             border: Border.all(color: _kAccent.withValues(alpha: 0.2))),
           child: Column(children: [
@@ -475,8 +418,7 @@ class _QuizStepState extends State<_QuizStep> {
             const SizedBox(height: 12),
             Text(q['question'] as String, textAlign: TextAlign.center,
               style: GoogleFonts.fredoka(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
-          ]),
-        ),
+          ])),
         const SizedBox(height: 16),
         ...options.asMap().entries.map((entry) {
           final i = entry.key;
@@ -506,15 +448,13 @@ class _QuizStepState extends State<_QuizStep> {
                 decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: borderColor, width: 1.5)),
                 child: Row(children: [
-                  Container(
-                    width: 28, height: 28,
+                  Container(width: 28, height: 28,
                     decoration: BoxDecoration(shape: BoxShape.circle,
                       color: answered && isCorrect ? _kGreen.withValues(alpha: 0.2) : _kAccent.withValues(alpha: 0.08),
                       border: Border.all(color: answered && isCorrect ? _kGreen : _kAccent.withValues(alpha: 0.3))),
                     child: Center(child: Text(['A','B','C','D'][i],
                       style: GoogleFonts.fredoka(fontWeight: FontWeight.w700, fontSize: 13,
-                        color: answered && isCorrect ? _kGreen : _kAccent.withValues(alpha: 0.7)))),
-                  ),
+                        color: answered && isCorrect ? _kGreen : _kAccent.withValues(alpha: 0.7))))),
                   const SizedBox(width: 12),
                   Expanded(child: Text(opt, style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w600, color: textColor))),
                   if (trailing != null) trailing,
@@ -525,24 +465,16 @@ class _QuizStepState extends State<_QuizStep> {
         }),
         if (answered) ...[
           const SizedBox(height: 16),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              _NextButton(
-                onTap: nextQuestion,
-                label: questionIndex < questions.length - 1 ? 'Next Question →' : 'Build Your Own! 🛠️',
-              ),
-              Positioned(
-                left: 0,    // ← move left/right
-                bottom: 50, // ← how high above the button
-                child: _CatTipBox(
-                  message: PasswordCatMessages.quizFeedback(questionIndex, selectedAnswer == correct),
-                  accentColor: selectedAnswer == correct ? _kGreen : _kRed,
-                ),
-              ),
-            ],
+          _catOnButton(
+            button: _NextButton(
+              onTap: nextQuestion,
+              label: questionIndex < questions.length - 1 ? 'Next Question →' : 'Build Your Own! 🛠️',
+            ),
+            cat: _CatTipBox(
+              message: PasswordCatMessages.quizFeedback(questionIndex, selectedAnswer == correct),
+              accentColor: selectedAnswer == correct ? _kGreen : _kRed,
+            ),
           ),
-          const SizedBox(height: 90),
         ],
       ]),
     );
@@ -550,7 +482,6 @@ class _QuizStepState extends State<_QuizStep> {
 }
 
 // ─── Build Password ───────────────────────────────────────────────────────────
-
 class _BuildPasswordStep extends StatefulWidget {
   final VoidCallback onComplete;
   const _BuildPasswordStep({super.key, required this.onComplete});
@@ -611,8 +542,7 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
         Text('Use everything you\'ve learned! It needs to pass all 5 rules.',
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54, height: 1.4)),
         const SizedBox(height: 20),
-        Container(
-          padding: const EdgeInsets.all(18),
+        Container(padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
             border: Border.all(color: _kAccent.withValues(alpha: 0.2))),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -632,32 +562,24 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 suffixIcon: IconButton(
                   icon: Icon(obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: Colors.white38),
-                  onPressed: () => setState(() => obscure = !obscure),
-                ),
+                  onPressed: () => setState(() => obscure = !obscure)),
               ),
             ),
             const SizedBox(height: 14),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('Strength:', style: GoogleFonts.fredoka(fontSize: 12, color: Colors.white38)),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
+              AnimatedDefaultTextStyle(duration: const Duration(milliseconds: 200),
                 style: GoogleFonts.fredoka(fontSize: 13, fontWeight: FontWeight.w700, color: strengthColor),
-                child: Text(strengthLabel),
-              ),
+                child: Text(strengthLabel)),
             ]),
             const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: LinearProgressIndicator(
-                value: controller.text.isEmpty ? 0 : score / 5, minHeight: 8,
+            ClipRRect(borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(value: controller.text.isEmpty ? 0 : score / 5, minHeight: 8,
                 backgroundColor: Colors.white.withValues(alpha: 0.05),
-                valueColor: AlwaysStoppedAnimation<Color>(strengthColor)),
-            ),
-          ]),
-        ),
+                valueColor: AlwaysStoppedAnimation<Color>(strengthColor))),
+          ])),
         const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(18),
+        Container(padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
             border: Border.all(color: _kAccent.withValues(alpha: 0.15))),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -672,45 +594,28 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
             _CheckRow(label: 'Has numbers (0–9)', passed: hasNumber),
             const SizedBox(height: 8),
             _CheckRow(label: 'Has symbols (! @ # \$ % etc.)', passed: hasSymbol),
-          ]),
-        ),
+          ])),
         const SizedBox(height: 28),
         if (controller.text.isNotEmpty)
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              _NextButton(onTap: widget.onComplete, enabled: canProceed, label: 'Finish! 🏆'),
-              Positioned(
-                left: 0,    // ← move left/right
-                bottom: 50, // ← how high above the button
-                child: _CatTipBox(
-                  message: _buildCatMessage,
-                  accentColor: canProceed ? _kGreen : strengthColor,
-                ),
-              ),
-            ],
+          _catOnButton(
+            button: _NextButton(onTap: widget.onComplete, enabled: canProceed, label: 'Finish! 🏆'),
+            cat: _CatTipBox(message: _buildCatMessage, accentColor: canProceed ? _kGreen : strengthColor),
           )
         else
           _NextButton(onTap: widget.onComplete, enabled: canProceed, label: 'Finish! 🏆'),
-        if (controller.text.isNotEmpty) const SizedBox(height: 90),
         if (!canProceed)
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
+          Padding(padding: const EdgeInsets.only(top: 10),
             child: Center(child: Text('Complete all 5 rules to finish',
-              style: GoogleFonts.fredoka(fontSize: 12, color: Colors.white24))),
-          ),
+              style: GoogleFonts.fredoka(fontSize: 12, color: Colors.white24)))),
       ]),
     );
   }
 }
 
 // ─── Complete ─────────────────────────────────────────────────────────────────
-
 class _CompleteStep extends StatefulWidget {
-  final VoidCallback onDone;
-  final VoidCallback onRetry;
-  final int score;
-  final int total;
+  final VoidCallback onDone, onRetry;
+  final int score, total;
   const _CompleteStep({super.key, required this.onDone, required this.onRetry, required this.score, required this.total});
   @override
   State<_CompleteStep> createState() => _CompleteStepState();
@@ -738,8 +643,7 @@ class _CompleteStepState extends State<_CompleteStep> {
     setState(() => claiming = true);
     try {
       await UserService.instance.saveProgress(LessonProgress(
-        lessonId: 'password_power', stepsCompleted: 6, totalSteps: 6,
-        stars: _stars, completed: true));
+        lessonId: 'password_power', stepsCompleted: 6, totalSteps: 6, stars: _stars, completed: true));
       if (!ctx.mounted) return;
       await XpAward.show(ctx, lessonId: 'password_power', amount: 200);
       widget.onDone();
@@ -753,18 +657,15 @@ class _CompleteStepState extends State<_CompleteStep> {
       return SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
         child: Column(children: [
-          Container(
-            width: 110, height: 110,
+          Container(width: 110, height: 110,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: _kCard,
               border: Border.all(color: _kRed.withValues(alpha: 0.4), width: 2)),
-            child: const Center(child: Text('📖', style: TextStyle(fontSize: 54))),
-          ).animate().scale(curve: Curves.elasticOut),
+            child: const Center(child: Text('📖', style: TextStyle(fontSize: 54)))).animate().scale(curve: Curves.elasticOut),
           const SizedBox(height: 20),
           Text('Not quite there yet!',
             style: GoogleFonts.fredoka(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white)),
           const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(20),
+          Container(padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(20),
               border: Border.all(color: _kAccent.withValues(alpha: 0.15))),
             child: Row(children: [
@@ -782,21 +683,12 @@ class _CompleteStepState extends State<_CompleteStep> {
                 Text('${widget.total}', style: GoogleFonts.fredoka(fontSize: 36, fontWeight: FontWeight.w700, color: Colors.white54)),
                 Text('total', style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
               ])),
-            ]),
-          ),
+            ])),
           const SizedBox(height: 28),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              _NextButton(onTap: widget.onRetry, label: '🔄  Try Again'),
-              Positioned(
-                left: 0,    // ← move left/right
-                bottom: 50, // ← how high above the button
-                child: _CatTipBox(message: _encouragement, accentColor: _kRed),
-              ),
-            ],
+          _catOnButton(
+            button: _NextButton(onTap: widget.onRetry, label: '🔄  Try Again'),
+            cat: _CatTipBox(message: _encouragement, accentColor: _kRed),
           ),
-          const SizedBox(height: 90),
         ]),
       );
     }
@@ -804,22 +696,17 @@ class _CompleteStepState extends State<_CompleteStep> {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
       child: Column(children: [
-        Container(
-          width: 110, height: 110,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
+        Container(width: 110, height: 110,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30),
             gradient: const LinearGradient(colors: [Color(0xFFFFD700), _kBg], begin: Alignment.topLeft, end: Alignment.bottomRight),
-            border: Border.all(color: Color(0xFFFFD700).withValues(alpha: 0.6), width: 2),
-          ),
-          child: const Center(child: Text('🏆', style: TextStyle(fontSize: 54))),
-        ).animate().scale(curve: Curves.elasticOut),
+            border: Border.all(color: Color(0xFFFFD700).withValues(alpha: 0.6), width: 2)),
+          child: const Center(child: Text('🏆', style: TextStyle(fontSize: 54)))).animate().scale(curve: Curves.elasticOut),
         const SizedBox(height: 20),
         Text('Perfect Score! 🎉', style: GoogleFonts.fredoka(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
         const SizedBox(height: 8),
         Text("You've completed this lesson!", style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54)),
         const SizedBox(height: 24),
-        Container(
-          width: double.infinity, padding: const EdgeInsets.all(18),
+        Container(width: double.infinity, padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(20),
             border: Border.all(color: _kAccent.withValues(alpha: 0.15))),
           child: Column(children: [
@@ -831,16 +718,14 @@ class _CompleteStepState extends State<_CompleteStep> {
             const SizedBox(height: 8),
             Text('3 Stars — Amazing!', style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            Container(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(color: Color(0xFFFFD700).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Color(0xFFFFD700).withValues(alpha: 0.4))),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 const Text('⭐', style: TextStyle(fontSize: 22)), const SizedBox(width: 8),
                 Text('+200 XP', style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFFFFD700))),
               ])),
-          ]),
-        ),
+          ])),
         const SizedBox(height: 16),
         _InfoCard(color: _kAccent, emoji: '🏅', title: 'Badge Unlocked: Password Master!',
           body: "You know how to build a password that even hackers can't crack — AND you made one yourself!"),
@@ -854,29 +739,17 @@ class _CompleteStepState extends State<_CompleteStep> {
         _SummaryTile(emoji: '🧠', text: 'The passphrase trick'),
         _SummaryTile(emoji: '🛠️', text: 'Built your very own strong password!'),
         const SizedBox(height: 28),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            _NextButton(onTap: () => finish(context), enabled: !claiming,
-              label: claiming ? 'Claiming...' : '🎉  Claim your XP!'),
-            Positioned(
-              left: 0,    // ← move left/right
-              bottom: 50, // ← how high above the button
-              child: _CatTipBox(
-                message: PasswordCatMessages.completeMessage(3),
-                accentColor: const Color(0xFFFFD700),
-              ),
-            ),
-          ],
+        _catOnButton(
+          button: _NextButton(onTap: () => finish(context), enabled: !claiming,
+            label: claiming ? 'Claiming...' : '🎉  Claim your XP!'),
+          cat: _CatTipBox(message: PasswordCatMessages.completeMessage(3), accentColor: const Color(0xFFFFD700)),
         ),
-        const SizedBox(height: 90),
       ]),
     );
   }
 }
 
 // ─── Cat Tip Box ──────────────────────────────────────────────────────────────
-
 class _CatTipBox extends StatefulWidget {
   final String message;
   final Color accentColor;
@@ -887,18 +760,14 @@ class _CatTipBox extends StatefulWidget {
 
 class _CatTipBoxState extends State<_CatTipBox> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
-
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 4500), // ← change speed here
-    )..repeat();
+    _ctrl = AnimationController(vsync: this,
+      duration: const Duration(milliseconds: 4500)) // ← change speed here
+      ..repeat();
   }
-
-  @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  @override void dispose() { _ctrl.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
@@ -912,11 +781,8 @@ class _CatTipBoxState extends State<_CatTipBox> with SingleTickerProviderStateMi
           decoration: BoxDecoration(
             color: _kCard,
             borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-              bottomLeft: Radius.circular(4),
-              bottomRight: Radius.circular(16),
-            ),
+              topLeft: Radius.circular(16), topRight: Radius.circular(16),
+              bottomLeft: Radius.circular(4), bottomRight: Radius.circular(16)),
             border: Border.all(color: widget.accentColor.withValues(alpha: 0.5), width: 1.5),
             boxShadow: [BoxShadow(color: widget.accentColor.withValues(alpha: 0.15), blurRadius: 12, offset: const Offset(0, 3))],
           ),
@@ -934,7 +800,6 @@ class _CatTipBoxState extends State<_CatTipBox> with SingleTickerProviderStateMi
 }
 
 // ─── Shared Components ────────────────────────────────────────────────────────
-
 class _LessonProgressBar extends StatelessWidget {
   final int current, total;
   const _LessonProgressBar({required this.current, required this.total});
@@ -945,13 +810,10 @@ class _LessonProgressBar extends StatelessWidget {
       Text('$current / $total', style: GoogleFonts.fredoka(fontSize: 11, color: _kAccent, fontWeight: FontWeight.w600)),
     ]),
     const SizedBox(height: 6),
-    ClipRRect(
-      borderRadius: BorderRadius.circular(6),
-      child: LinearProgressIndicator(
-        value: current / total, minHeight: 7,
+    ClipRRect(borderRadius: BorderRadius.circular(6),
+      child: LinearProgressIndicator(value: current / total, minHeight: 7,
         backgroundColor: _kAccent.withValues(alpha: 0.1),
-        valueColor: AlwaysStoppedAnimation<Color>(current == total ? _kGreen : _kAccent)),
-    ),
+        valueColor: AlwaysStoppedAnimation<Color>(current == total ? _kGreen : _kAccent))),
   ]);
 }
 
@@ -960,8 +822,7 @@ class _LessonLabel extends StatelessWidget {
   const _LessonLabel({required this.label});
   @override
   Widget build(BuildContext context) => Row(children: [
-    const Icon(Icons.chevron_right_rounded, color: _kAccent, size: 16),
-    const SizedBox(width: 4),
+    const Icon(Icons.chevron_right_rounded, color: _kAccent, size: 16), const SizedBox(width: 4),
     Text(label, style: GoogleFonts.fredoka(color: _kAccent, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 1.2)),
   ]);
 }
@@ -1035,12 +896,10 @@ class _WeakPasswordTile extends StatelessWidget {
     decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(14),
       border: Border.all(color: _kRed.withValues(alpha: 0.2))),
     child: Row(children: [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(color: _kRed.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8),
           border: Border.all(color: _kRed.withValues(alpha: 0.3))),
-        child: Text(password, style: GoogleFonts.fredoka(fontSize: 13, fontWeight: FontWeight.w700, color: _kRed, letterSpacing: 0.5)),
-      ),
+        child: Text(password, style: GoogleFonts.fredoka(fontSize: 13, fontWeight: FontWeight.w700, color: _kRed, letterSpacing: 0.5))),
       const SizedBox(width: 12),
       Expanded(child: Text(reason, style: GoogleFonts.fredoka(fontSize: 12, color: Colors.white54))),
       const Text('❌', style: TextStyle(fontSize: 16)),
@@ -1125,15 +984,13 @@ class _CheckRow extends StatelessWidget {
   const _CheckRow({required this.label, required this.passed});
   @override
   Widget build(BuildContext context) => Row(children: [
-    AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+    AnimatedContainer(duration: const Duration(milliseconds: 300),
       width: 26, height: 26,
       decoration: BoxDecoration(
         color: passed ? _kGreen.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.04),
         shape: BoxShape.circle,
         border: Border.all(color: passed ? _kGreen : Colors.white12, width: 2)),
-      child: Icon(passed ? Icons.check_rounded : Icons.remove_rounded, size: 14, color: passed ? _kGreen : Colors.white24),
-    ),
+      child: Icon(passed ? Icons.check_rounded : Icons.remove_rounded, size: 14, color: passed ? _kGreen : Colors.white24)),
     const SizedBox(width: 12),
     Text(label, style: GoogleFonts.fredoka(fontSize: 13, fontWeight: FontWeight.w600, color: passed ? Colors.white : Colors.white38)),
   ]);
