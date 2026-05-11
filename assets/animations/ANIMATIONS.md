@@ -1,0 +1,5 @@
+- cat.json 
+    - Reference: [lottiefiles][Yaamin Mohamed] https://lottiefiles.com/free-animation/8-bit-cat-BSlQH8qg6q 
+    - main mascot for the app 
+    - provide tips and tricks for the user (social engineering or other text to support or encourage the user)
+    - also the one that gives the feedback (engaging a younger audience)

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../widgets/xp_award.dart';
+import '../widgets/password_cat_messages.dart';
 import '../services/sound_service.dart';
 
 const Color _kAccent = Color(0xFFFFC857);
@@ -217,6 +219,8 @@ class _IntroStep extends StatelessWidget {
             style: GoogleFonts.fredoka(
                 fontSize: 15, color: Colors.white54, height: 1.5),
           ),
+          const SizedBox(height: 16),
+          _CatTipBox(message: PasswordCatMessages.lessonIntro, accentColor: _kAccent),
           const SizedBox(height: 24),
           _InfoCard(
             color: _kAccent,
@@ -333,25 +337,7 @@ class _LessonStep2 extends StatelessWidget {
           const SizedBox(height: 8),
           _WeakPasswordTile(password: 'yourname123', reason: 'Using your own name makes it easy to guess!'),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _kCard,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: _kAccent.withValues(alpha: 0.3)),
-            ),
-            child: Row(children: [
-              const Text('💡', style: TextStyle(fontSize: 22)),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Hackers use programs that try millions of common passwords in seconds. The simpler yours is, the faster it gets cracked!',
-                  style: GoogleFonts.fredoka(
-                      fontSize: 13, color: Colors.white54, height: 1.4),
-                ),
-              ),
-            ]),
-          ),
+          _CatTipBox(message: PasswordCatMessages.tips[0]),
           const SizedBox(height: 28),
           _NextButton(onTap: onNext),
         ],
@@ -748,22 +734,12 @@ class _QuizStepState extends State<_QuizStep> {
           }),
           if (answered) ...[
             const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: _kAccent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: _kAccent.withValues(alpha: 0.3)),
+            _CatTipBox(
+              message: PasswordCatMessages.quizFeedback(
+                questionIndex,
+                selectedAnswer == correct,
               ),
-              child: Row(children: [
-                const Text('💡', style: TextStyle(fontSize: 20)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(q['explanation'] as String,
-                      style: GoogleFonts.fredoka(
-                          fontSize: 13, color: _kAccent, height: 1.4)),
-                ),
-              ]),
+              accentColor: selectedAnswer == correct ? _kGreen : _kRed,
             ),
             const SizedBox(height: 16),
             _NextButton(
@@ -818,6 +794,15 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
     if (score == 3) return _kAccent;
     if (score == 4) return _kGreen;
     return _kGreen;
+  }
+
+  String get _buildCatMessage {
+    if (!hasLength) return PasswordCatMessages.buildHints['length']!;
+    if (!hasUpper)  return PasswordCatMessages.buildHints['upper']!;
+    if (!hasLower)  return PasswordCatMessages.buildHints['lower']!;
+    if (!hasNumber) return PasswordCatMessages.buildHints['number']!;
+    if (!hasSymbol) return PasswordCatMessages.buildHints['symbol']!;
+    return PasswordCatMessages.buildHints['strong']!;
   }
 
   String get hint {
@@ -968,45 +953,11 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
           ),
           const SizedBox(height: 14),
           if (!canProceed && controller.text.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: _kAccent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: _kAccent.withValues(alpha: 0.3)),
-              ),
-              child: Row(children: [
-                const Text('💡', style: TextStyle(fontSize: 20)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(hint,
-                      style: GoogleFonts.fredoka(
-                          fontSize: 13, color: _kAccent, height: 1.4)),
-                ),
-              ]),
-            ),
+            _CatTipBox(message: _buildCatMessage, accentColor: strengthColor),
           if (canProceed)
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: _kGreen.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: _kGreen.withValues(alpha: 0.4)),
-              ),
-              child: Row(children: [
-                const Text('🎉', style: TextStyle(fontSize: 20)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Amazing! Your password passes the rules. You\'re ready to finish!',
-                    style: GoogleFonts.fredoka(
-                        fontSize: 13,
-                        color: _kGreen,
-                        fontWeight: FontWeight.w600,
-                        height: 1.4),
-                  ),
-                ),
-              ]),
+            _CatTipBox(
+              message: PasswordCatMessages.buildHints['strong']!,
+              accentColor: _kGreen,
             ),
           const SizedBox(height: 20),
           _NextButton(
@@ -1092,8 +1043,7 @@ class _CompleteStepState extends State<_CompleteStep> {
           Text('Not quite there yet!',
             style: GoogleFonts.fredoka(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white)),
           const SizedBox(height: 8),
-          Text(_encouragement, textAlign: TextAlign.center,
-            style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54, height: 1.5)),
+          _CatTipBox(message: _encouragement, accentColor: _kRed),
           const SizedBox(height: 24),
           Container(
             padding: const EdgeInsets.all(20),
@@ -1122,19 +1072,9 @@ class _CompleteStepState extends State<_CompleteStep> {
             ]),
           ),
           const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: _kAccent.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _kAccent.withValues(alpha: 0.25)),
-            ),
-            child: Row(children: [
-              const Text('💡', style: TextStyle(fontSize: 18)),
-              const SizedBox(width: 10),
-              Expanded(child: Text(
-                'You need to get every question right to complete the lesson and earn your XP.',
-                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
-            ]),
+          _CatTipBox(
+            message: 'You need to get every question right to complete the lesson and earn your XP.',
+            accentColor: _kRed,
           ),
           const SizedBox(height: 28),
           _NextButton(onTap: widget.onRetry, label: '🔄  Try Again'),
@@ -1211,9 +1151,59 @@ class _CompleteStepState extends State<_CompleteStep> {
       _SummaryTile(emoji: '🧠', text: 'The passphrase trick'),
       _SummaryTile(emoji: '🛠️', text: 'Built your very own strong password!'),
         const SizedBox(height: 28),
+        _CatTipBox(
+          message: PasswordCatMessages.completeMessage(3),
+          accentColor: const Color(0xFFFFD700),
+        ),
+        const SizedBox(height: 16),
         _NextButton(onTap: () => finish(context), enabled: !claiming,
           label: claiming ? 'Claiming...' : '🎉  Claim your XP!'),
       ]),
+    );
+  }
+}
+
+
+class _CatTipBox extends StatelessWidget {
+  final String message;
+  final Color accentColor;
+  const _CatTipBox({required this.message, this.accentColor = const Color(0xFFFFC857)});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Speech bubble
+        Container(
+          constraints: const BoxConstraints(maxWidth: 280),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: _kCard,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+              bottomLeft: Radius.circular(4),
+              bottomRight: Radius.circular(16),
+            ),
+            border: Border.all(color: accentColor.withValues(alpha: 0.5), width: 1.5),
+            boxShadow: [
+              BoxShadow(color: accentColor.withValues(alpha: 0.15), blurRadius: 12, offset: const Offset(0, 3)),
+            ],
+          ),
+          child: Text(
+            message,
+            style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white, height: 1.45, fontWeight: FontWeight.w500),
+          ),
+        ),
+        // Cat sits below bubble, aligned left
+        SizedBox(
+          width: 72,
+          height: 72,
+          child: Lottie.asset('assets/animations/cat.json', repeat: true, fit: BoxFit.contain),
+        ),
+      ],
     );
   }
 }
