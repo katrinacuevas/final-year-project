@@ -94,32 +94,34 @@ class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
       case 2: return _LessonStep2(key: const ValueKey(2), onNext: goNext);
       case 3: return _LessonStep3(key: const ValueKey(3), onNext: goNext);
       case 4: return _LessonStep4(key: const ValueKey(4), onNext: goNext);
-      case 5: return _QuizStep(key: const ValueKey(5), onComplete: (s, t) {
-        setState(() { _quizScore = s; _quizTotal = t; currentStep++; });
-      });
-      case 6: return _BuildPasswordStep(key: const ValueKey(6), onComplete: () async {
+      // Build password first, then quiz
+      case 5: return _BuildPasswordStep(key: const ValueKey(5), onComplete: () async {
         await UserService.instance.saveProgress(const LessonProgress(
           lessonId: 'password_power', stepsCompleted: 6, totalSteps: 6, stars: 3, completed: true));
-        if (mounted) setState(() => currentStep = 7);
+        if (mounted) setState(() => currentStep++);
+      });
+      case 6: return _QuizStep(key: const ValueKey(6), onComplete: (s, t) {
+        setState(() { _quizScore = s; _quizTotal = t; currentStep++; });
       });
       case 7: return _CompleteStep(key: const ValueKey(7), score: _quizScore, total: _quizTotal,
-        onRetry: () => setState(() => currentStep = 5), onDone: () => Navigator.pop(context));
+        onRetry: () => setState(() => currentStep = 6), onDone: () => Navigator.pop(context));
       default: return const SizedBox();
     }
   }
 }
 
-// ─── Cat + Button widget — nav bar style layout ───────────────────────────────
-// Cat (left, overlapping button) + bubble (right of cat) + button (bottom).
-// Mirrors the navigation_bar.dart Positioned pattern exactly.
 class _CatButton extends StatefulWidget {
   final Widget button;
   final String message;
   final Color accentColor;
+  final bool showBubble;
+  final bool showButton;
   const _CatButton({
     required this.button,
     required this.message,
     this.accentColor = const Color(0xFFFFC857),
+    this.showBubble = true,
+    this.showButton = true,
   });
   @override
   State<_CatButton> createState() => _CatButtonState();
@@ -138,58 +140,52 @@ class _CatButtonState extends State<_CatButton> with SingleTickerProviderStateMi
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 180,
+      height: widget.showButton ? 180 : 130,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // Button — anchored to bottom
-          Positioned(
-            left: 0, right: 0, bottom: 0,
-            child: widget.button,
-          ),
-          // Cat — wrapped in ClipRect so the bottom is hidden by the button
+          if (widget.showButton)
+            Positioned(left: 0, right: 0, bottom: 0, child: widget.button),
           Positioned(
             left: -18,
-            bottom: 15,
+            bottom: widget.showButton ? 15 : 0,
             child: ClipRect(
               child: SizedBox(
-                width: 160,
-                height: 160,
+                width: 160, height: 160,
                 child: Lottie.asset('assets/animations/cat.json', controller: _ctrl, fit: BoxFit.contain),
               ),
             ),
           ),
-          // Speech bubble — to the right of cat (nav bar: left: 90, above cat)
-          Positioned(
-            left: 130,
-            bottom: 80,
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 210),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: _kCard,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                  bottomLeft: Radius.circular(4),
-                  bottomRight: Radius.circular(16),
+          if (widget.showBubble)
+            Positioned(
+              left: 130,
+              bottom: widget.showButton ? 80 : 50,
+              child: AnimatedOpacity(
+                opacity: 1.0,
+                duration: const Duration(milliseconds: 400),
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 210),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: _kCard,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16), topRight: Radius.circular(16),
+                      bottomLeft: Radius.circular(4), bottomRight: Radius.circular(16),
+                    ),
+                    border: Border.all(color: widget.accentColor.withValues(alpha: 0.5), width: 1.5),
+                    boxShadow: [BoxShadow(color: widget.accentColor.withValues(alpha: 0.2), blurRadius: 16, offset: const Offset(0, 4))],
+                  ),
+                  child: Text(widget.message,
+                    style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white, height: 1.45, fontWeight: FontWeight.w500)),
                 ),
-                border: Border.all(color: widget.accentColor.withValues(alpha: 0.5), width: 1.5),
-                boxShadow: [BoxShadow(color: widget.accentColor.withValues(alpha: 0.2), blurRadius: 16, offset: const Offset(0, 4))],
-              ),
-              child: Text(
-                widget.message,
-                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white, height: 1.45, fontWeight: FontWeight.w500),
               ),
             ),
-          ),
         ],
       ),
     );
   }
 }
 
-// ─── Intro ────────────────────────────────────────────────────────────────────
 class _IntroStep extends StatelessWidget {
   final VoidCallback onNext;
   const _IntroStep({super.key, required this.onNext});
@@ -215,7 +211,7 @@ class _IntroStep extends StatelessWidget {
           body: 'Why passwords matter, what makes them weak or strong, and how to build one that\'s really hard to guess!'),
         const SizedBox(height: 10),
         _InfoCard(color: _kGreen, emoji: '⏱️', title: '~10 minutes',
-          body: '4 quick lessons + a quiz + build your very own password at the end!'),
+          body: '4 quick lessons + build your own password + a quiz at the end!'),
         const SizedBox(height: 10),
         _InfoCard(color: _kAccent, emoji: '⭐', title: 'Earn +200 XP',
           body: 'Complete everything to earn your Password Master badge!'),
@@ -230,323 +226,411 @@ class _IntroStep extends StatelessWidget {
   }
 }
 
-// ─── Lesson 1 ─────────────────────────────────────────────────────────────────
-class _LessonStep1 extends StatelessWidget {
+class _LessonStep1 extends StatefulWidget {
   final VoidCallback onNext;
   const _LessonStep1({super.key, required this.onNext});
   @override
+  State<_LessonStep1> createState() => _LessonStep1State();
+}
+
+class _LessonStep1State extends State<_LessonStep1> {
+  static const int _total = 5;
+  int _revealed = 0;
+  bool _promptShown = false;
+  bool get _allRevealed => _revealed >= _total;
+
+  void _onTap() {
+    if (_allRevealed) return;
+    SoundService.playClick();
+    setState(() {
+      if (!_promptShown) _promptShown = true;
+      _revealed++;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        _LessonLabel(label: 'WHY PASSWORDS MATTER'),
-        const SizedBox(height: 16),
-        Container(width: double.infinity, padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: _kAccent.withValues(alpha: 0.25))),
-          child: Column(children: [
-            const Text('🏠', style: TextStyle(fontSize: 52)), const SizedBox(height: 10),
-            Text('Think of a password like the key to your house!', textAlign: TextAlign.center,
-              style: GoogleFonts.fredoka(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white)),
-          ])),
-        const SizedBox(height: 20),
-        Text('What can happen without a good password?',
-          style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
-        const SizedBox(height: 10),
-        _ScenarioCard(emoji: '📧', text: 'Someone reads your private messages', isBad: true),
-        const SizedBox(height: 8),
-        _ScenarioCard(emoji: '🎮', text: 'A hacker steals your game progress', isBad: true),
-        const SizedBox(height: 8),
-        _ScenarioCard(emoji: '📸', text: 'Strangers see your private photos', isBad: true),
-        const SizedBox(height: 8),
-        _ScenarioCard(emoji: '🛡️', text: 'A strong password keeps all of this safe!', isBad: false),
-        const SizedBox(height: 28),
-        _CatButton(
-          button: _NextButton(onTap: onNext),
-          message: PasswordCatMessages.tip(1),
-        ),
-      ]),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _onTap,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          _LessonLabel(label: 'WHY PASSWORDS MATTER'),
+          const SizedBox(height: 16),
+          if (_revealed >= 1)
+            Container(width: double.infinity, padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: _kAccent.withValues(alpha: 0.25))),
+              child: Column(children: [
+                const Text('🏠', style: TextStyle(fontSize: 52)), const SizedBox(height: 10),
+                Text('Think of a password like the key to your house!', textAlign: TextAlign.center,
+                  style: GoogleFonts.fredoka(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white)),
+              ])).animate().fadeIn(duration: 350.ms).slideY(begin: 0.1, end: 0),
+          if (_revealed >= 1) ...[
+            const SizedBox(height: 20),
+            Text('What can happen without a good password?',
+              style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white))
+              .animate().fadeIn(duration: 300.ms),
+            const SizedBox(height: 10),
+          ],
+          if (_revealed >= 2) ...[
+            _ScenarioCard(emoji: '📧', text: 'Someone reads your private messages', isBad: true)
+              .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
+            const SizedBox(height: 8),
+          ],
+          if (_revealed >= 3) ...[
+            _ScenarioCard(emoji: '🎮', text: 'A hacker steals your game progress', isBad: true)
+              .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
+            const SizedBox(height: 8),
+          ],
+          if (_revealed >= 4) ...[
+            _ScenarioCard(emoji: '📸', text: 'Strangers see your private photos', isBad: true)
+              .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
+            const SizedBox(height: 8),
+          ],
+          if (_revealed >= 5) ...[
+            _ScenarioCard(emoji: '🛡️', text: 'A strong password keeps all of this safe!', isBad: false)
+              .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
+            const SizedBox(height: 28),
+          ],
+          const SizedBox(height: 20),
+          _CatButton(
+            button: _NextButton(onTap: widget.onNext),
+            message: _allRevealed ? PasswordCatMessages.tip(1) : 'Tap the screen! 👆',
+            showBubble: !_promptShown || _allRevealed,
+            showButton: _allRevealed,
+          ),
+        ]),
+      ),
     );
   }
 }
 
-// ─── Lesson 2 ─────────────────────────────────────────────────────────────────
-class _LessonStep2 extends StatelessWidget {
+class _LessonStep2 extends StatefulWidget {
   final VoidCallback onNext;
   const _LessonStep2({super.key, required this.onNext});
   @override
+  State<_LessonStep2> createState() => _LessonStep2State();
+}
+
+class _LessonStep2State extends State<_LessonStep2> {
+  static const _passwords = [
+    ('123456',      'Just numbers in order — way too easy!'),
+    ('password',    'The #1 most guessed password of all time!'),
+    ('iloveyou',    'Very common phrase — hackers know this one!'),
+    ('abc123',      'Short and simple = cracked in seconds!'),
+    ('yourname123', 'Using your own name makes it easy to guess!'),
+  ];
+
+  int _revealed = 0;
+  bool _promptShown = false;
+  bool get _allRevealed => _revealed >= _passwords.length;
+
+  void _onTap() {
+    if (_allRevealed) return;
+    SoundService.playClick();
+    setState(() {
+      if (!_promptShown) _promptShown = true;
+      _revealed++;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        _LessonLabel(label: 'SPOT THE WEAK PASSWORDS'),
-        const SizedBox(height: 16),
-        Text('These are the ones hackers try FIRST. Never use them!',
-          style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54, height: 1.4)),
-        const SizedBox(height: 14),
-        _WeakPasswordTile(password: '123456', reason: 'Just numbers in order — way too easy!'),
-        const SizedBox(height: 8),
-        _WeakPasswordTile(password: 'password', reason: 'The #1 most guessed password of all time!'),
-        const SizedBox(height: 8),
-        _WeakPasswordTile(password: 'iloveyou', reason: 'Very common phrase — hackers know this one!'),
-        const SizedBox(height: 8),
-        _WeakPasswordTile(password: 'abc123', reason: 'Short and simple = cracked in seconds!'),
-        const SizedBox(height: 8),
-        _WeakPasswordTile(password: 'yourname123', reason: 'Using your own name makes it easy to guess!'),
-        const SizedBox(height: 28),
-        _CatButton(
-          button: _NextButton(onTap: onNext),
-          message: PasswordCatMessages.tip(0),
-        ),
-      ]),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _onTap,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          _LessonLabel(label: 'SPOT THE WEAK PASSWORDS'),
+          const SizedBox(height: 16),
+          Text('These are the ones hackers try FIRST. Never use them!',
+            style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54, height: 1.4)),
+          const SizedBox(height: 14),
+          for (int i = 0; i < _revealed; i++) ...[
+            _WeakPasswordTile(password: _passwords[i].$1, reason: _passwords[i].$2)
+              .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
+            const SizedBox(height: 8),
+          ],
+          const SizedBox(height: 20),
+          _CatButton(
+            button: _NextButton(onTap: widget.onNext),
+            message: _allRevealed ? PasswordCatMessages.tip(0) : 'Tap the screen! 👆',
+            showBubble: !_promptShown || _allRevealed,
+            showButton: _allRevealed,
+          ),
+        ]),
+      ),
     );
   }
 }
 
-// ─── Lesson 3 ─────────────────────────────────────────────────────────────────
-class _LessonStep3 extends StatelessWidget {
+class _LessonStep3 extends StatefulWidget {
   final VoidCallback onNext;
   const _LessonStep3({super.key, required this.onNext});
+  @override
+  State<_LessonStep3> createState() => _LessonStep3State();
+}
+
+class _LessonStep3State extends State<_LessonStep3> {
+  static const _rules = [
+    ('1', '📏', Color(0xFFFFC857), 'Make it LONG',   'At least 12 characters. Longer = much harder to crack!'),
+    ('2', '🔀', Color(0xFFBA68C8), 'Mix it UP',      'Use UPPER and lower case letters together, like "SuNsHiNe".'),
+    ('3', '🔢', Color(0xFFFFC857), 'Add NUMBERS',    'Throw in some numbers — but not just "123" at the end!'),
+    ('4', '✨', Color(0xFF00E676), 'Use SYMBOLS',    'Characters like ! @ # \$ % make it much stronger.'),
+  ];
+
+  final Set<int> _expanded = {};
+  final Set<int> _everTapped = {};
+  bool get _allExpanded => _everTapped.length >= _rules.length;
+
+  void _toggle(int i) {
+    SoundService.playClick();
+    setState(() {
+      _everTapped.add(i);
+      if (_expanded.contains(i)) _expanded.remove(i);
+      else _expanded.add(i);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         _LessonLabel(label: 'THE 4 RULES OF A STRONG PASSWORD'),
+        const SizedBox(height: 6),
+        Text('Tap each rule to reveal it 👇',
+          style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
         const SizedBox(height: 16),
-        _RuleCard(number: '1', emoji: '📏', color: _kAccent, title: 'Make it LONG',
-          body: 'At least 12 characters. Longer = much harder to crack!'),
-        const SizedBox(height: 10),
-        _RuleCard(number: '2', emoji: '🔀', color: const Color(0xFFBA68C8), title: 'Mix it UP',
-          body: 'Use UPPER and lower case letters together, like "SuNsHiNe".'),
-        const SizedBox(height: 10),
-        _RuleCard(number: '3', emoji: '🔢', color: _kAccent, title: 'Add NUMBERS',
-          body: 'Throw in some numbers — but not just "123" at the end!'),
-        const SizedBox(height: 10),
-        _RuleCard(number: '4', emoji: '✨', color: _kGreen, title: 'Use SYMBOLS',
-          body: 'Characters like ! @ # \$ % make it much stronger.'),
-        const SizedBox(height: 18),
-        Container(width: double.infinity, padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: _kGreen.withValues(alpha: 0.4))),
-          child: Column(children: [
-            Text('✅  Strong Password Example',
-              style: GoogleFonts.fredoka(fontSize: 13, fontWeight: FontWeight.w600, color: _kGreen)),
-            const SizedBox(height: 10),
-            Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(color: _kBg, borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: _kGreen.withValues(alpha: 0.2))),
-              child: Text('Tr0pic@lFish!2024',
-                style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1))),
-            const SizedBox(height: 10),
-            Wrap(spacing: 6, children: [
-              _Tag(label: 'Long', color: _kAccent),
-              _Tag(label: 'Mixed case', color: const Color(0xFFBA68C8)),
-              _Tag(label: 'Numbers', color: _kAccent),
-              _Tag(label: 'Symbols', color: _kGreen),
-            ]),
-          ])),
-        const SizedBox(height: 28),
+        for (int i = 0; i < _rules.length; i++) ...[
+          _TappableRuleCard(
+            number: _rules[i].$1, emoji: _rules[i].$2, color: _rules[i].$3,
+            title: _rules[i].$4, body: _rules[i].$5,
+            isExpanded: _expanded.contains(i), onTap: () => _toggle(i),
+          ),
+          const SizedBox(height: 10),
+        ],
+        if (_allExpanded) ...[
+          const SizedBox(height: 8),
+          Container(width: double.infinity, padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: _kGreen.withValues(alpha: 0.4))),
+            child: Column(children: [
+              Text('✅  Strong Password Example',
+                style: GoogleFonts.fredoka(fontSize: 13, fontWeight: FontWeight.w600, color: _kGreen)),
+              const SizedBox(height: 10),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(color: _kBg, borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _kGreen.withValues(alpha: 0.2))),
+                child: Text('Tr0pic@lFish!8529',
+                  style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1))),
+              const SizedBox(height: 10),
+              Wrap(spacing: 6, children: [
+                _Tag(label: 'Long', color: _kAccent),
+                _Tag(label: 'Mixed case', color: const Color(0xFFBA68C8)),
+                _Tag(label: 'Numbers', color: _kAccent),
+                _Tag(label: 'Symbols', color: _kGreen),
+              ]),
+            ])).animate().fadeIn(duration: 400.ms).slideY(begin: 0.15, end: 0),
+          const SizedBox(height: 28),
+        ],
         _CatButton(
-          button: _NextButton(onTap: onNext),
-          message: PasswordCatMessages.tip(2),
+          button: _NextButton(onTap: widget.onNext),
+          message: _allExpanded ? PasswordCatMessages.tip(2) : 'Tap each card to reveal the rule! 👆',
+          showBubble: true,
+          showButton: _allExpanded,
         ),
       ]),
     );
   }
 }
 
-// ─── Lesson 4 ─────────────────────────────────────────────────────────────────
-class _LessonStep4 extends StatelessWidget {
+class _TappableRuleCard extends StatelessWidget {
+  final String number, emoji, title, body;
+  final Color color;
+  final bool isExpanded;
+  final VoidCallback onTap;
+  const _TappableRuleCard({
+    required this.number, required this.emoji, required this.title,
+    required this.body, required this.color, required this.isExpanded,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: _kCard, borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isExpanded ? color.withValues(alpha: 0.6) : color.withValues(alpha: 0.25),
+            width: isExpanded ? 1.8 : 1.2),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Container(width: 48, height: 48,
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: color.withValues(alpha: 0.3))),
+              child: Center(child: Text(emoji, style: const TextStyle(fontSize: 22)))),
+            const SizedBox(width: 14),
+            Expanded(child: Text(title,
+              style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w700, color: color))),
+            Container(width: 28, height: 28,
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.15), shape: BoxShape.circle,
+                border: Border.all(color: color.withValues(alpha: 0.5))),
+              child: Center(child: Icon(
+                isExpanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                size: 16, color: color))),
+          ]),
+          if (isExpanded) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withValues(alpha: 0.15))),
+              child: Text(body, style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white70, height: 1.5)),
+            ),
+          ],
+        ]),
+      ),
+    );
+  }
+}
+
+// ─── Lesson 4 — passphrase trick, tap to reveal each step ────────────────────
+class _LessonStep4 extends StatefulWidget {
   final VoidCallback onNext;
   const _LessonStep4({super.key, required this.onNext});
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        _LessonLabel(label: 'THE PASSPHRASE TRICK'),
-        const SizedBox(height: 6),
-        Text('Hard to guess, but easy for YOU to remember!',
-          style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
-        const SizedBox(height: 16),
-        Container(padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: _kAccent.withValues(alpha: 0.25))),
-          child: Column(children: [
-            Text('Pick 3 random words you like:',
-              style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54)),
-            const SizedBox(height: 14),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              _WordBubble(word: 'Fluffy', emoji: '🐱'),
-              Text(' + ', style: GoogleFonts.fredoka(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white54)),
-              _WordBubble(word: 'Pizza', emoji: '🍕'),
-              Text(' + ', style: GoogleFonts.fredoka(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white54)),
-              _WordBubble(word: 'Rocket', emoji: '🚀'),
-            ]),
-            const SizedBox(height: 14),
-            const Icon(Icons.arrow_downward_rounded, color: _kAccent, size: 24),
-            const SizedBox(height: 10),
-            Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(color: _kGreen.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: _kGreen.withValues(alpha: 0.3))),
-              child: Text('Fluffy\$Pizza!Rocket7',
-                style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700, color: _kGreen, letterSpacing: 0.5))),
-            const SizedBox(height: 8),
-            Text('Add numbers & symbols between the words ✨',
-              style: GoogleFonts.fredoka(fontSize: 12, color: Colors.white38)),
-          ])),
-        const SizedBox(height: 16),
-        _InfoCard(color: _kGreen, emoji: '✅', title: 'Easy to remember',
-          body: 'A funny image in your head — a fluffy cat eating pizza on a rocket!'),
-        const SizedBox(height: 8),
-        _InfoCard(color: _kAccent, emoji: '🔐', title: 'Very long',
-          body: 'More characters = exponentially harder to crack.'),
-        const SizedBox(height: 8),
-        _InfoCard(color: _kAccent, emoji: '🤫', title: 'Your secret',
-          body: 'Nobody else would pick the same 3 random words as you!'),
-        const SizedBox(height: 28),
-        _CatButton(
-          button: _NextButton(onTap: onNext, label: 'Take the Quiz! 🎯'),
-          message: PasswordCatMessages.tip(3),
-        ),
-      ]),
-    );
-  }
+  State<_LessonStep4> createState() => _LessonStep4State();
 }
 
-// ─── Quiz ─────────────────────────────────────────────────────────────────────
-class _QuizStep extends StatefulWidget {
-  final void Function(int score, int total) onComplete;
-  const _QuizStep({super.key, required this.onComplete});
-  @override
-  State<_QuizStep> createState() => _QuizStepState();
-}
+class _LessonStep4State extends State<_LessonStep4> {
+  static const int _total = 5;
+  int _revealed = 0;
+  bool _promptShown = false;
+  bool get _allRevealed => _revealed >= _total;
 
-class _QuizStepState extends State<_QuizStep> {
-  int questionIndex = 0;
-  int? selectedAnswer;
-  bool answered = false;
-  int _score = 0;
-
-  final List<Map<String, dynamic>> questions = [
-    {'question': 'Which of these is the STRONGEST password?', 'emoji': '🤔',
-      'options': ['fluffy123', 'password', 'Tr0pic@lFish!2024', '12345678'], 'correct': 2},
-    {'question': 'What is the MINIMUM length a strong password should be?', 'emoji': '📏',
-      'options': ['4 characters', '8 characters', '12 characters', '6 characters'], 'correct': 2},
-    {'question': 'Why is "yourname123" a weak password?', 'emoji': '🤨',
-      'options': ['It\'s too long', 'It uses your name — easy to guess!', 'It has numbers', 'It\'s hard to remember'], 'correct': 1},
-    {'question': 'Which symbol makes your password stronger?', 'emoji': '✨',
-      'options': ['A space', '@ or ! or #', 'Only letters', 'A smiley face'], 'correct': 1},
-    {'question': 'A passphrase uses... ?', 'emoji': '🧠',
-      'options': ['One short word', 'Your birthday', 'Random words joined together', 'Just numbers'], 'correct': 2},
-  ];
-
-  void selectAnswer(int index) {
-    if (answered) return;
+  void _onTap() {
+    if (_allRevealed) return;
     SoundService.playClick();
-    final int correct = questions[questionIndex]['correct'] as int;
-    setState(() { selectedAnswer = index; answered = true; if (index == correct) _score++; });
-  }
-
-  void nextQuestion() {
-    SoundService.playClick();
-    if (questionIndex < questions.length - 1) {
-      setState(() { questionIndex++; selectedAnswer = null; answered = false; });
-    } else {
-      widget.onComplete(_score, questions.length);
-    }
+    setState(() {
+      if (!_promptShown) _promptShown = true;
+      _revealed++;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final q = questions[questionIndex];
-    final List<String> options = List<String>.from(q['options'] as List);
-    final int correct = q['correct'] as int;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Quiz Time! 🎯',
-            style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white)),
-          Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(color: _kGreen.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: _kGreen.withValues(alpha: 0.4))),
-            child: Text('${questionIndex + 1} / ${questions.length}',
-              style: GoogleFonts.fredoka(fontWeight: FontWeight.w700, color: _kGreen, fontSize: 13))),
-        ]),
-        const SizedBox(height: 10),
-        ClipRRect(borderRadius: BorderRadius.circular(6),
-          child: LinearProgressIndicator(value: (questionIndex + 1) / questions.length, minHeight: 6,
-            backgroundColor: _kAccent.withValues(alpha: 0.1),
-            valueColor: const AlwaysStoppedAnimation<Color>(_kAccent))),
-        const SizedBox(height: 20),
-        Container(width: double.infinity, padding: const EdgeInsets.all(22),
-          decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: _kAccent.withValues(alpha: 0.2))),
-          child: Column(children: [
-            Text(q['emoji'] as String, style: const TextStyle(fontSize: 44)),
-            const SizedBox(height: 12),
-            Text(q['question'] as String, textAlign: TextAlign.center,
-              style: GoogleFonts.fredoka(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
-          ])),
-        const SizedBox(height: 16),
-        ...options.asMap().entries.map((entry) {
-          final i = entry.key;
-          final opt = entry.value;
-          final bool isCorrect = i == correct;
-          final bool isSelected = i == selectedAnswer;
-          Color borderColor = _kAccent.withValues(alpha: 0.15);
-          Color bgColor = _kCard;
-          Color textColor = Colors.white70;
-          Widget? trailing;
-          if (answered) {
-            if (isCorrect) {
-              bgColor = _kGreen.withValues(alpha: 0.12); borderColor = _kGreen.withValues(alpha: 0.6); textColor = _kGreen;
-              trailing = const Icon(Icons.check_circle_rounded, color: _kGreen, size: 20);
-            } else if (isSelected) {
-              bgColor = _kRed.withValues(alpha: 0.12); borderColor = _kRed.withValues(alpha: 0.6); textColor = _kRed;
-              trailing = const Icon(Icons.cancel_rounded, color: _kRed, size: 20);
-            }
-          }
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: GestureDetector(
-              onTap: () => selectAnswer(i),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: borderColor, width: 1.5)),
-                child: Row(children: [
-                  Container(width: 28, height: 28,
-                    decoration: BoxDecoration(shape: BoxShape.circle,
-                      color: answered && isCorrect ? _kGreen.withValues(alpha: 0.2) : _kAccent.withValues(alpha: 0.08),
-                      border: Border.all(color: answered && isCorrect ? _kGreen : _kAccent.withValues(alpha: 0.3))),
-                    child: Center(child: Text(['A','B','C','D'][i],
-                      style: GoogleFonts.fredoka(fontWeight: FontWeight.w700, fontSize: 13,
-                        color: answered && isCorrect ? _kGreen : _kAccent.withValues(alpha: 0.7))))),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(opt, style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w600, color: textColor))),
-                  ?trailing,
-                ]),
-              ),
-            ),
-          );
-        }),
-        if (answered) ...[
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _onTap,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          _LessonLabel(label: 'THE PASSPHRASE TRICK'),
+          const SizedBox(height: 6),
+          Text('Hard to guess, but easy for YOU to remember!',
+            style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
           const SizedBox(height: 16),
+
+          // Step 1 — what is a passphrase
+          if (_revealed >= 1)
+            Container(width: double.infinity, padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: _kAccent.withValues(alpha: 0.25))),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('🤔  What is a passphrase?',
+                  style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: _kAccent)),
+                const SizedBox(height: 8),
+                Text('Instead of a scrambled word, you combine 3 or more RANDOM words you like. They don\'t have to make sense together — that\'s the point!',
+                  style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white70, height: 1.5)),
+              ])).animate().fadeIn(duration: 350.ms).slideY(begin: 0.1, end: 0),
+
+          // Step 2 — pick 3 random words
+          if (_revealed >= 2) ...[
+            const SizedBox(height: 14),
+            Container(padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: _kAccent.withValues(alpha: 0.25))),
+              child: Column(children: [
+                Text('Step 1 — Pick 3 random words you like:',
+                  style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54)),
+                const SizedBox(height: 14),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  _WordBubble(word: 'Fluffy', emoji: '🐱'),
+                  Text(' + ', style: GoogleFonts.fredoka(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white54)),
+                  _WordBubble(word: 'Pizza', emoji: '🍕'),
+                  Text(' + ', style: GoogleFonts.fredoka(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white54)),
+                  _WordBubble(word: 'Rocket', emoji: '🚀'),
+                ]),
+              ])).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
+          ],
+
+          // Step 3 — add numbers and symbols between
+          if (_revealed >= 3) ...[
+            const SizedBox(height: 10),
+            Container(padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: const Color(0xFFBA68C8).withValues(alpha: 0.4))),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Step 2 — Add numbers & symbols between them:',
+                  style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54)),
+                const SizedBox(height: 12),
+                Center(child: const Icon(Icons.arrow_downward_rounded, color: _kAccent, size: 24)),
+                const SizedBox(height: 10),
+                Center(
+                  child: Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(color: _kGreen.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: _kGreen.withValues(alpha: 0.3))),
+                    child: Text('Fluffy\$Pizza!Rocket7',
+                      style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700, color: _kGreen, letterSpacing: 0.5))),
+                ),
+                const SizedBox(height: 8),
+                Center(child: Text('The \$ and ! separate the words — easy to remember!',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.fredoka(fontSize: 12, color: Colors.white38))),
+              ])).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
+          ],
+
+          // Step 4 — why it works
+          if (_revealed >= 4) ...[
+            const SizedBox(height: 10),
+            _InfoCard(color: _kGreen, emoji: '✅', title: 'Why it works',
+              body: 'A funny image in your head — a fluffy cat eating pizza on a rocket! Easy for you, impossible for hackers.')
+              .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
+            const SizedBox(height: 8),
+            _InfoCard(color: _kAccent, emoji: '🔐', title: 'Super long & super strong',
+              body: 'More characters = exponentially harder to crack. A passphrase is usually 20+ characters.')
+              .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
+          ],
+
+          // Step 5 — your secret
+          if (_revealed >= 5) ...[
+            const SizedBox(height: 8),
+            _InfoCard(color: const Color(0xFFBA68C8), emoji: '🤫', title: 'Your secret',
+              body: 'Nobody else would pick the same 3 random words as you — it\'s uniquely yours!')
+              .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
+            const SizedBox(height: 28),
+          ],
+
+          const SizedBox(height: 20),
           _CatButton(
-            button: _NextButton(
-              onTap: nextQuestion,
-              label: questionIndex < questions.length - 1 ? 'Next Question →' : 'Build Your Own! 🛠️',
-            ),
-            message: PasswordCatMessages.quizFeedback(questionIndex, selectedAnswer == correct),
-            accentColor: selectedAnswer == correct ? _kGreen : _kRed,
+            button: _NextButton(onTap: widget.onNext, label: 'Build Your Own! 🛠️'),
+            message: _allRevealed ? PasswordCatMessages.tip(3) : 'Tap to reveal each step! 👆',
+            showBubble: !_promptShown || _allRevealed,
+            showButton: _allRevealed,
           ),
-        ],
-      ]),
+        ]),
+      ),
     );
   }
 }
@@ -668,16 +752,152 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
         const SizedBox(height: 28),
         if (controller.text.isNotEmpty)
           _CatButton(
-          button: _NextButton(onTap: widget.onComplete, enabled: canProceed, label: 'Finish! 🏆'),
-          message: _buildCatMessage,
-          accentColor: canProceed ? _kGreen : strengthColor,
-        )
+            button: _NextButton(onTap: widget.onComplete, enabled: canProceed, label: 'Take the Quiz! 🎯'),
+            message: _buildCatMessage,
+            accentColor: canProceed ? _kGreen : strengthColor,
+          )
         else
-          _NextButton(onTap: widget.onComplete, enabled: canProceed, label: 'Finish! 🏆'),
+          _NextButton(onTap: widget.onComplete, enabled: canProceed, label: 'Take the Quiz! 🎯'),
         if (!canProceed)
           Padding(padding: const EdgeInsets.only(top: 10),
-            child: Center(child: Text('Complete all 5 rules to finish',
+            child: Center(child: Text('Complete all 5 rules to continue',
               style: GoogleFonts.fredoka(fontSize: 12, color: Colors.white24)))),
+      ]),
+    );
+  }
+}
+
+// ─── Quiz ─────────────────────────────────────────────────────────────────────
+class _QuizStep extends StatefulWidget {
+  final void Function(int score, int total) onComplete;
+  const _QuizStep({super.key, required this.onComplete});
+  @override
+  State<_QuizStep> createState() => _QuizStepState();
+}
+
+class _QuizStepState extends State<_QuizStep> {
+  int questionIndex = 0;
+  int? selectedAnswer;
+  bool answered = false;
+  int _score = 0;
+
+  final List<Map<String, dynamic>> questions = [
+    {'question': 'Which of these is the STRONGEST password?', 'emoji': '🤔',
+      'options': ['fluffy123', 'password', 'Tr0pic@lFish!2024', '12345678'], 'correct': 2},
+    {'question': 'What is the MINIMUM length a strong password should be?', 'emoji': '📏',
+      'options': ['4 characters', '8 characters', '12 characters', '6 characters'], 'correct': 2},
+    {'question': 'Why is "yourname123" a weak password?', 'emoji': '🤨',
+      'options': ['It\'s too long', 'It uses your name — easy to guess!', 'It has numbers', 'It\'s hard to remember'], 'correct': 1},
+    {'question': 'Which symbol makes your password stronger?', 'emoji': '✨',
+      'options': ['A space', '@ or ! or #', 'Only letters', 'A smiley face'], 'correct': 1},
+    {'question': 'A passphrase uses... ?', 'emoji': '🧠',
+      'options': ['One short word', 'Your birthday', 'Random words joined together', 'Just numbers'], 'correct': 2},
+  ];
+
+  void selectAnswer(int index) {
+    if (answered) return;
+    SoundService.playClick();
+    final int correct = questions[questionIndex]['correct'] as int;
+    setState(() { selectedAnswer = index; answered = true; if (index == correct) _score++; });
+  }
+
+  void nextQuestion() {
+    SoundService.playClick();
+    if (questionIndex < questions.length - 1) {
+      setState(() { questionIndex++; selectedAnswer = null; answered = false; });
+    } else {
+      widget.onComplete(_score, questions.length);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final q = questions[questionIndex];
+    final List<String> options = List<String>.from(q['options'] as List);
+    final int correct = q['correct'] as int;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text('Quiz Time! 🎯',
+            style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white)),
+          Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            decoration: BoxDecoration(color: _kGreen.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: _kGreen.withValues(alpha: 0.4))),
+            child: Text('${questionIndex + 1} / ${questions.length}',
+              style: GoogleFonts.fredoka(fontWeight: FontWeight.w700, color: _kGreen, fontSize: 13))),
+        ]),
+        const SizedBox(height: 10),
+        ClipRRect(borderRadius: BorderRadius.circular(6),
+          child: LinearProgressIndicator(value: (questionIndex + 1) / questions.length, minHeight: 6,
+            backgroundColor: _kAccent.withValues(alpha: 0.1),
+            valueColor: const AlwaysStoppedAnimation<Color>(_kAccent))),
+        const SizedBox(height: 20),
+        Container(width: double.infinity, padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: _kAccent.withValues(alpha: 0.2))),
+          child: Column(children: [
+            Text(q['emoji'] as String, style: const TextStyle(fontSize: 44)),
+            const SizedBox(height: 12),
+            Text(q['question'] as String, textAlign: TextAlign.center,
+              style: GoogleFonts.fredoka(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+          ])),
+        const SizedBox(height: 16),
+        ...options.asMap().entries.map((entry) {
+          final i = entry.key;
+          final opt = entry.value;
+          final bool isCorrect = i == correct;
+          final bool isSelected = i == selectedAnswer;
+          Color borderColor = _kAccent.withValues(alpha: 0.15);
+          Color bgColor = _kCard;
+          Color textColor = Colors.white70;
+          Widget? trailing;
+          if (answered) {
+            if (isCorrect) {
+              bgColor = _kGreen.withValues(alpha: 0.12); borderColor = _kGreen.withValues(alpha: 0.6); textColor = _kGreen;
+              trailing = const Icon(Icons.check_circle_rounded, color: _kGreen, size: 20);
+            } else if (isSelected) {
+              bgColor = _kRed.withValues(alpha: 0.12); borderColor = _kRed.withValues(alpha: 0.6); textColor = _kRed;
+              trailing = const Icon(Icons.cancel_rounded, color: _kRed, size: 20);
+            }
+          }
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: GestureDetector(
+              onTap: () => selectAnswer(i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: borderColor, width: 1.5)),
+                child: Row(children: [
+                  Container(width: 28, height: 28,
+                    decoration: BoxDecoration(shape: BoxShape.circle,
+                      color: answered && isCorrect ? _kGreen.withValues(alpha: 0.2) : _kAccent.withValues(alpha: 0.08),
+                      border: Border.all(color: answered && isCorrect ? _kGreen : _kAccent.withValues(alpha: 0.3))),
+                    child: Center(child: Text(['A','B','C','D'][i],
+                      style: GoogleFonts.fredoka(fontWeight: FontWeight.w700, fontSize: 13,
+                        color: answered && isCorrect ? _kGreen : _kAccent.withValues(alpha: 0.7))))),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(opt, style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w600, color: textColor))),
+                  if (trailing != null) trailing,
+                ]),
+              ),
+            ),
+          );
+        }),
+        if (answered) ...[
+          const SizedBox(height: 16),
+          _CatButton(
+            button: _NextButton(
+              onTap: nextQuestion,
+              label: questionIndex < questions.length - 1 ? 'Next Question →' : 'See Results! 🏆',
+            ),
+            message: PasswordCatMessages.quizFeedback(questionIndex, selectedAnswer == correct),
+            accentColor: selectedAnswer == correct ? _kGreen : _kRed,
+          ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.15, end: 0),
+        ],
       ]),
     );
   }
@@ -717,8 +937,14 @@ class _CompleteStepState extends State<_CompleteStep> {
         lessonId: 'password_power', stepsCompleted: 6, totalSteps: 6, stars: _stars, completed: true));
       if (!ctx.mounted) return;
       await XpAward.show(ctx, lessonId: 'password_power', amount: 200);
+      if (!ctx.mounted) return;
+      await Future.delayed(Duration.zero);
+      if (!ctx.mounted) return;
       widget.onDone();
-    } catch (e) { debugPrint('Error: $e'); widget.onDone(); }
+    } catch (e) {
+      debugPrint('Error: $e');
+      if (ctx.mounted) widget.onDone();
+    }
   }
 
   @override
@@ -757,10 +983,10 @@ class _CompleteStepState extends State<_CompleteStep> {
             ])),
           const SizedBox(height: 28),
           _CatButton(
-          button: _NextButton(onTap: widget.onRetry, label: '🔄  Try Again'),
-          message: _encouragement,
-          accentColor: _kRed,
-        ),
+            button: _NextButton(onTap: widget.onRetry, label: '🔄  Try Again'),
+            message: _encouragement,
+            accentColor: _kRed,
+          ),
         ]),
       );
     }
@@ -771,12 +997,12 @@ class _CompleteStepState extends State<_CompleteStep> {
         Container(width: 110, height: 110,
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(30),
             gradient: const LinearGradient(colors: [Color(0xFFFFD700), _kBg], begin: Alignment.topLeft, end: Alignment.bottomRight),
-            border: Border.all(color: Color(0xFFFFD700).withValues(alpha: 0.6), width: 2)),
+            border: Border.all(color: const Color(0xFFFFD700).withValues(alpha: 0.6), width: 2)),
           child: const Center(child: Text('🏆', style: TextStyle(fontSize: 54)))).animate().scale(curve: Curves.elasticOut),
         const SizedBox(height: 20),
         Text('Perfect Score! 🎉', style: GoogleFonts.fredoka(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
         const SizedBox(height: 8),
-        Text("You've completed this lesson!", style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54)),
+        Text("You've completed Password Power!", style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54)),
         const SizedBox(height: 24),
         Container(width: double.infinity, padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(20),
@@ -791,11 +1017,11 @@ class _CompleteStepState extends State<_CompleteStep> {
             Text('3 Stars — Amazing!', style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
             const SizedBox(height: 12),
             Container(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(color: Color(0xFFFFD700).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Color(0xFFFFD700).withValues(alpha: 0.4))),
+              decoration: BoxDecoration(color: const Color(0xFFFFD700).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFFFD700).withValues(alpha: 0.4))),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 const Text('⭐', style: TextStyle(fontSize: 22)), const SizedBox(width: 8),
-                Text('+200 XP', style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFFFFD700))),
+                Text('+200 XP', style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: const Color(0xFFFFD700))),
               ])),
           ])),
         const SizedBox(height: 16),
@@ -822,8 +1048,6 @@ class _CompleteStepState extends State<_CompleteStep> {
   }
 }
 
-
-// ─── Shared Components ────────────────────────────────────────────────────────
 class _LessonProgressBar extends StatelessWidget {
   final int current, total;
   const _LessonProgressBar({required this.current, required this.total});
@@ -927,34 +1151,6 @@ class _WeakPasswordTile extends StatelessWidget {
       const SizedBox(width: 12),
       Expanded(child: Text(reason, style: GoogleFonts.fredoka(fontSize: 12, color: Colors.white54))),
       const Text('❌', style: TextStyle(fontSize: 16)),
-    ]),
-  );
-}
-
-class _RuleCard extends StatelessWidget {
-  final String number, emoji, title, body;
-  final Color color;
-  const _RuleCard({required this.number, required this.emoji, required this.title, required this.body, required this.color});
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(color: _kCard, borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: color.withValues(alpha: 0.25))),
-    child: Row(children: [
-      Container(width: 48, height: 48,
-        decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withValues(alpha: 0.3))),
-        child: Center(child: Text(emoji, style: const TextStyle(fontSize: 22)))),
-      const SizedBox(width: 14),
-      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
-        const SizedBox(height: 2),
-        Text(body, style: GoogleFonts.fredoka(fontSize: 12, color: Colors.white54, height: 1.4)),
-      ])),
-      Container(width: 28, height: 28,
-        decoration: BoxDecoration(color: color.withValues(alpha: 0.15), shape: BoxShape.circle,
-          border: Border.all(color: color.withValues(alpha: 0.5))),
-        child: Center(child: Text(number, style: GoogleFonts.fredoka(color: color, fontWeight: FontWeight.w700, fontSize: 13)))),
     ]),
   );
 }
