@@ -189,12 +189,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           // Cat — your exact left/bottom values preserved
           Positioned(
             left: -18,
-            bottom: -41.5,
+            bottom: -44.5,
             child: GestureDetector(
               onTap: _onCatTapped,
               child: SizedBox(
-                width: 150,
-                height: 150,
+                width: 160,
+                height: 160,
                 child: Lottie.asset(
                   'assets/animations/cat.json',
                   controller: _lottieCtrl,

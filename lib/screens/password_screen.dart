@@ -109,22 +109,84 @@ class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
   }
 }
 
-// Helper: cat sitting on top of a button, cat painted first so button covers its bottom
-Widget _catOnButton({required Widget button, required Widget cat, double topPad = 190}) {
-  return Stack(
-    clipBehavior: Clip.hardEdge,
-    children: [
-      Positioned(
-        top: 0,   // ← move cat up/down
-        left: 0,  // ← move cat left/right
-        child: cat,
+// ─── Cat + Button widget — nav bar style layout ───────────────────────────────
+// Cat (left, overlapping button) + bubble (right of cat) + button (bottom).
+// Mirrors the navigation_bar.dart Positioned pattern exactly.
+class _CatButton extends StatefulWidget {
+  final Widget button;
+  final String message;
+  final Color accentColor;
+  const _CatButton({
+    required this.button,
+    required this.message,
+    this.accentColor = const Color(0xFFFFC857),
+  });
+  @override
+  State<_CatButton> createState() => _CatButtonState();
+}
+
+class _CatButtonState extends State<_CatButton> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 4500))..repeat();
+  }
+  @override void dispose() { _ctrl.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 180,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Button — anchored to bottom
+          Positioned(
+            left: 0, right: 0, bottom: 0,
+            child: widget.button,
+          ),
+          // Cat — wrapped in ClipRect so the bottom is hidden by the button
+          Positioned(
+            left: -18,
+            bottom: 15,
+            child: ClipRect(
+              child: SizedBox(
+                width: 160,
+                height: 160,
+                child: Lottie.asset('assets/animations/cat.json', controller: _ctrl, fit: BoxFit.contain),
+              ),
+            ),
+          ),
+          // Speech bubble — to the right of cat (nav bar: left: 90, above cat)
+          Positioned(
+            left: 130,
+            bottom: 80,
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 210),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: _kCard,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                  bottomLeft: Radius.circular(4),
+                  bottomRight: Radius.circular(16),
+                ),
+                border: Border.all(color: widget.accentColor.withValues(alpha: 0.5), width: 1.5),
+                boxShadow: [BoxShadow(color: widget.accentColor.withValues(alpha: 0.2), blurRadius: 16, offset: const Offset(0, 4))],
+              ),
+              child: Text(
+                widget.message,
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white, height: 1.45, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+        ],
       ),
-      Padding(
-        padding: EdgeInsets.only(top: topPad), // ← match to cat height
-        child: button,
-      ),
-    ],
-  );
+    );
+  }
 }
 
 // ─── Intro ────────────────────────────────────────────────────────────────────
@@ -158,9 +220,10 @@ class _IntroStep extends StatelessWidget {
         _InfoCard(color: _kAccent, emoji: '⭐', title: 'Earn +200 XP',
           body: 'Complete everything to earn your Password Master badge!'),
         const SizedBox(height: 28),
-        _catOnButton(
+        _CatButton(
           button: _NextButton(onTap: onNext, label: '▶  Start Lesson'),
-          cat: _CatTipBox(message: PasswordCatMessages.lessonIntro, accentColor: _kAccent),
+          message: PasswordCatMessages.lessonIntro,
+          accentColor: _kAccent,
         ),
       ]),
     );
@@ -198,7 +261,10 @@ class _LessonStep1 extends StatelessWidget {
         const SizedBox(height: 8),
         _ScenarioCard(emoji: '🛡️', text: 'A strong password keeps all of this safe!', isBad: false),
         const SizedBox(height: 28),
-        _NextButton(onTap: onNext),
+        _CatButton(
+          button: _NextButton(onTap: onNext),
+          message: PasswordCatMessages.tip(1),
+        ),
       ]),
     );
   }
@@ -228,9 +294,9 @@ class _LessonStep2 extends StatelessWidget {
         const SizedBox(height: 8),
         _WeakPasswordTile(password: 'yourname123', reason: 'Using your own name makes it easy to guess!'),
         const SizedBox(height: 28),
-        _catOnButton(
+        _CatButton(
           button: _NextButton(onTap: onNext),
-          cat: _CatTipBox(message: PasswordCatMessages.tips[0]),
+          message: PasswordCatMessages.tip(0),
         ),
       ]),
     );
@@ -281,7 +347,10 @@ class _LessonStep3 extends StatelessWidget {
             ]),
           ])),
         const SizedBox(height: 28),
-        _NextButton(onTap: onNext),
+        _CatButton(
+          button: _NextButton(onTap: onNext),
+          message: PasswordCatMessages.tip(2),
+        ),
       ]),
     );
   }
@@ -337,7 +406,10 @@ class _LessonStep4 extends StatelessWidget {
         _InfoCard(color: _kAccent, emoji: '🤫', title: 'Your secret',
           body: 'Nobody else would pick the same 3 random words as you!'),
         const SizedBox(height: 28),
-        _NextButton(onTap: onNext, label: 'Take the Quiz! 🎯'),
+        _CatButton(
+          button: _NextButton(onTap: onNext, label: 'Take the Quiz! 🎯'),
+          message: PasswordCatMessages.tip(3),
+        ),
       ]),
     );
   }
@@ -457,7 +529,7 @@ class _QuizStepState extends State<_QuizStep> {
                         color: answered && isCorrect ? _kGreen : _kAccent.withValues(alpha: 0.7))))),
                   const SizedBox(width: 12),
                   Expanded(child: Text(opt, style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w600, color: textColor))),
-                  if (trailing != null) trailing,
+                  ?trailing,
                 ]),
               ),
             ),
@@ -465,15 +537,13 @@ class _QuizStepState extends State<_QuizStep> {
         }),
         if (answered) ...[
           const SizedBox(height: 16),
-          _catOnButton(
+          _CatButton(
             button: _NextButton(
               onTap: nextQuestion,
               label: questionIndex < questions.length - 1 ? 'Next Question →' : 'Build Your Own! 🛠️',
             ),
-            cat: _CatTipBox(
-              message: PasswordCatMessages.quizFeedback(questionIndex, selectedAnswer == correct),
-              accentColor: selectedAnswer == correct ? _kGreen : _kRed,
-            ),
+            message: PasswordCatMessages.quizFeedback(questionIndex, selectedAnswer == correct),
+            accentColor: selectedAnswer == correct ? _kGreen : _kRed,
           ),
         ],
       ]),
@@ -597,10 +667,11 @@ class _BuildPasswordStepState extends State<_BuildPasswordStep> {
           ])),
         const SizedBox(height: 28),
         if (controller.text.isNotEmpty)
-          _catOnButton(
-            button: _NextButton(onTap: widget.onComplete, enabled: canProceed, label: 'Finish! 🏆'),
-            cat: _CatTipBox(message: _buildCatMessage, accentColor: canProceed ? _kGreen : strengthColor),
-          )
+          _CatButton(
+          button: _NextButton(onTap: widget.onComplete, enabled: canProceed, label: 'Finish! 🏆'),
+          message: _buildCatMessage,
+          accentColor: canProceed ? _kGreen : strengthColor,
+        )
         else
           _NextButton(onTap: widget.onComplete, enabled: canProceed, label: 'Finish! 🏆'),
         if (!canProceed)
@@ -685,10 +756,11 @@ class _CompleteStepState extends State<_CompleteStep> {
               ])),
             ])),
           const SizedBox(height: 28),
-          _catOnButton(
-            button: _NextButton(onTap: widget.onRetry, label: '🔄  Try Again'),
-            cat: _CatTipBox(message: _encouragement, accentColor: _kRed),
-          ),
+          _CatButton(
+          button: _NextButton(onTap: widget.onRetry, label: '🔄  Try Again'),
+          message: _encouragement,
+          accentColor: _kRed,
+        ),
         ]),
       );
     }
@@ -739,65 +811,17 @@ class _CompleteStepState extends State<_CompleteStep> {
         _SummaryTile(emoji: '🧠', text: 'The passphrase trick'),
         _SummaryTile(emoji: '🛠️', text: 'Built your very own strong password!'),
         const SizedBox(height: 28),
-        _catOnButton(
+        _CatButton(
           button: _NextButton(onTap: () => finish(context), enabled: !claiming,
             label: claiming ? 'Claiming...' : '🎉  Claim your XP!'),
-          cat: _CatTipBox(message: PasswordCatMessages.completeMessage(3), accentColor: const Color(0xFFFFD700)),
+          message: PasswordCatMessages.completeMessage(3),
+          accentColor: const Color(0xFFFFD700),
         ),
       ]),
     );
   }
 }
 
-// ─── Cat Tip Box ──────────────────────────────────────────────────────────────
-class _CatTipBox extends StatefulWidget {
-  final String message;
-  final Color accentColor;
-  const _CatTipBox({required this.message, this.accentColor = const Color(0xFFFFC857)});
-  @override
-  State<_CatTipBox> createState() => _CatTipBoxState();
-}
-
-class _CatTipBoxState extends State<_CatTipBox> with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(vsync: this,
-      duration: const Duration(milliseconds: 4500)) // ← change speed here
-      ..repeat();
-  }
-  @override void dispose() { _ctrl.dispose(); super.dispose(); }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          constraints: const BoxConstraints(maxWidth: 280), // ← bubble width
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            color: _kCard,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16), topRight: Radius.circular(16),
-              bottomLeft: Radius.circular(4), bottomRight: Radius.circular(16)),
-            border: Border.all(color: widget.accentColor.withValues(alpha: 0.5), width: 1.5),
-            boxShadow: [BoxShadow(color: widget.accentColor.withValues(alpha: 0.15), blurRadius: 12, offset: const Offset(0, 3))],
-          ),
-          child: Text(widget.message,
-            style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white, height: 1.45, fontWeight: FontWeight.w500)),
-        ),
-        SizedBox(
-          width: 130,  // ← cat width
-          height: 130, // ← cat height
-          child: Lottie.asset('assets/animations/cat.json', controller: _ctrl, fit: BoxFit.contain),
-        ),
-      ],
-    );
-  }
-}
 
 // ─── Shared Components ────────────────────────────────────────────────────────
 class _LessonProgressBar extends StatelessWidget {
