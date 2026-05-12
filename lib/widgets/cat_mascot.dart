@@ -32,7 +32,7 @@ class CatMascot extends StatefulWidget {
   State<CatMascot> createState() => _CatMascotState();
 }
 
-class _CatMascotState extends State<CatMascot> with SingleTickerProviderStateMixin {
+class _CatMascotState extends State<CatMascot> with TickerProviderStateMixin {
   late AnimationController _bounceCtrl;
   late Animation<double> _bounceAnim;
   late AnimationController _lottieCtrl;

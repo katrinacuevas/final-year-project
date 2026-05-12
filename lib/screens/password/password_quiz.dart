@@ -1,0 +1,158 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../../services/sound_service.dart';
+import 'password_cat_messages.dart';
+import 'password_theme.dart';
+import 'password_widgets.dart';
+
+class QuizStep extends StatefulWidget {
+  final void Function(int score, int total) onComplete;
+  const QuizStep({super.key, required this.onComplete});
+  @override
+  State<QuizStep> createState() => _QuizStepState();
+}
+
+class _QuizStepState extends State<QuizStep> {
+  int questionIndex = 0;
+  int? selectedAnswer;
+  bool answered = false;
+  int _score = 0;
+
+  static const List<Map<String, dynamic>> questions = [
+    {'question': 'Which of these is the STRONGEST password?', 'emoji': '🤔',
+      'options': ['fluffy123', 'password', 'Tr0pic@lFish!2024', '12345678'], 'correct': 2},
+    {'question': 'What is the MINIMUM length a strong password should be?', 'emoji': '📏',
+      'options': ['4 characters', '8 characters', '12 characters', '6 characters'], 'correct': 2},
+    {'question': 'Why is "yourname123" a weak password?', 'emoji': '🤨',
+      'options': ['It\'s too long', 'It uses your name — easy to guess!', 'It has numbers', 'It\'s hard to remember'], 'correct': 1},
+    {'question': 'Which symbol makes your password stronger?', 'emoji': '✨',
+      'options': ['A space', '@ or ! or #', 'Only letters', 'A smiley face'], 'correct': 1},
+    {'question': 'A passphrase uses... ?', 'emoji': '🧠',
+      'options': ['One short word', 'Your birthday', 'Random words joined together', 'Just numbers'], 'correct': 2},
+  ];
+
+  void selectAnswer(int index) {
+    if (answered) return;
+    SoundService.playClick();
+    final int correct = questions[questionIndex]['correct'] as int;
+    setState(() { selectedAnswer = index; answered = true; if (index == correct) _score++; });
+  }
+
+  void nextQuestion() {
+    SoundService.playClick();
+    if (questionIndex < questions.length - 1) {
+      setState(() { questionIndex++; selectedAnswer = null; answered = false; });
+    } else {
+      widget.onComplete(_score, questions.length);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final q = questions[questionIndex];
+    final List<String> options = List<String>.from(q['options'] as List);
+    final int correct = q['correct'] as int;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text('Quiz Time! 🎯',
+            style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white)),
+          Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            decoration: BoxDecoration(color: kPasswordGreen.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: kPasswordGreen.withValues(alpha: 0.4))),
+            child: Text('${questionIndex + 1} / ${questions.length}',
+              style: GoogleFonts.fredoka(fontWeight: FontWeight.w700, color: kPasswordGreen, fontSize: 13))),
+        ]),
+        const SizedBox(height: 10),
+        ClipRRect(borderRadius: BorderRadius.circular(6),
+          child: LinearProgressIndicator(
+            value: (questionIndex + 1) / questions.length, minHeight: 6,
+            backgroundColor: kPasswordAccent.withValues(alpha: 0.1),
+            valueColor: const AlwaysStoppedAnimation<Color>(kPasswordAccent))),
+        const SizedBox(height: 20),
+
+        // Question card
+        Container(width: double.infinity, padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(color: kPasswordCard, borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: kPasswordAccent.withValues(alpha: 0.2))),
+          child: Column(children: [
+            Text(q['emoji'] as String, style: const TextStyle(fontSize: 44)),
+            const SizedBox(height: 12),
+            Text(q['question'] as String, textAlign: TextAlign.center,
+              style: GoogleFonts.fredoka(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+          ])),
+        const SizedBox(height: 16),
+
+        // Answer options
+        ...options.asMap().entries.map((entry) {
+          final i = entry.key;
+          final opt = entry.value;
+          final bool isCorrect  = i == correct;
+          final bool isSelected = i == selectedAnswer;
+          Color borderColor = kPasswordAccent.withValues(alpha: 0.15);
+          Color bgColor    = kPasswordCard;
+          Color textColor  = Colors.white70;
+          Widget? trailing;
+          if (answered) {
+            if (isCorrect) {
+              bgColor = kPasswordGreen.withValues(alpha: 0.12);
+              borderColor = kPasswordGreen.withValues(alpha: 0.6);
+              textColor = kPasswordGreen;
+              trailing = const Icon(Icons.check_circle_rounded, color: kPasswordGreen, size: 20);
+            } else if (isSelected) {
+              bgColor = kPasswordRed.withValues(alpha: 0.12);
+              borderColor = kPasswordRed.withValues(alpha: 0.6);
+              textColor = kPasswordRed;
+              trailing = const Icon(Icons.cancel_rounded, color: kPasswordRed, size: 20);
+            }
+          }
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: GestureDetector(
+              onTap: () => selectAnswer(i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: borderColor, width: 1.5)),
+                child: Row(children: [
+                  Container(width: 28, height: 28,
+                    decoration: BoxDecoration(shape: BoxShape.circle,
+                      color: answered && isCorrect
+                        ? kPasswordGreen.withValues(alpha: 0.2)
+                        : kPasswordAccent.withValues(alpha: 0.08),
+                      border: Border.all(color: answered && isCorrect
+                        ? kPasswordGreen : kPasswordAccent.withValues(alpha: 0.3))),
+                    child: Center(child: Text(['A','B','C','D'][i],
+                      style: GoogleFonts.fredoka(fontWeight: FontWeight.w700, fontSize: 13,
+                        color: answered && isCorrect ? kPasswordGreen : kPasswordAccent.withValues(alpha: 0.7))))),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(opt, style: GoogleFonts.fredoka(
+                    fontSize: 14, fontWeight: FontWeight.w600, color: textColor))),
+                  if (trailing != null) trailing,
+                ]),
+              ),
+            ),
+          );
+        }),
+
+        // Cat + Next button — slides in after answering
+        if (answered) ...[
+          const SizedBox(height: 16),
+          PasswordCatButton(
+            button: PasswordNextButton(
+              onTap: nextQuestion,
+              label: questionIndex < questions.length - 1 ? 'Next Question →' : 'See Results! 🏆',
+            ),
+            message: PasswordCatMessages.quizFeedback(questionIndex, selectedAnswer == correct),
+            accentColor: selectedAnswer == correct ? kPasswordGreen : kPasswordRed,
+          ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.15, end: 0),
+        ],
+      ]),
+    );
+  }
+}
