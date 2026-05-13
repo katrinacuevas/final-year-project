@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
-import 'baiting_screen.dart';
+import 'baiting/baiting_screen.dart';
 import 'phishing/phishing_screen.dart';
 import 'pretexting_screen.dart';
 import 'password/password_screen.dart';
