@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
 
@@ -62,6 +63,22 @@ const List<Map<String, dynamic>> achievementCourses = [
   },
 ];
 
+class _LeaderboardEntry {
+  final String username;
+  final String avatarEmoji;
+  final String avatarColour;
+  final int xp;
+  final int level;
+
+  const _LeaderboardEntry({
+    required this.username,
+    required this.avatarEmoji,
+    required this.avatarColour,
+    required this.xp,
+    required this.level,
+  });
+}
+
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
 
@@ -69,14 +86,30 @@ class AchievementsScreen extends StatefulWidget {
   State<AchievementsScreen> createState() => _AchievementsScreenState();
 }
 
-class _AchievementsScreenState extends State<AchievementsScreen> {
+class _AchievementsScreenState extends State<AchievementsScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   String selectedFilter = 'All';
   bool loading = true;
+  bool leaderboardLoading = true;
+  List<_LeaderboardEntry> leaderboardEntries = [];
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.index == 1 && leaderboardEntries.isEmpty) {
+        _loadLeaderboard();
+      }
+    });
     load();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> load() async {
@@ -84,6 +117,42 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     await UserService.instance.loadAllProgress();
     await UserService.instance.refreshProfile();
     if (mounted) setState(() => loading = false);
+  }
+
+  Future<void> _loadLeaderboard() async {
+    setState(() => leaderboardLoading = true);
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .orderBy('xp', descending: true)
+          .limit(50)
+          .get();
+
+      final entries = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return _LeaderboardEntry(
+          username: (data['username'] as String?) ?? 'Agent',
+          avatarEmoji: (data['avatarEmoji'] as String?) ?? '🧒',
+          avatarColour: (data['avatarColour'] as String?) ?? '0xFF00D1FF',
+          xp: (data['xp'] as int?) ?? 0,
+          level: (data['level'] as int?) ?? 0,
+        );
+      }).toList();
+
+      if (mounted) {
+        setState(() {
+          leaderboardEntries = entries;
+          leaderboardLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => leaderboardLoading = false);
+    }
+  }
+
+  Future<void> _refreshLeaderboard() async {
+    leaderboardEntries = [];
+    await _loadLeaderboard();
   }
 
   int get totalSteps =>
@@ -123,14 +192,12 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             .toList();
       case 'In Progress':
         return achievementCourses.where((c) {
-          final p =
-              UserService.instance.getProgress(c['lessonId'] as String);
+          final p = UserService.instance.getProgress(c['lessonId'] as String);
           return p != null && !p.completed && p.stepsCompleted > 0;
         }).toList();
       case 'Not Started':
         return achievementCourses.where((c) {
-          final p =
-              UserService.instance.getProgress(c['lessonId'] as String);
+          final p = UserService.instance.getProgress(c['lessonId'] as String);
           return p == null || p.stepsCompleted == 0;
         }).toList();
       default:
@@ -144,107 +211,386 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       backgroundColor: const Color(0xFF0D1117),
       body: Stack(
         children: [
-          Positioned.fill(
-              child: CustomPaint(painter: AchievementsGridPainter())),
+          Positioned.fill(child: CustomPaint(painter: AchievementsGridPainter())),
           SafeArea(
-            child: loading
-                ? Center(
-                    child: CircularProgressIndicator(
-                      color: const Color(0xFF00D1FF),
-                      backgroundColor:
-                          const Color(0xFF00D1FF).withValues(alpha: 0.1),
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: load,
-                    color: const Color(0xFF00D1FF),
-                    backgroundColor: const Color(0xFF161B2E),
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.emoji_events_rounded,
-                                  color: Color(0xFF00D1FF), size: 16),
-                              const SizedBox(width: 6),
-                              Text(
-                                'ACHIEVEMENTS',
-                                style: GoogleFonts.fredoka(
-                                  color: const Color(0xFF00D1FF),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 1.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          buildStatsCard(),
-                          const SizedBox(height: 16),
-                          buildFilterTabs(),
-                          const SizedBox(height: 16),
-                          ...filtered.asMap().entries.map((entry) {
-                            return TweenAnimationBuilder<double>(
-                              duration: Duration(
-                                  milliseconds: 400 + (entry.key * 100)),
-                              tween: Tween(begin: 0.0, end: 1.0),
-                              curve: Curves.easeOutCubic,
-                              builder: (context, value, child) => Opacity(
-                                opacity: value,
-                                child: Transform.translate(
-                                  offset: Offset(0, 30 * (1 - value)),
-                                  child: child,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 14),
-                                child: AchievementCard(course: entry.value),
-                              ),
-                            );
-                          }),
-                          if (filtered.isEmpty)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 40),
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      selectedFilter == 'Completed'
-                                          ? '🎯'
-                                          : selectedFilter == 'In Progress'
-                                              ? '🚀'
-                                              : '🎉',
-                                      style: const TextStyle(fontSize: 48),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      selectedFilter == 'Completed'
-                                          ? 'No courses completed yet\nKeep going, agent! 💪'
-                                          : selectedFilter == 'In Progress'
-                                              ? 'No courses in progress yet!\nStart a lesson to begin.'
-                                              : 'All courses started! 🎉',
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.fredoka(
-                                        fontSize: 16,
-                                        color: Colors.white38,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                        ],
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.emoji_events_rounded,
+                          color: Color(0xFF00D1FF), size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        'ACHIEVEMENTS',
+                        style: GoogleFonts.fredoka(
+                          color: const Color(0xFF00D1FF),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.5,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
+                ),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildTabBar(),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildAchievementsTab(),
+                      _buildLeaderboardTab(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      height: 46,
+      decoration: BoxDecoration(
+        color: const Color(0xFF161B2E),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: const Color(0xFF00D1FF).withValues(alpha: 0.15),
+          width: 1.5,
+        ),
+      ),
+      child: TabBar(
+        controller: _tabController,
+        onTap: (_) => SoundService.playClick(),
+        indicator: BoxDecoration(
+          color: const Color(0xFF00D1FF),
+          borderRadius: BorderRadius.circular(11),
+        ),
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
+        labelColor: const Color(0xFF0D1117),
+        unselectedLabelColor: Colors.white38,
+        labelStyle: GoogleFonts.fredoka(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+        ),
+        unselectedLabelStyle: GoogleFonts.fredoka(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+        tabs: const [
+          Tab(text: '🏆  My Progress'),
+          Tab(text: '🌍  Leaderboard'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAchievementsTab() {
+    if (loading) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: const Color(0xFF00D1FF),
+          backgroundColor: const Color(0xFF00D1FF).withValues(alpha: 0.1),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: load,
+      color: const Color(0xFF00D1FF),
+      backgroundColor: const Color(0xFF161B2E),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildStatsCard(),
+            const SizedBox(height: 16),
+            buildFilterTabs(),
+            const SizedBox(height: 16),
+            ...filtered.asMap().entries.map((entry) {
+              return TweenAnimationBuilder<double>(
+                duration: Duration(milliseconds: 400 + (entry.key * 100)),
+                tween: Tween(begin: 0.0, end: 1.0),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) => Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 30 * (1 - value)),
+                    child: child,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: AchievementCard(course: entry.value),
+                ),
+              );
+            }),
+            if (filtered.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        selectedFilter == 'Completed'
+                            ? '🎯'
+                            : selectedFilter == 'In Progress'
+                                ? '🚀'
+                                : '🎉',
+                        style: const TextStyle(fontSize: 48),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        selectedFilter == 'Completed'
+                            ? 'No courses completed yet\nKeep going, agent! 💪'
+                            : selectedFilter == 'In Progress'
+                                ? 'No courses in progress yet!\nStart a lesson to begin.'
+                                : 'All courses started! 🎉',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.fredoka(
+                          fontSize: 16,
+                          color: Colors.white38,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeaderboardTab() {
+    if (leaderboardLoading && leaderboardEntries.isEmpty) {
+      _loadLeaderboard();
+      return Center(
+        child: CircularProgressIndicator(
+          color: const Color(0xFF00D1FF),
+          backgroundColor: const Color(0xFF00D1FF).withValues(alpha: 0.1),
+        ),
+      );
+    }
+
+    final myUsername = UserService.instance.profile?.username ?? '';
+
+    return RefreshIndicator(
+      onRefresh: _refreshLeaderboard,
+      color: const Color(0xFF00D1FF),
+      backgroundColor: const Color(0xFF161B2E),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+        child: Column(
+          children: [
+            _buildLeaderboardHeader(),
+            const SizedBox(height: 16),
+            if (leaderboardEntries.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 60),
+                child: Center(
+                  child: Column(
+                    children: [
+                      const Text('🌍', style: TextStyle(fontSize: 48)),
+                      const SizedBox(height: 12),
+                      Text(
+                        'No agents yet!\nBe the first to earn XP 🚀',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.fredoka(
+                          fontSize: 16,
+                          color: Colors.white38,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              ...leaderboardEntries.asMap().entries.map((entry) {
+                final rank = entry.key + 1;
+                final e = entry.value;
+                final isMe = e.username == myUsername;
+                return TweenAnimationBuilder<double>(
+                  duration: Duration(milliseconds: 300 + (entry.key * 60)),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, value, child) => Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, 20 * (1 - value)),
+                      child: child,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _LeaderboardRow(
+                      rank: rank,
+                      entry: e,
+                      isMe: isMe,
+                    ),
+                  ),
+                );
+              }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeaderboardHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF161B2E),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: const Color(0xFF00D1FF).withValues(alpha: 0.2),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            '🌍  GLOBAL LEADERBOARD',
+            style: GoogleFonts.fredoka(
+              color: const Color(0xFF00D1FF),
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Top agents ranked by XP earned',
+            style: GoogleFonts.fredoka(
+              color: Colors.white38,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _podiumPreview(leaderboardEntries, 1),
+              const SizedBox(width: 8),
+              _podiumPreview(leaderboardEntries, 0),
+              const SizedBox(width: 8),
+              _podiumPreview(leaderboardEntries, 2),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _podiumPreview(List<_LeaderboardEntry> entries, int index) {
+    if (entries.length <= index) return const SizedBox(width: 80);
+
+    final e = entries[index];
+    final isFirst = index == 0;
+    final medals = ['🥇', '🥈', '🥉'];
+    final medalIndex = index == 0 ? 0 : index == 1 ? 1 : 2;
+    final heights = [80.0, 64.0, 52.0];
+    final avatarColour =
+        Color(int.parse(e.avatarColour));
+
+    return Column(
+      children: [
+        if (isFirst)
+          Text('👑', style: TextStyle(fontSize: isFirst ? 20 : 16)),
+        if (isFirst) const SizedBox(height: 4),
+        Container(
+          width: isFirst ? 64 : 52,
+          height: isFirst ? 64 : 52,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: avatarColour.withValues(alpha: 0.15),
+            border: Border.all(
+              color: avatarColour.withValues(alpha: 0.6),
+              width: isFirst ? 2.5 : 2,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              e.avatarEmoji,
+              style: TextStyle(fontSize: isFirst ? 28 : 22),
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          medals[medalIndex],
+          style: TextStyle(fontSize: isFirst ? 20 : 16),
+        ),
+        const SizedBox(height: 2),
+        SizedBox(
+          width: 72,
+          child: Text(
+            e.username,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.fredoka(
+              fontSize: isFirst ? 12 : 11,
+              fontWeight: FontWeight.w700,
+              color: isFirst ? Colors.white : Colors.white70,
+            ),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(top: 3),
+          height: heights[medalIndex],
+          width: isFirst ? 64 : 52,
+          decoration: BoxDecoration(
+            color: isFirst
+                ? const Color(0xFFFFC857).withValues(alpha: 0.15)
+                : index == 1
+                    ? Colors.white.withValues(alpha: 0.07)
+                    : const Color(0xFFFF8A65).withValues(alpha: 0.1),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(8),
+              topRight: Radius.circular(8),
+            ),
+            border: Border.all(
+              color: isFirst
+                  ? const Color(0xFFFFC857).withValues(alpha: 0.4)
+                  : index == 1
+                      ? Colors.white.withValues(alpha: 0.15)
+                      : const Color(0xFFFF8A65).withValues(alpha: 0.3),
+            ),
+          ),
+          child: Center(
+            child: Text(
+              '${e.xp} XP',
+              style: GoogleFonts.fredoka(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: isFirst
+                    ? const Color(0xFFFFC857)
+                    : index == 1
+                        ? Colors.white54
+                        : const Color(0xFFFF8A65),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -393,6 +739,182 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 }
 
+class _LeaderboardRow extends StatelessWidget {
+  final int rank;
+  final _LeaderboardEntry entry;
+  final bool isMe;
+
+  const _LeaderboardRow({
+    required this.rank,
+    required this.entry,
+    required this.isMe,
+  });
+
+  Color get _rankColor {
+    switch (rank) {
+      case 1:
+        return const Color(0xFFFFC857);
+      case 2:
+        return const Color(0xFFB0BEC5);
+      case 3:
+        return const Color(0xFFFF8A65);
+      default:
+        return Colors.white24;
+    }
+  }
+
+  String get _rankEmoji {
+    switch (rank) {
+      case 1:
+        return '🥇';
+      case 2:
+        return '🥈';
+      case 3:
+        return '🥉';
+      default:
+        return '$rank';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final avatarColour = Color(int.parse(entry.avatarColour));
+    final isTopThree = rank <= 3;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: isMe
+            ? const Color(0xFF00D1FF).withValues(alpha: 0.08)
+            : const Color(0xFF161B2E),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isMe
+              ? const Color(0xFF00D1FF).withValues(alpha: 0.5)
+              : isTopThree
+                  ? _rankColor.withValues(alpha: 0.3)
+                  : const Color(0xFF00D1FF).withValues(alpha: 0.08),
+          width: isMe ? 2 : 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 36,
+            child: isTopThree
+                ? Text(
+                    _rankEmoji,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 22),
+                  )
+                : Text(
+                    _rankEmoji,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.fredoka(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white24,
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: avatarColour.withValues(alpha: 0.15),
+              border: Border.all(
+                color: avatarColour.withValues(alpha: 0.5),
+                width: 1.5,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                entry.avatarEmoji,
+                style: const TextStyle(fontSize: 20),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      entry.username,
+                      style: GoogleFonts.fredoka(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: isMe ? const Color(0xFF00D1FF) : Colors.white,
+                      ),
+                    ),
+                    if (isMe) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF00D1FF).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: const Color(0xFF00D1FF).withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: Text(
+                          'YOU',
+                          style: GoogleFonts.fredoka(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF00D1FF),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                Text(
+                  'Level ${entry.level}',
+                  style: GoogleFonts.fredoka(
+                    fontSize: 12,
+                    color: Colors.white38,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${entry.xp}',
+                style: GoogleFonts.fredoka(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: isTopThree ? _rankColor : Colors.white70,
+                ),
+              ),
+              Text(
+                'XP',
+                style: GoogleFonts.fredoka(
+                  fontSize: 11,
+                  color: isTopThree
+                      ? _rankColor.withValues(alpha: 0.7)
+                      : Colors.white24,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class AchievementCard extends StatefulWidget {
   final Map<String, dynamic> course;
   const AchievementCard({super.key, required this.course});
@@ -421,8 +943,8 @@ class _AchievementCardState extends State<AchievementCard> {
         milestones.where((m) => steps >= (m['step'] as int)).length;
 
     return GestureDetector(
-      onTapDown: (details) => setState(() => isPressed = true),
-      onTapUp: (details) => setState(() => isPressed = false),
+      onTapDown: (_) => setState(() => isPressed = true),
+      onTapUp: (_) => setState(() => isPressed = false),
       onTapCancel: () => setState(() => isPressed = false),
       onTap: () {
         SoundService.playClick();
@@ -683,10 +1205,7 @@ class MilestoneBadge extends StatelessWidget {
                       gradient: LinearGradient(
                         colors: earned
                             ? [accent, const Color(0xFF0D1117)]
-                            : [
-                                Colors.white12,
-                                const Color(0xFF0D1117),
-                              ],
+                            : [Colors.white12, const Color(0xFF0D1117)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -727,8 +1246,8 @@ class MilestoneBadge extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 18, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                   decoration: BoxDecoration(
                     color: earned
                         ? accent.withValues(alpha: 0.15)
@@ -765,7 +1284,10 @@ class MilestoneBadge extends StatelessWidget {
               gradient: LinearGradient(
                 colors: earned
                     ? [accent.withValues(alpha: 0.3), const Color(0xFF0D1117)]
-                    : [Colors.white.withValues(alpha: 0.04), const Color(0xFF0D1117)],
+                    : [
+                        Colors.white.withValues(alpha: 0.04),
+                        const Color(0xFF0D1117)
+                      ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
