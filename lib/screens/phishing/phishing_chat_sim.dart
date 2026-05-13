@@ -163,7 +163,7 @@ class _PhishingChatSimState extends State<PhishingChatSim> {
     return Column(children: [
       Padding(padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Chat Simulation 💬',
+          Text('Chat Scenario 💬',
             style: GoogleFonts.fredoka(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
           Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(color: kPhishingAccent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20),

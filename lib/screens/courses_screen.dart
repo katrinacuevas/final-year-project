@@ -4,7 +4,7 @@ import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
 import 'baiting/baiting_screen.dart';
 import 'phishing/phishing_screen.dart';
-import 'pretexting_screen.dart';
+import 'pretexting/pretexting_screen.dart';
 import 'password/password_screen.dart';
 
 const List<Map<String, dynamic>> coursesMeta = [
@@ -15,7 +15,14 @@ const List<Map<String, dynamic>> coursesMeta = [
     'subtitle': 'Create passwords so strong, no hacker can crack them!',
     'totalSteps': 6,
     'accentColor': Color(0xFFFFC857),
-    'steps': ['Why passwords matter', 'Spot weak passwords', 'The 4 rules', 'The passphrase trick', 'Quiz', 'Build your own'],
+    'steps': [
+      'Why passwords matter', 
+      'Spot the weak passwords', 
+      'The 4 rules of a strong password', 
+      'The passphrase trick', 
+      'Build your own password', 
+      'Quiz'
+    ],
   },
   {
     'lessonId': 'phishing_detective',
@@ -24,16 +31,36 @@ const List<Map<String, dynamic>> coursesMeta = [
     'subtitle': 'Become an expert at spotting fake messages!',
     'totalSteps': 9,
     'accentColor': Color(0xFF4FC3F7),
-    'steps': ['Introduction', 'What is phishing', 'Email scams', 'Fake links', 'Spotting signs', 'Quiz'],
+    'steps': [
+      'What is phishing',
+      'Who do phishers pretend to be',
+      'Spotting fake messages',
+      'Red flags to look for',
+      'Suspicious links',
+      'How to check a link safely',
+      'What to do',
+      'Chat scenario',
+      'Quiz'
+    ],
   },
   {
     'lessonId': 'baiting_pro',
     'emoji': '🎁',
     'title': 'Baiting Pro',
     'subtitle': 'Investigate offers that are too good to be true!',
-    'totalSteps': 6,
+    'totalSteps': 9,
     'accentColor': Color(0xFFFF8A65),
-    'steps': ['Introduction', 'Too good to be true', 'Free downloads', 'USB traps', 'Real examples', 'Quiz'],
+    'steps': [
+      'What is baiting',
+      'How baiters hook you',
+      'Online baiting examples',
+      'Real-life baiting examples', 
+      'Spot the red flags',
+      'Real vs Fake rewards',
+      'What to do',
+      'Chat scenario',
+      'Quiz'
+    ],
   },
   {
     'lessonId': 'pretexting',
@@ -42,7 +69,16 @@ const List<Map<String, dynamic>> coursesMeta = [
     'subtitle': 'Learn how tricksters pretend to be someone else!',
     'totalSteps': 5,
     'accentColor': Color(0xFFBA68C8),
-    'steps': ['Introduction', 'What is pretexting', 'Common tricks', 'Real scenarios', 'Quiz'],
+    'steps': [
+      'What is pretexting',
+      'Why does it work',
+      'Who do they pretend to be',
+      'Sneaky online tricks',
+      'Trust your gut',
+      'The PAUSE rule',
+      'Chat scenario',
+      'Quiz'
+    ],
   },
 ];
 
