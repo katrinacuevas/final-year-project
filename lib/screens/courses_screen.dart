@@ -22,7 +22,7 @@ const List<Map<String, dynamic>> coursesMeta = [
     'emoji': '🎣',
     'title': 'Phishing Detective',
     'subtitle': 'Become an expert at spotting fake messages!',
-    'totalSteps': 6,
+    'totalSteps': 9,
     'accentColor': Color(0xFF4FC3F7),
     'steps': ['Introduction', 'What is phishing', 'Email scams', 'Fake links', 'Spotting signs', 'Quiz'],
   },
