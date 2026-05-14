@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -34,8 +35,12 @@ class _QuizStepState extends State<QuizStep> {
 
   void selectAnswer(int index) {
     if (answered) return;
-    SoundService.playClick();
     final int correct = questions[questionIndex]['correct'] as int;
+    if (index == correct) {
+      SoundService.playCatHappy();
+    } else {
+      SoundService.playCatIncorrect();
+    }
     setState(() { selectedAnswer = index; answered = true; if (index == correct) _score++; });
   }
 
@@ -54,7 +59,9 @@ class _QuizStepState extends State<QuizStep> {
     final List<String> options = List<String>.from(q['options'] as List);
     final int correct = q['correct'] as int;
 
-    return SingleChildScrollView(
+    return Stack(
+      children: [
+      SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -140,19 +147,29 @@ class _QuizStepState extends State<QuizStep> {
           );
         }),
 
-        // Cat + Next button — slides in after answering
-        if (answered) ...[
-          const SizedBox(height: 16),
-          PasswordCatButton(
+        if (answered) const SizedBox(height: 200),
+      ]),
+    ),
+      if (answered) ...[
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+            child: Container(color: Colors.black.withValues(alpha: 0.45)),
+          ),
+        ),
+        Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: PasswordCatButton(
             button: PasswordNextButton(
               onTap: nextQuestion,
               label: questionIndex < questions.length - 1 ? 'Next Question →' : 'See Results! 🏆',
             ),
             message: PasswordCatMessages.quizFeedback(questionIndex, selectedAnswer == correct),
             accentColor: selectedAnswer == correct ? kPasswordGreen : kPasswordRed,
-          ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.15, end: 0),
-        ],
-      ]),
+          ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.3, end: 0),
+        ),
+      ],
+    ],
     );
   }
 }

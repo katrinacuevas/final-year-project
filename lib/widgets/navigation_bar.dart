@@ -62,6 +62,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   void _openBubble({bool autoClose = false, String? message}) {
     if (!mounted) return;
     _currentMessage = message ?? _currentMessage;
+    SoundService.playCatHappy();
     setState(() => _bubbleVisible = true);
     _bubbleTimer?.cancel();
     if (autoClose) {
@@ -76,7 +77,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }
 
   void _onCatTapped() {
-    SoundService.playClick();
     if (_bubbleVisible) {
       _closeBubble();
     } else {

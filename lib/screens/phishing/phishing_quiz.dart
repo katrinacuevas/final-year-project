@@ -1,6 +1,7 @@
 // phishing_quiz.dart
 // 5-question multiple choice quiz for the Phishing Detective course.
 
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -55,7 +56,9 @@ class _PhishingQuizStepState extends State<PhishingQuizStep> {
     final List<String> opts = List<String>.from(q['options'] as List);
     final int correct = q['correct'] as int;
 
-    return SingleChildScrollView(
+    return Stack(
+      children: [
+      SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -94,7 +97,10 @@ class _PhishingQuizStepState extends State<PhishingQuizStep> {
           }
           return Padding(padding: const EdgeInsets.only(bottom: 10),
             child: GestureDetector(
-              onTap: answered ? null : () { SoundService.playClick(); setState(() { selected = i; answered = true; if (i == correct) _score++; }); },
+              onTap: answered ? null : () {
+                if (i == correct) { SoundService.playCatHappy(); } else { SoundService.playCatIncorrect(); }
+                setState(() { selected = i; answered = true; if (i == correct) _score++; });
+              },
               child: AnimatedContainer(duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16), border: Border.all(color: border, width: 1.5)),
@@ -114,16 +120,28 @@ class _PhishingQuizStepState extends State<PhishingQuizStep> {
             ),
           );
         }),
-        if (answered) ...[
-          PhishingCatButton(
+        if (answered) const SizedBox(height: 200),
+      ]),
+    ),
+      if (answered) ...[
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+            child: Container(color: Colors.black.withValues(alpha: 0.45)),
+          ),
+        ),
+        Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: PhishingCatButton(
             button: PhishingNextButton(onTap: _next,
               label: qi < questions.length - 1 ? 'Next Question →' : 'See Results! 🎉'),
             message: PhishingCatMessages.quizFeedback(qi, selected == correct),
             accentColor: selected == correct ? kPhishingGreen : kPhishingRed,
             minHeight: 200,
-          ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.15, end: 0),
-        ],
-      ]),
+          ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.3, end: 0),
+        ),
+      ],
+    ],
     );
   }
 }

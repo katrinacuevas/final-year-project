@@ -30,6 +30,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets: 
-    - assets/sounds/button_click.mp3
+  assets:
+    - assets/sounds/
     - assets/animations/

@@ -4,11 +4,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 import 'services/user_service.dart';
+import 'services/sound_service.dart';
 import 'screens/splash_screen.dart';
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SoundService.init();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await UserService.instance.init();
   runApp(const MyApp());

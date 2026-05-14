@@ -67,7 +67,7 @@ const List<Map<String, dynamic>> coursesMeta = [
     'emoji': '🎭',
     'title': 'Pretexting',
     'subtitle': 'Learn how tricksters pretend to be someone else!',
-    'totalSteps': 5,
+    'totalSteps': 8,
     'accentColor': Color(0xFFBA68C8),
     'steps': [
       'What is pretexting',

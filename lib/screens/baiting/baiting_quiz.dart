@@ -2,6 +2,7 @@
 // 5-question quiz for the Baiting Pro course.
 // Cat gives feedback after each answer — no separate feedback boxes.
 
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/sound_service.dart';
@@ -54,7 +55,9 @@ class _BaitingQuizStepState extends State<BaitingQuizStep> {
     final List<String> opts = List<String>.from(q['options'] as List);
     final int correct = q['correct'] as int;
 
-    return SingleChildScrollView(
+    return Stack(
+      children: [
+      SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -93,7 +96,10 @@ class _BaitingQuizStepState extends State<BaitingQuizStep> {
           }
           return Padding(padding: const EdgeInsets.only(bottom: 10),
             child: GestureDetector(
-              onTap: answered ? null : () { SoundService.playClick(); setState(() { selected = i; answered = true; if (i == correct) _score++; }); },
+              onTap: answered ? null : () {
+                if (i == correct) { SoundService.playCatHappy(); } else { SoundService.playCatIncorrect(); }
+                setState(() { selected = i; answered = true; if (i == correct) _score++; });
+              },
               child: AnimatedContainer(duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16), border: Border.all(color: border, width: 1.5)),
@@ -113,16 +119,27 @@ class _BaitingQuizStepState extends State<BaitingQuizStep> {
             ),
           );
         }),
-        if (answered) ...[
-          const SizedBox(height: 16),
-          BaitingCatButton(
+        if (answered) const SizedBox(height: 200),
+      ]),
+    ),
+      if (answered) ...[
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+            child: Container(color: Colors.black.withValues(alpha: 0.45)),
+          ),
+        ),
+        Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: BaitingCatButton(
             button: BaitingNextButton(onTap: _next,
               label: qi < questions.length - 1 ? 'Next Question →' : 'See Results! 🎉'),
             message: BaitingCatMessages.quizFeedback(qi, selected == correct),
             accentColor: selected == correct ? kBaitGreen : kBaitRed,
           ),
-        ],
-      ]),
+        ),
+      ],
+    ],
     );
   }
 }

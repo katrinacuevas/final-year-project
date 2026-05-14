@@ -3,6 +3,7 @@
 // how to respond. Each scenario has right/wrong feedback.
 
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:characters/characters.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -146,7 +147,12 @@ class _PhishingChatSimState extends State<PhishingChatSim> {
   }
 
   void _selectChoice(int index) {
-    SoundService.playClick();
+    final fb = (scenario['feedback'] as List)[index] as Map<String, dynamic>;
+    if (fb['safe'] as bool) {
+      SoundService.playCatHappy();
+    } else {
+      SoundService.playCatIncorrect();
+    }
     setState(() { choice = index; showFeedback = true; });
   }
 
@@ -160,7 +166,8 @@ class _PhishingChatSimState extends State<PhishingChatSim> {
   @override
   Widget build(BuildContext context) {
     final fb = showFeedback ? (scenario['feedback'] as List)[choice!] as Map<String, dynamic> : null;
-    return Column(children: [
+    return Stack(children: [
+    Column(children: [
       Padding(padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text('Chat Scenario 💬',
@@ -197,27 +204,31 @@ class _PhishingChatSimState extends State<PhishingChatSim> {
             _ChoicePrompt(question: scenario['question'] as String,
               choices: scenario['choices'] as List, onSelect: _selectChoice),
           ],
-          if (showFeedback && fb != null) ...[
-            const SizedBox(height: 8),
-            // Cat gives the feedback — title + first point summarised in bubble
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: PhishingCatButton(
-                button: PhishingNextButton(
-                  onTap: _nextScenario,
-                  label: isLastScenario ? 'Take the Quiz! 🎯' : 'Next Scenario →',
-                ),
-                message: fb['catMessage'] as String,
-                accentColor: (fb['safe'] as bool) ? kPhishingGreen : kPhishingRed,
-                showBubble: true,
-                showButton: true,
-                minHeight: 200,
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
         ],
       )),
+    ]),
+      if (showFeedback && fb != null) ...[
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+            child: Container(color: Colors.black.withValues(alpha: 0.45)),
+          ),
+        ),
+        Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: PhishingCatButton(
+            button: PhishingNextButton(
+              onTap: _nextScenario,
+              label: isLastScenario ? 'Take the Quiz! 🎯' : 'Next Scenario →',
+            ),
+            message: fb['catMessage'] as String,
+            accentColor: (fb['safe'] as bool) ? kPhishingGreen : kPhishingRed,
+            showBubble: true,
+            showButton: true,
+            minHeight: 200,
+          ),
+        ),
+      ],
     ]);
   }
 }
