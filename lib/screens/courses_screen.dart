@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
+import '../models/difficulty_level.dart';
 import 'baiting/baiting_screen.dart';
 import 'phishing/phishing_screen.dart';
 import 'pretexting/pretexting_screen.dart';
@@ -104,12 +105,13 @@ class _CoursesScreenState extends State<CoursesScreen> {
   }
 
   Widget screenFor(String lessonId) {
+    final difficulty = UserService.instance.getDifficulty(lessonId);
     switch (lessonId) {
-      case 'password_power':    return const PasswordPowerScreen();
-      case 'phishing_detective': return const PhishingDetectiveScreen();
-      case 'baiting_pro':       return const BaitingScreen();
-      case 'pretexting':        return const PretextingScreen();
-      default:                  return const SizedBox();
+      case 'password_power':     return PasswordPowerScreen(difficulty: difficulty);
+      case 'phishing_detective': return PhishingDetectiveScreen(difficulty: difficulty);
+      case 'baiting_pro':        return BaitingScreen(difficulty: difficulty);
+      case 'pretexting':         return PretextingScreen(difficulty: difficulty);
+      default:                   return const SizedBox();
     }
   }
 
@@ -215,6 +217,7 @@ class _CourseCardState extends State<CourseCard> {
     final double progressFraction = totalSteps > 0 ? (progressCount / totalSteps).clamp(0.0, 1.0) : 0.0;
     final bool isCompleted = progressCount >= totalSteps && totalSteps > 0;
     final bool isStarted = progressCount > 0;
+    final DifficultyLevel difficulty = UserService.instance.getDifficulty(lessonId);
 
     return GestureDetector(
       onTapDown: (details) => setState(() => scale = 0.97),
@@ -275,6 +278,18 @@ class _CourseCardState extends State<CourseCard> {
                   const SizedBox(height: 4),
                   Text(widget.course['subtitle'] as String,
                     style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4)),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: difficulty.color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: difficulty.color.withValues(alpha: 0.35)),
+                    ),
+                    child: Text('${difficulty.emoji} ${difficulty.label}',
+                      style: GoogleFonts.fredoka(fontSize: 10, fontWeight: FontWeight.w600,
+                        color: difficulty.color)),
+                  ),
                 ])),
               ]),
               const SizedBox(height: 16),

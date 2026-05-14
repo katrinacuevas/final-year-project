@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../../services/sound_service.dart';
+import '../../models/difficulty_level.dart';
 import 'password_theme.dart';
 import 'password_widgets.dart';
 import 'password_lessons.dart';
@@ -11,7 +12,8 @@ import 'password_quiz.dart';
 import 'password_complete.dart';
 
 class PasswordPowerScreen extends StatefulWidget {
-  const PasswordPowerScreen({super.key});
+  final DifficultyLevel difficulty;
+  const PasswordPowerScreen({super.key, this.difficulty = DifficultyLevel.easy});
   @override
   State<PasswordPowerScreen> createState() => _PasswordPowerScreenState();
 }
@@ -120,7 +122,7 @@ class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
           if (mounted) setState(() => currentStep++);
         });
       case 6:
-        return QuizStep(key: const ValueKey(6), onComplete: (s, t) {
+        return QuizStep(key: const ValueKey(6), difficulty: widget.difficulty, onComplete: (s, t) {
           setState(() { _quizScore = s; _quizTotal = t; currentStep++; });
         });
       case 7:

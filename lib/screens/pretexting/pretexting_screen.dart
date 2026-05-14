@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/sound_service.dart';
+import '../../models/difficulty_level.dart';
 import 'pretexting_theme.dart';
 import 'pretexting_widgets.dart';
 import 'pretexting_lessons.dart';
@@ -25,7 +26,8 @@ import 'pretexting_quiz.dart';
 import 'pretexting_complete.dart';
 
 class PretextingScreen extends StatefulWidget {
-  const PretextingScreen({super.key});
+  final DifficultyLevel difficulty;
+  const PretextingScreen({super.key, this.difficulty = DifficultyLevel.easy});
   @override
   State<PretextingScreen> createState() => _PretextingScreenState();
 }
@@ -169,6 +171,7 @@ class _PretextingScreenState extends State<PretextingScreen> {
       case 8:
         return PretextingQuizStep(
           key: const ValueKey(8),
+          difficulty: widget.difficulty,
           onComplete: (s, t) {
             setState(() {
               _quizScore = s;

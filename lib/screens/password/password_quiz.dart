@@ -2,14 +2,15 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../models/difficulty_level.dart';
 import '../../services/sound_service.dart';
-import 'password_cat_messages.dart';
 import 'password_theme.dart';
 import 'password_widgets.dart';
 
 class QuizStep extends StatefulWidget {
   final void Function(int score, int total) onComplete;
-  const QuizStep({super.key, required this.onComplete});
+  final DifficultyLevel difficulty;
+  const QuizStep({super.key, required this.onComplete, this.difficulty = DifficultyLevel.easy});
   @override
   State<QuizStep> createState() => _QuizStepState();
 }
@@ -19,8 +20,9 @@ class _QuizStepState extends State<QuizStep> {
   int? selectedAnswer;
   bool answered = false;
   int _score = 0;
+  late final List<Map<String, dynamic>> _questions;
 
-  static const List<Map<String, dynamic>> questions = [
+  static const List<Map<String, dynamic>> _easyQuestions = [
     {'question': 'Which of these is the STRONGEST password?', 'emoji': '🤔',
       'options': ['fluffy123', 'password', 'Tr0pic@lFish!2024', '12345678'], 'correct': 2,
       'explanation': 'A strong password mixes uppercase, lowercase, numbers AND symbols. "Tr0pic@lFish!2024" has all of these and is long enough to be very hard to crack!'},
@@ -38,9 +40,69 @@ class _QuizStepState extends State<QuizStep> {
       'explanation': 'A passphrase joins random words together — like "PurpleTurtle!BounceCloud" — making something long, strong, AND easy to remember. Much better than a short random password!'},
   ];
 
+  static const List<Map<String, dynamic>> _mediumQuestions = [
+    {'question': 'You use the same strong password for 5 different accounts. Why is this still a problem?', 'emoji': '🔁',
+      'options': ['It is not a problem — a strong password works everywhere', 'If one site is hacked, attackers can try your password on all your other accounts', 'It is harder to remember the same password repeatedly', 'Strong passwords expire faster when reused'],
+      'correct': 1,
+      'explanation': 'This is called "credential stuffing" — hackers take leaked passwords and try them on other sites. Even a perfect password fails if the same one unlocks everything. Use unique passwords for each account!'},
+    {'question': 'Which password would be hardest for a hacker to crack?', 'emoji': '🏆',
+      'options': ['P@ssw0rd2024', 'PurpleElephantBouncingCloud!', 'Tr0pic@l', '12345678!'],
+      'correct': 1,
+      'explanation': '"PurpleElephantBouncingCloud!" is 27 characters long with no predictable pattern. Length beats complexity — "P@ssw0rd" substitutions are so common that attackers specifically check for them!'},
+    {'question': 'You need to remember a strong password for school without writing it down. Which is safest?', 'emoji': '🧠',
+      'options': ['Use your name and birthday so it\'s memorable', 'Create a passphrase from a silly sentence only you would think of', 'Use a shorter simpler password so you remember it easily', 'Write it on a sticky note under your keyboard'],
+      'correct': 1,
+      'explanation': 'A silly personal sentence ("MyDogHates3Mondays!") is both memorable AND strong. Birthdays and names are guessable, and a note under the keyboard is the first place people look!'},
+    {'question': 'A website says your 15-character password isn\'t strong enough. Why might this be?', 'emoji': '⚠️',
+      'options': ['Websites are always wrong about password strength', 'It might only use one type of character — like all lowercase — making it easier to crack despite the length', '15 characters is always weak', 'The website has a bug'],
+      'correct': 1,
+      'explanation': '"aaaaaaaaaaaaaaa" is 15 characters but trivial to crack. Length AND variety matter — mixing uppercase, lowercase, numbers and symbols makes a password exponentially stronger.'},
+    {'question': 'Is using a password manager to store all your passwords a good idea?', 'emoji': '🔐',
+      'options': ['No — if someone hacks the manager they get everything', 'Yes — it lets you use strong unique passwords everywhere without memorising them all', 'No — password managers are always expensive', 'Yes — it means you only ever need one password'],
+      'correct': 1,
+      'explanation': 'A trusted password manager is one of the best security tools available. The risk of a hacker cracking the manager is much lower than the near-certainty of weak or reused passwords being cracked.'},
+  ];
+
+  static const List<Map<String, dynamic>> _hardQuestions = [
+    {'question': 'A hacker uses a "dictionary attack" — trying every word and common substitution. Which password is MOST resistant?', 'emoji': '📖',
+      'options': ['Tr0ub4dor&3 (letter-number substitutions)', 'FluffyCloud!Sunrise (unpredictable real words)', 'P@ssw0rd2024 (common word + numbers)', 'qwerty123! (keyboard pattern)'],
+      'correct': 1,
+      'explanation': '"FluffyCloud!Sunrise" wins — it is long, uses real words in an unpredictable combination, and has a symbol. Letter substitutions like "0 for o" are now standard in dictionary attacks, making "Tr0ub4dor" weaker than it seems.'},
+    {'question': 'Your school forces you to change your password every 30 days. Why can this actually make things LESS secure?', 'emoji': '📅',
+      'options': ['Changing passwords always makes them weaker', 'Frequent forced changes lead to predictable patterns like "Password1, Password2" or writing passwords down', 'Passwords get deleted after 30 days', 'The school gets to see the new password'],
+      'correct': 1,
+      'explanation': 'Forced frequent changes cause "password fatigue" — people start using predictable patterns or writing passwords down, which is far more dangerous. Experts now recommend changing only when a breach is suspected.'},
+    {'question': 'Two-factor authentication (2FA) sends a code to your phone. Which scenario is STILL vulnerable?', 'emoji': '📲',
+      'options': ['Someone knows your password but not your phone number', 'A fake login page captures your password AND 2FA code simultaneously and uses them in real time', 'Someone borrows your phone briefly', 'The 2FA code expires after 30 seconds'],
+      'correct': 1,
+      'explanation': 'Real-time phishing attacks capture your 2FA code the moment you enter it and use it instantly on the real site. 2FA is still important, but it\'s not invincible against sophisticated attacks.'},
+    {'question': 'Which password is actually STRONGEST at 12 characters?', 'emoji': '💪',
+      'options': ['Password1234 (common word + numbers)', 'xK7#mP2@nQ9! (random mix of all character types)', 'ilovemycat12 (phrase + numbers)', 'QWERTYUIOP12 (keyboard row + numbers)'],
+      'correct': 1,
+      'explanation': '"xK7#mP2@nQ9!" uses all four character types with no recognisable pattern — maximising the number of combinations a hacker would need to try.'},
+    {'question': 'A website stores your password as plain text instead of encrypted. You use a unique strong password there. What is the risk?', 'emoji': '🗄️',
+      'options': ['No risk — your password is strong', 'If their database is hacked, your exact password is exposed and attackers can try it on other sites immediately', 'Your password might be deleted', 'The website might charge you more'],
+      'correct': 1,
+      'explanation': 'Even perfect passwords can be exposed if a website stores them insecurely. This is exactly why using unique passwords per site matters — even if one site leaks your password, your other accounts remain safe.'},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _questions = _getQuestions();
+  }
+
+  List<Map<String, dynamic>> _getQuestions() {
+    switch (widget.difficulty) {
+      case DifficultyLevel.easy:   return _easyQuestions;
+      case DifficultyLevel.medium: return _mediumQuestions;
+      case DifficultyLevel.hard:   return _hardQuestions;
+    }
+  }
+
   void selectAnswer(int index) {
     if (answered) return;
-    final int correct = questions[questionIndex]['correct'] as int;
+    final int correct = _questions[questionIndex]['correct'] as int;
     if (index == correct) {
       SoundService.playCatHappy();
     } else {
@@ -51,16 +113,16 @@ class _QuizStepState extends State<QuizStep> {
 
   void nextQuestion() {
     SoundService.playClick();
-    if (questionIndex < questions.length - 1) {
+    if (questionIndex < _questions.length - 1) {
       setState(() { questionIndex++; selectedAnswer = null; answered = false; });
     } else {
-      widget.onComplete(_score, questions.length);
+      widget.onComplete(_score, _questions.length);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final q = questions[questionIndex];
+    final q = _questions[questionIndex];
     final List<String> options = List<String>.from(q['options'] as List);
     final int correct = q['correct'] as int;
 
@@ -76,13 +138,27 @@ class _QuizStepState extends State<QuizStep> {
             decoration: BoxDecoration(color: kPasswordGreen.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: kPasswordGreen.withValues(alpha: 0.4))),
-            child: Text('${questionIndex + 1} / ${questions.length}',
+            child: Text('${questionIndex + 1} / ${_questions.length}',
               style: GoogleFonts.fredoka(fontWeight: FontWeight.w700, color: kPasswordGreen, fontSize: 13))),
+        ]),
+        const SizedBox(height: 8),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: widget.difficulty.color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: widget.difficulty.color.withValues(alpha: 0.4)),
+            ),
+            child: Text('${widget.difficulty.emoji} ${widget.difficulty.label} Mode',
+              style: GoogleFonts.fredoka(fontSize: 12, fontWeight: FontWeight.w600,
+                color: widget.difficulty.color)),
+          ),
         ]),
         const SizedBox(height: 10),
         ClipRRect(borderRadius: BorderRadius.circular(6),
           child: LinearProgressIndicator(
-            value: (questionIndex + 1) / questions.length, minHeight: 6,
+            value: (questionIndex + 1) / _questions.length, minHeight: 6,
             backgroundColor: kPasswordAccent.withValues(alpha: 0.1),
             valueColor: const AlwaysStoppedAnimation<Color>(kPasswordAccent))),
         const SizedBox(height: 20),
@@ -145,7 +221,7 @@ class _QuizStepState extends State<QuizStep> {
                   const SizedBox(width: 12),
                   Expanded(child: Text(opt, style: GoogleFonts.fredoka(
                     fontSize: 14, fontWeight: FontWeight.w600, color: textColor))),
-                  ?trailing,
+                  if (trailing != null) trailing,
                 ]),
               ),
             ),
@@ -167,7 +243,7 @@ class _QuizStepState extends State<QuizStep> {
           child: PasswordCatButton(
             button: PasswordNextButton(
               onTap: nextQuestion,
-              label: questionIndex < questions.length - 1 ? 'Next Question →' : 'See Results! 🏆',
+              label: questionIndex < _questions.length - 1 ? 'Next Question →' : 'See Results! 🏆',
             ),
             message: '${selectedAnswer == correct ? "Purrfect! ✅" : "Not quite! 😿"} ${q['explanation'] as String}',
             accentColor: selectedAnswer == correct ? kPasswordGreen : kPasswordRed,

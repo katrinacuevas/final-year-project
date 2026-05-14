@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/sound_service.dart';
+import '../../models/difficulty_level.dart';
 import 'phishing_theme.dart';
 import 'phishing_widgets.dart';
 import 'phishing_lessons.dart';
@@ -10,7 +11,8 @@ import 'phishing_quiz.dart';
 import 'phishing_complete.dart';
 
 class PhishingDetectiveScreen extends StatefulWidget {
-  const PhishingDetectiveScreen({super.key});
+  final DifficultyLevel difficulty;
+  const PhishingDetectiveScreen({super.key, this.difficulty = DifficultyLevel.easy});
   @override
   State<PhishingDetectiveScreen> createState() => _PhishingDetectiveScreenState();
 }
@@ -98,7 +100,7 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
       case 6:  return PhishingLesson6(key: const ValueKey(6),    onNext: _goNext);
       case 7:  return PhishingLesson7(key: const ValueKey(7),    onNext: _goNext);
       case 8:  return PhishingChatSim(key: const ValueKey(8),    onNext: _goNext);
-      case 9:  return PhishingQuizStep(key: const ValueKey(9),   onComplete: (s, t) {
+      case 9:  return PhishingQuizStep(key: const ValueKey(9), difficulty: widget.difficulty, onComplete: (s, t) {
         setState(() { _quizScore = s; _quizTotal = t; currentStep++; });
       });
       case 10: return PhishingCompleteStep(

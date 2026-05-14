@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/sound_service.dart';
+import '../../models/difficulty_level.dart';
 import 'baiting_theme.dart';
 import 'baiting_widgets.dart';
 import 'baiting_lessons.dart';
@@ -10,7 +11,8 @@ import 'baiting_quiz.dart';
 import 'baiting_complete.dart';
 
 class BaitingScreen extends StatefulWidget {
-  const BaitingScreen({super.key});
+  final DifficultyLevel difficulty;
+  const BaitingScreen({super.key, this.difficulty = DifficultyLevel.easy});
   @override
   State<BaitingScreen> createState() => _BaitingScreenState();
 }
@@ -98,7 +100,7 @@ class _BaitingScreenState extends State<BaitingScreen> {
       case 6:  return BaitingLesson6(key: const ValueKey(6),    onNext: _goNext);
       case 7:  return BaitingLesson7(key: const ValueKey(7),    onNext: _goNext);
       case 8:  return BaitingChatSim(key: const ValueKey(8),    onNext: _goNext);
-      case 9:  return BaitingQuizStep(key: const ValueKey(9),   onComplete: (s, t) {
+      case 9:  return BaitingQuizStep(key: const ValueKey(9), difficulty: widget.difficulty, onComplete: (s, t) {
         setState(() { _quizScore = s; _quizTotal = t; _currentStep++; });
       });
       case 10: return BaitingCompleteStep(

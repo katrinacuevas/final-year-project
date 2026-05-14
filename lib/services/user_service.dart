@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../models/difficulty_level.dart';
 
 const List<int> kXpThresholds = [0, 100, 300, 500, 700, 900, 1100];
 
@@ -246,6 +247,16 @@ class UserService with ChangeNotifier {
   }
 
   LessonProgress? getProgress(String lessonId) => _progressCache[lessonId];
+
+  /// Returns the difficulty tier the user should face next time they replay
+  /// this lesson, based on their best star score from prior completions.
+  DifficultyLevel getDifficulty(String lessonId) {
+    final p = _progressCache[lessonId];
+    if (p == null || !p.completed) return DifficultyLevel.easy;
+    if (p.stars >= 3) return DifficultyLevel.hard;
+    if (p.stars >= 1) return DifficultyLevel.medium;
+    return DifficultyLevel.easy;
+  }
 
   Future<void> saveProgress(LessonProgress progress) async {
     if (_uid == null) return;
