@@ -1,573 +1,819 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
 
-class _Email {
-  final String sender;
-  final String subject;
-  final String body;
-  final bool isPhishing;
-  final String explanation;
-  const _Email({
-    required this.sender,
-    required this.subject,
-    required this.body,
-    required this.isPhishing,
-    required this.explanation,
-  });
+// ─── Challenge 1: Spot the Fake (Phishing) ───────────────────────────────────
+
+class _Message {
+  final String sender, body;
+  const _Message(this.sender, this.body);
 }
 
-const List<_Email> _emails = [
-  _Email(
-    sender: 'support@paypa1-secure.com',
-    subject: 'URGENT: Your account has been suspended!',
-    body:
-        'Dear Customer,\n\nYour PayPal account has been suspended due to suspicious activity. Click the link below IMMEDIATELY to restore access or your account will be permanently deleted.\n\nwww.paypa1-secure.com/restore',
-    isPhishing: true,
-    explanation:
-        'The sender says "paypa1" (number 1) instead of "paypal". Real companies never demand you click urgent links in emails.',
+const _spotReal = _Message('Roblox', 'Hi! Your 100 Robux from the developer reward have been added. Thanks for playing!');
+const _spotFake = _Message('R0blox-Fr33', '🚨 YOUR ACCOUNT WILL BE DELETED IN 1 HOUR! Click NOW to save it → free-r0bux.xyz');
+const _spotFakeIsB = true; // B is the fake one
+const _spotHint = '"R0blox-Fr33" uses zeros instead of letters — a classic fake name trick! Real Roblox never threatens to delete your account or sends you to random websites.';
+
+// ─── Challenge 2: What Would You Do? (Baiting) ───────────────────────────────
+
+class _ChatMsg { final String from, body; const _ChatMsg(this.from, this.body); }
+class _ChatChoice {
+  final String emoji, label, feedback;
+  final bool best;
+  const _ChatChoice({required this.emoji, required this.label, required this.feedback, required this.best});
+}
+
+const _chatMsgs = [
+  _ChatMsg('GamePrize_Bot', '🎉 CONGRATS! You\'ve been randomly selected to WIN a FREE gaming PC!'),
+  _ChatMsg('GamePrize_Bot', 'Just send us your full name, home address and school — we\'ll deliver it tomorrow! 📦'),
+];
+
+const _chatChoices = [
+  _ChatChoice(
+    emoji: '📨', label: 'Send my details — I want the prize!',
+    feedback: 'Careful! Real competitions never contact you out of nowhere asking for your home address. This is a baiting trap designed to get your personal info. Never share your address online!',
+    best: false,
   ),
-  _Email(
-    sender: 'no-reply@google.com',
-    subject: 'Your Google account: new sign-in on Windows',
-    body:
-        'Hi,\n\nWe noticed a new sign-in to your Google Account. If this was you, you can ignore this email.\n\nIf you don\'t recognise this activity, please review your account.\n\nThe Google Team',
-    isPhishing: false,
-    explanation:
-        'This comes from the official google.com domain, doesn\'t create panic, and doesn\'t ask you to click a suspicious link.',
+  _ChatChoice(
+    emoji: '🛡️', label: 'Close it and tell a trusted adult',
+    feedback: 'Brilliant! You can\'t win something you never entered. Closing it and telling a parent or teacher is always the safest move. You spotted the bait! 🎣',
+    best: true,
   ),
-  _Email(
-    sender: 'winner@prizes-online.net',
-    subject: '🎉 You\'ve won a £1,000 Amazon Gift Card!',
-    body:
-        'CONGRATULATIONS!\n\nYou have been selected as today\'s lucky winner! Claim your £1,000 Amazon Gift Card now. This offer expires in 24 hours.\n\nEnter your details at: www.prizes-online.net/claim',
-    isPhishing: true,
-    explanation:
-        'You can\'t win a prize you never entered. The sender looks unofficial and it\'s rushing you with a fake deadline.',
+  _ChatChoice(
+    emoji: '🤔', label: 'Ask them to prove the prize is real',
+    feedback: 'Good instinct to be suspicious! But scammers can seem very convincing. The safest thing is always to close it and tell an adult rather than chatting with them.',
+    best: false,
   ),
 ];
 
+// ─── Challenge 3: Safe or Risky? (Pretexting) ────────────────────────────────
+
+class _Scenario {
+  final String emoji, text;
+  final bool risky;
+  final String feedback;
+  const _Scenario({required this.emoji, required this.text, required this.risky, required this.feedback});
+}
+
+const _scenarios = [
+  _Scenario(
+    emoji: '🎮',
+    text: 'Someone in a game chat says "I\'m from Roblox support. Give me your password and I\'ll add 1,000 Robux to your account."',
+    risky: true,
+    feedback: 'RISKY! Real support staff NEVER ask for your password — they don\'t need it. This is pretexting: pretending to be support to steal your account!',
+  ),
+  _Scenario(
+    emoji: '📱',
+    text: 'Your mum texts you from her usual number saying she\'ll be 10 minutes late picking you up from school.',
+    risky: false,
+    feedback: 'SAFE! A normal message from a known, trusted person using their real number. Nothing suspicious here!',
+  ),
+  _Scenario(
+    emoji: '🏫',
+    text: 'You get a message saying "Hi, I\'m your new teacher. I need your home address for school records — reply here."',
+    risky: true,
+    feedback: 'RISKY! Schools never collect home addresses by text message. Someone is pretending to be a teacher to find out where you live!',
+  ),
+  _Scenario(
+    emoji: '🎮',
+    text: 'Your friend Jake sends you a message asking if you want to play Minecraft after school, like you do every week.',
+    risky: false,
+    feedback: 'SAFE! A normal message from someone you know well, about something you regularly do together. No red flags!',
+  ),
+];
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
+
 class DailyChallengeScreen extends StatefulWidget {
   const DailyChallengeScreen({super.key});
-
   @override
   State<DailyChallengeScreen> createState() => _DailyChallengeScreenState();
 }
 
 class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
-  int _currentIndex = 0;
-  int _score = 0;
-  bool? _selectedAnswer;
-  bool _showResult = false;
-  bool _finished = false;
-  bool _awardingXp = false;
+  int _step = 0; // 0=ch1, 1=ch2, 2=ch3, 3=done
 
-  _Email get _current => _emails[_currentIndex];
+  // Ch1 state
+  bool? _spotPickedB; // true=picked B, false=picked A
+  bool _spotAnswered = false;
 
-  void _answer(bool guessedPhishing) {
-    if (_showResult) return;
-    SoundService.playClick();
-    final correct = guessedPhishing == _current.isPhishing;
-    if (correct) _score++;
-    setState(() {
-      _selectedAnswer = guessedPhishing;
-      _showResult = true;
-    });
+  // Ch2 state
+  int? _chatPick;
+  bool _chatAnswered = false;
+
+  // Ch3 state
+  int _sortIdx = 0;
+  int _sortScore = 0;
+  bool _sortAnswered = false;
+  bool? _sortCorrect;
+
+  int _totalScore = 0;
+
+  static const _accentColors = [Color(0xFF4FC3F7), Color(0xFFFF8A65), Color(0xFFBA68C8)];
+  static const _stepLabels = ['Spot the Fake', 'What Would You Do?', 'Safe or Risky?'];
+  static const _stepIcons = ['🎣', '💬', '🛡️'];
+
+  @override
+  void initState() {
+    super.initState();
+    final p = UserService.instance.getProgress('daily_challenge');
+    final saved = p?.stepsCompleted ?? 0;
+    if (saved < 3) _step = saved;
   }
 
-  Future<void> _next() async {
-    SoundService.playClick();
-    if (_currentIndex < _emails.length - 1) {
-      setState(() {
-        _currentIndex++;
-        _selectedAnswer = null;
-        _showResult = false;
-      });
-    } else {
-      await _finishChallenge();
+  Color get _accent => _step < 3 ? _accentColors[_step] : const Color(0xFFFFC857);
+
+  Future<void> _advance() async {
+    final newStep = _step + 1;
+    setState(() => _step = newStep);
+    await UserService.instance.saveProgress(LessonProgress(
+      lessonId: 'daily_challenge',
+      stepsCompleted: newStep,
+      totalSteps: 3,
+      stars: newStep >= 3 ? (_totalScore >= 5 ? 3 : _totalScore >= 3 ? 2 : 1) : 1,
+      completed: newStep >= 3,
+    ));
+    if (newStep >= 3) {
+      await UserService.instance.addXp('daily_challenge', 75);
     }
-  }
-
-  Future<void> _finishChallenge() async {
-    setState(() => _awardingXp = true);
-    await UserService.instance.saveProgress(
-      LessonProgress(
-        lessonId: 'daily_challenge',
-        stepsCompleted: _emails.length,
-        totalSteps: _emails.length,
-        stars: _score >= _emails.length
-            ? 3
-            : _score >= (_emails.length ~/ 2 + 1)
-                ? 2
-                : 1,
-        completed: true,
-      ),
-    );
-    await UserService.instance.addXp('daily_challenge', 50);
-    setState(() {
-      _awardingXp = false;
-      _finished = true;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_finished) return _buildFinished();
-    final bool correct = _showResult && _selectedAnswer == _current.isPhishing;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFE3F2FD),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A2E45)),
-          onPressed: () {
-            SoundService.playClick();
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text('Daily Challenge',
-            style: TextStyle(
-                color: Color(0xFF1A2E45),
-                fontWeight: FontWeight.w800,
-                fontSize: 18)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF9C4),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  'Email ${_currentIndex + 1} of ${_emails.length}',
-                  style: const TextStyle(
-                      color: Color(0xFF7A6020),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 350),
-              transitionBuilder: (child, anim) => SlideTransition(
-                position: Tween<Offset>(
-                        begin: const Offset(1, 0), end: Offset.zero)
-                    .animate(anim),
-                child: child,
-              ),
-              child: SingleChildScrollView(
-                key: ValueKey(_currentIndex),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: LinearProgressIndicator(
-                        value: (_currentIndex + 1) / _emails.length,
-                        minHeight: 8,
-                        backgroundColor: Colors.grey.shade200,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                            Color(0xFFFFB347)),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3))
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF5F0FF),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(children: [
-                                  Container(
-                                    width: 36, height: 36,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF1A2E45),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: const Center(
-                                        child: Text('📧',
-                                            style: TextStyle(fontSize: 18))),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      _current.sender,
-                                      style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFF3D2C8D)),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ]),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _current.subject,
-                                  style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF1A2E45)),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          Text(
-                            _current.body,
-                            style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF5A7A95),
-                                height: 1.6),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    if (!_showResult) ...[
-                      const Text('Is this email real or fake? 🤔',
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF1A2E45))),
-                      const SizedBox(height: 12),
-                      _choiceTile(
-                        label: '✅  Real Email',
-                        index: 0,
-                        onTap: () => _answer(false),
-                      ),
-                      const SizedBox(height: 10),
-                      _choiceTile(
-                        label: '🎣  Fake / Phishing',
-                        index: 1,
-                        onTap: () => _answer(true),
-                      ),
-                    ],
-                    const SizedBox(height: 80),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
+      backgroundColor: const Color(0xFF0D1117),
+      body: Column(children: [
+        _buildTopBar(),
+        Expanded(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
             transitionBuilder: (child, anim) => SlideTransition(
-              position: Tween<Offset>(
-                      begin: const Offset(0, 1), end: Offset.zero)
-                  .animate(CurvedAnimation(
-                      parent: anim, curve: Curves.easeOut)),
-              child: child,
+              position: Tween<Offset>(begin: const Offset(0.08, 0), end: Offset.zero)
+                  .animate(CurvedAnimation(parent: anim, curve: Curves.easeOut)),
+              child: FadeTransition(opacity: anim, child: child),
             ),
-            child: _showResult
-                ? _buildFeedbackPanel(correct)
-                : const SizedBox.shrink(key: ValueKey('empty')),
+            child: KeyedSubtree(
+              key: ValueKey(_step),
+              child: _step == 0 ? _buildCh1()
+                  : _step == 1 ? _buildCh2()
+                  : _step == 2 ? _buildCh3()
+                  : _buildComplete(),
+            ),
           ),
-        ],
-      ),
+        ),
+      ]),
     );
   }
 
-  Widget _choiceTile({
-    required String label,
-    required int index,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
+  Widget _buildTopBar() {
+    return SafeArea(
+      bottom: false,
       child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF0EBFF),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFB39DDB), width: 1.5),
-        ),
-        child: Row(children: [
-          Container(
-            width: 28, height: 28,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFF7C4DFF).withOpacity(0.15),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        color: const Color(0xFF0D1117),
+        child: Column(children: [
+          Row(children: [
+            GestureDetector(
+              onTap: () { SoundService.playClick(); Navigator.pop(context); },
+              child: Container(
+                width: 38, height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF161B2E),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white12),
+                ),
+                child: const Icon(Icons.arrow_back_rounded, color: Colors.white70, size: 18),
+              ),
             ),
-            child: Center(
-              child: Text('${index + 1}',
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF7C4DFF))),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text('Daily Challenge',
+                style: GoogleFonts.fredoka(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
             ),
-          ),
-          const SizedBox(width: 12),
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1A2E45))),
+            if (_step < 3)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: _accent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: _accent.withValues(alpha: 0.4)),
+                ),
+                child: Text('${_step + 1} / 3',
+                  style: GoogleFonts.fredoka(color: _accent, fontSize: 13, fontWeight: FontWeight.w700)),
+              ),
+          ]),
+          if (_step < 3) ...[
+            const SizedBox(height: 12),
+            Row(children: List.generate(3, (i) {
+              final done = i < _step;
+              final active = i == _step;
+              return Expanded(child: Padding(
+                padding: EdgeInsets.only(right: i < 2 ? 6 : 0),
+                child: Column(children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    height: 4,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2),
+                      color: done ? _accentColors[i] : active ? _accentColors[i].withValues(alpha: 0.4) : Colors.white12,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text('${_stepIcons[i]} ${_stepLabels[i]}',
+                    style: GoogleFonts.fredoka(
+                      fontSize: 10,
+                      color: done ? _accentColors[i] : active ? Colors.white70 : Colors.white24,
+                      fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                    )),
+                ]),
+              ));
+            })),
+          ],
         ]),
       ),
     );
   }
 
-  Widget _buildFeedbackPanel(bool correct) {
-    final bool isLast = _currentIndex == _emails.length - 1;
-    return Container(
-      key: const ValueKey('feedback'),
-      decoration: BoxDecoration(
-        color: correct ? const Color(0xFFD5F5E3) : const Color(0xFFFFEBEB),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 16,
-              offset: const Offset(0, -4))
-        ],
+  // ── Challenge 1: Spot the Fake ──────────────────────────────────────────────
+
+  Widget _buildCh1() {
+    const accent = Color(0xFF4FC3F7);
+    final bool? pickedFake = _spotAnswered
+        ? (_spotPickedB == _spotFakeIsB)
+        : null;
+
+    return Stack(children: [
+      SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 200),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          _challengeHeader('🎣', 'Spot the Fake!', 'One of these messages is a phishing trick. Can you work out which one?', accent),
+          const SizedBox(height: 20),
+          Text('MESSAGE A', style: GoogleFonts.fredoka(color: Colors.white38, fontSize: 11, letterSpacing: 1.5)),
+          const SizedBox(height: 8),
+          _messageCard(
+            msg: _spotReal,
+            picked: _spotAnswered && _spotPickedB == false,
+            isFake: false,
+            answered: _spotAnswered,
+            accent: accent,
+            onTap: _spotAnswered ? null : () {
+              SoundService.playCatIncorrect();
+              setState(() { _spotPickedB = false; _spotAnswered = true; });
+            },
+          ),
+          const SizedBox(height: 14),
+          Text('MESSAGE B', style: GoogleFonts.fredoka(color: Colors.white38, fontSize: 11, letterSpacing: 1.5)),
+          const SizedBox(height: 8),
+          _messageCard(
+            msg: _spotFake,
+            picked: _spotAnswered && _spotPickedB == true,
+            isFake: true,
+            answered: _spotAnswered,
+            accent: accent,
+            onTap: _spotAnswered ? null : () {
+              SoundService.playCatHappy();
+              setState(() { _spotPickedB = true; _spotAnswered = true; _totalScore++; });
+            },
+          ),
+        ]),
       ),
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(correct ? '🛡️' : '😬',
-                style: const TextStyle(fontSize: 28)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                correct ? 'Correct! Well spotted! 🎉' : 'Not quite!',
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: correct
-                        ? const Color(0xFF1E6B3A)
-                        : const Color(0xFFB03030)),
+      if (_spotAnswered)
+        Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: _feedbackPanel(
+            correct: pickedFake == true,
+            accent: accent,
+            explanation: _spotHint,
+            buttonLabel: 'Next Challenge →',
+            onNext: _advance,
+          ).animate().slideY(begin: 0.3, end: 0, duration: 300.ms).fadeIn(),
+        ),
+    ]);
+  }
+
+  Widget _messageCard({
+    required _Message msg,
+    required bool picked,
+    required bool isFake,
+    required bool answered,
+    required Color accent,
+    required VoidCallback? onTap,
+  }) {
+    Color borderColor = Colors.white12;
+    Color bgColor = const Color(0xFF161B2E);
+    if (answered) {
+      if (isFake) { borderColor = const Color(0xFFFF5252).withValues(alpha: 0.7); bgColor = const Color(0xFFFF5252).withValues(alpha: 0.08); }
+      else { borderColor = const Color(0xFF00E676).withValues(alpha: 0.7); bgColor = const Color(0xFF00E676).withValues(alpha: 0.08); }
+    } else if (picked) {
+      borderColor = accent;
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor, width: answered ? 2 : 1.5),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                borderRadius: BorderRadius.circular(8),
               ),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                const Text('📧', style: TextStyle(fontSize: 13)),
+                const SizedBox(width: 6),
+                Text(msg.sender,
+                  style: GoogleFonts.fredoka(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600)),
+              ]),
             ),
+            const Spacer(),
+            if (answered)
+              Icon(isFake ? Icons.cancel_rounded : Icons.check_circle_rounded,
+                color: isFake ? const Color(0xFFFF5252) : const Color(0xFF00E676), size: 20),
           ]),
           const SizedBox(height: 10),
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
-                margin: const EdgeInsets.only(top: 5),
-                width: 6, height: 6,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: correct
-                        ? const Color(0xFF27AE60)
-                        : const Color(0xFFE74C3C))),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                _current.explanation,
-                style: TextStyle(
-                    fontSize: 13,
-                    height: 1.4,
-                    color: correct
-                        ? const Color(0xFF1A4A2A)
-                        : const Color(0xFF7A2020)),
-              ),
-            ),
-          ]),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: _awardingXp
-                ? const Center(child: CircularProgressIndicator())
-                : ElevatedButton(
-                    onPressed: _next,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: correct
-                          ? const Color(0xFF27AE60)
-                          : const Color(0xFFE74C3C),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      isLast ? 'See Results! 🎉' : 'Next Email →',
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-          ),
-        ],
+          Text(msg.body,
+            style: GoogleFonts.fredoka(
+              color: answered && isFake ? const Color(0xFFFF5252) : Colors.white,
+              fontSize: 15, height: 1.4, fontWeight: FontWeight.w500)),
+          if (!answered) ...[
+            const SizedBox(height: 12),
+            Center(child: Text('Tap if this looks suspicious 👆',
+              style: GoogleFonts.fredoka(color: Colors.white24, fontSize: 12))),
+          ],
+        ]),
       ),
     );
   }
 
-  Widget _buildFinished() {
-    final int total = _emails.length;
-    final bool perfect = _score == total;
+  // ── Challenge 2: What Would You Do? ────────────────────────────────────────
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFE3F2FD),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(children: [
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(28),
-              decoration: const BoxDecoration(
-                  color: Color(0xFFFFFDE7), shape: BoxShape.circle),
-              child: Text(
-                perfect ? '🏆' : _score >= (total ~/ 2 + 1) ? '🌟' : '💪',
-                style: const TextStyle(fontSize: 72),
-              ),
+  Widget _buildCh2() {
+    const accent = Color(0xFFFF8A65);
+    final answered = _chatAnswered;
+
+    return Stack(children: [
+      SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 220),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          _challengeHeader('💬', 'What Would You Do?', 'A message pops up while you\'re gaming. Read it carefully — then pick what you\'d do!', accent),
+          const SizedBox(height: 20),
+          // Chat bubble UI
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF161B2E),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: accent.withValues(alpha: 0.2)),
             ),
-            const SizedBox(height: 24),
-            Text(
-              perfect
-                  ? 'Perfect Score!'
-                  : _score >= (total ~/ 2 + 1)
-                      ? 'Great Job!'
-                      : 'Good Try!',
-              style: const TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF1A2E45)),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'You got $_score out of $total correct!',
-              style: const TextStyle(fontSize: 16, color: Color(0xFF5A7A95)),
-            ),
-            const SizedBox(height: 28),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4))
-                ],
-              ),
-              child: Column(children: [
+            child: Column(children: [
+              Row(children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 10),
+                  width: 36, height: 36,
                   decoration: BoxDecoration(
-                      color: const Color(0xFFFFFDE7),
-                      borderRadius: BorderRadius.circular(14)),
-                  child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                    Text('⭐', style: TextStyle(fontSize: 28)),
-                    SizedBox(width: 8),
-                    Text('+50 XP',
-                        style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFFE6A817))),
+                    color: accent.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: accent.withValues(alpha: 0.4)),
+                  ),
+                  child: const Center(child: Text('🤖', style: TextStyle(fontSize: 18))),
+                ),
+                const SizedBox(width: 10),
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('GamePrize_Bot',
+                    style: GoogleFonts.fredoka(color: accent, fontSize: 14, fontWeight: FontWeight.w700)),
+                  Text('Unknown sender', style: GoogleFonts.fredoka(color: Colors.white38, fontSize: 11)),
+                ]),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF5252).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFFF5252).withValues(alpha: 0.3)),
+                  ),
+                  child: Text('⚠️ Unknown', style: GoogleFonts.fredoka(color: const Color(0xFFFF5252), fontSize: 10)),
+                ),
+              ]),
+              const SizedBox(height: 14),
+              ..._chatMsgs.asMap().entries.map((e) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 280),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0D1117),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: Text(e.value.body,
+                      style: GoogleFonts.fredoka(color: Colors.white, fontSize: 14, height: 1.4)),
+                  ),
+                ),
+              )),
+            ]),
+          ),
+          const SizedBox(height: 20),
+          if (!answered) ...[
+            Text('What do you do?',
+              style: GoogleFonts.fredoka(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 12),
+          ],
+          ..._chatChoices.asMap().entries.map((e) {
+            final i = e.key;
+            final c = e.value;
+            final picked = _chatPick == i;
+            Color bg = const Color(0xFF161B2E);
+            Color border = Colors.white12;
+            Color tc = Colors.white70;
+            if (answered && picked) {
+              if (c.best) { bg = const Color(0xFF00E676).withValues(alpha: 0.1); border = const Color(0xFF00E676).withValues(alpha: 0.6); tc = const Color(0xFF00E676); }
+              else { bg = const Color(0xFFFF5252).withValues(alpha: 0.1); border = const Color(0xFFFF5252).withValues(alpha: 0.6); tc = const Color(0xFFFF5252); }
+            } else if (answered && c.best && !(_chatChoices[_chatPick!].best)) {
+              bg = const Color(0xFF00E676).withValues(alpha: 0.05); border = const Color(0xFF00E676).withValues(alpha: 0.3); tc = const Color(0xFF00E676).withValues(alpha: 0.6);
+            }
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: GestureDetector(
+                onTap: answered ? null : () {
+                  if (c.best) { SoundService.playCatHappy(); setState(() { _totalScore++; }); }
+                  else { SoundService.playCatIncorrect(); }
+                  setState(() { _chatPick = i; _chatAnswered = true; });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: bg, borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: border, width: 1.5),
+                  ),
+                  child: Row(children: [
+                    Text(c.emoji, style: const TextStyle(fontSize: 22)),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(c.label,
+                      style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w600, color: tc))),
+                    if (answered && picked)
+                      Icon(c.best ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                        color: c.best ? const Color(0xFF00E676) : const Color(0xFFFF5252), size: 20),
                   ]),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                        3,
-                        (i) => Text(
-                              i < _score ? '⭐' : '☆',
-                              style: const TextStyle(fontSize: 32),
-                            ))),
-                const SizedBox(height: 10),
-                Text(
-                  perfect ? '3 Stars — Amazing!' : '$_score Stars — Keep it up!',
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1A2E45)),
-                ),
-              ]),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0EBFF).withOpacity(0.6),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                    color: const Color(0xFFB39DDB).withOpacity(0.4)),
               ),
-              child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                const Text('🎭', style: TextStyle(fontSize: 28)),
-                const SizedBox(width: 14),
-                const Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                  Text('What you practised:',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF1A2E45))),
-                  SizedBox(height: 4),
-                  Text(
-                      'Spotting suspicious sender addresses, fake urgency, and too-good-to-be-true offers.',
-                      style: TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF5A7A95),
-                          height: 1.4)),
-                ])),
-              ]),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
+            );
+          }),
+        ]),
+      ),
+      if (_chatAnswered)
+        Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: _feedbackPanel(
+            correct: _chatChoices[_chatPick!].best,
+            accent: accent,
+            explanation: _chatChoices[_chatPick!].feedback,
+            buttonLabel: 'Last Challenge →',
+            onNext: _advance,
+          ).animate().slideY(begin: 0.3, end: 0, duration: 300.ms).fadeIn(),
+        ),
+    ]);
+  }
+
+  // ── Challenge 3: Safe or Risky? ─────────────────────────────────────────────
+
+  Widget _buildCh3() {
+    const accent = Color(0xFFBA68C8);
+    final scenario = _scenarios[_sortIdx];
+    final done = _sortIdx >= _scenarios.length;
+
+    if (done) {
+      return _buildSortComplete(accent);
+    }
+
+    return Stack(children: [
+      SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 220),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          _challengeHeader('🛡️', 'Safe or Risky?',
+            'Read each situation and decide: is it safe or risky? ${_sortIdx + 1} of ${_scenarios.length}', accent),
+          const SizedBox(height: 20),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: Container(
+              key: ValueKey(_sortIdx),
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  SoundService.playClick();
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A2E45),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
-                  elevation: 0,
-                ),
-                child: const Text('Back to Dashboard 🏠',
-                    style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w700)),
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: const Color(0xFF161B2E),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: accent.withValues(alpha: 0.25), width: 1.5),
               ),
+              child: Column(children: [
+                Text(scenario.emoji, style: const TextStyle(fontSize: 52)),
+                const SizedBox(height: 16),
+                Text(scenario.text,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.fredoka(color: Colors.white, fontSize: 16, height: 1.5, fontWeight: FontWeight.w500)),
+              ]),
             ),
+          ),
+          const SizedBox(height: 24),
+          if (!_sortAnswered) ...[
+            Row(children: [
+              Expanded(child: _sortButton('✅ SAFE', false, const Color(0xFF00E676), accent)),
+              const SizedBox(width: 12),
+              Expanded(child: _sortButton('⚠️ RISKY', true, const Color(0xFFFF5252), accent)),
+            ]),
+          ],
+          // Progress dots
+          const SizedBox(height: 20),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(_scenarios.length, (i) => Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: i == _sortIdx ? 20 : 8, height: 8,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              color: i < _sortIdx ? accent : i == _sortIdx ? accent.withValues(alpha: 0.5) : Colors.white12,
+            ),
+          ))),
+        ]),
+      ),
+      if (_sortAnswered)
+        Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: _feedbackPanel(
+            correct: _sortCorrect!,
+            accent: accent,
+            explanation: scenario.feedback,
+            buttonLabel: _sortIdx < _scenarios.length - 1 ? 'Next Scenario →' : 'See Results! 🎉',
+            onNext: () {
+              if (_sortIdx < _scenarios.length - 1) {
+                setState(() { _sortIdx++; _sortAnswered = false; _sortCorrect = null; });
+              } else {
+                _advance();
+              }
+            },
+          ).animate().slideY(begin: 0.3, end: 0, duration: 300.ms).fadeIn(),
+        ),
+    ]);
+  }
+
+  Widget _sortButton(String label, bool isRisky, Color color, Color accent) {
+    return GestureDetector(
+      onTap: () {
+        final correct = isRisky == _scenarios[_sortIdx].risky;
+        if (correct) { SoundService.playCatHappy(); setState(() { _sortScore++; _totalScore++; }); }
+        else { SoundService.playCatIncorrect(); }
+        setState(() { _sortAnswered = true; _sortCorrect = correct; });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
+        ),
+        child: Center(child: Text(label,
+          style: GoogleFonts.fredoka(color: color, fontSize: 17, fontWeight: FontWeight.w700))),
+      ),
+    );
+  }
+
+  Widget _buildSortComplete(Color accent) {
+    return Center(child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Text(_sortScore >= 3 ? '🏆' : '💪', style: const TextStyle(fontSize: 64)),
+        const SizedBox(height: 12),
+        Text('$_sortScore / ${_scenarios.length} correct!',
+          style: GoogleFonts.fredoka(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 24),
+        SizedBox(width: double.infinity, child: ElevatedButton(
+          onPressed: _advance,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: accent, foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 0,
+          ),
+          child: Text('See Results! 🎉', style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700)),
+        )),
+      ]),
+    ));
+  }
+
+  // ── Complete screen ──────────────────────────────────────────────────────────
+
+  Widget _buildComplete() {
+    final total = 1 + 1 + _scenarios.length; // max possible
+    final stars = _totalScore >= total - 1 ? 3 : _totalScore >= total ~/ 2 + 1 ? 2 : 1;
+    final perfect = stars == 3;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(children: [
+        const SizedBox(height: 20),
+        Text(perfect ? '🏆' : stars == 2 ? '🌟' : '💪', style: const TextStyle(fontSize: 80))
+            .animate().scale(curve: Curves.elasticOut, duration: 800.ms),
+        const SizedBox(height: 16),
+        Text(perfect ? 'Perfect! You\'re a cyber hero!' : stars == 2 ? 'Great job, agent!' : 'Good effort today!',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.fredoka(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
+        Text('You spotted fakes, dodged baits, and sorted risky from safe.',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.fredoka(color: Colors.white54, fontSize: 14, height: 1.5)),
+        const SizedBox(height: 28),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFF161B2E),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFFFC857).withValues(alpha: 0.3)),
+          ),
+          child: Column(children: [
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Text('✨', style: TextStyle(fontSize: 28)),
+              const SizedBox(width: 8),
+              Text('+75 XP', style: GoogleFonts.fredoka(color: const Color(0xFFFFC857), fontSize: 28, fontWeight: FontWeight.w700)),
+            ]),
+            const SizedBox(height: 14),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(3, (i) =>
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(i < stars ? '⭐' : '☆', style: const TextStyle(fontSize: 34)),
+              ))),
+            const SizedBox(height: 8),
+            Text(perfect ? '3 Stars — Amazing detective work!' : '$stars Stars — Keep it up!',
+              style: GoogleFonts.fredoka(color: Colors.white70, fontSize: 14)),
           ]),
         ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF161B2E),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white12),
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('What you practised today:', style: GoogleFonts.fredoka(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 10),
+            _practisedRow('🎣', 'Spotting fake sender names & urgency tricks'),
+            _practisedRow('💬', 'Recognising baiting messages with fake prizes'),
+            _practisedRow('🛡️', 'Telling safe messages from pretexting traps'),
+          ]),
+        ),
+        const SizedBox(height: 28),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () { SoundService.playClick(); Navigator.pop(context); },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFFC857),
+              foregroundColor: const Color(0xFF0D1117),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              elevation: 0,
+            ),
+            child: Text('Back to Dashboard 🏠',
+              style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700)),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  Widget _practisedRow(String icon, String text) => Padding(
+    padding: const EdgeInsets.only(bottom: 6),
+    child: Row(children: [
+      Text(icon, style: const TextStyle(fontSize: 16)),
+      const SizedBox(width: 10),
+      Expanded(child: Text(text, style: GoogleFonts.fredoka(color: Colors.white54, fontSize: 13))),
+    ]),
+  );
+
+  // ── Shared widgets ───────────────────────────────────────────────────────────
+
+  Widget _challengeHeader(String icon, String title, String subtitle, Color accent) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: accent.withValues(alpha: 0.25)),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(icon, style: const TextStyle(fontSize: 32)),
+        const SizedBox(width: 14),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title, style: GoogleFonts.fredoka(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(subtitle, style: GoogleFonts.fredoka(color: Colors.white60, fontSize: 13, height: 1.4)),
+        ])),
+      ]),
+    );
+  }
+
+  Widget _feedbackPanel({
+    required bool correct,
+    required Color accent,
+    required String explanation,
+    required String buttonLabel,
+    required VoidCallback onNext,
+  }) {
+    final catMsg = '${correct ? "Purrfect! ✅" : "Not quite! 😿"} $explanation';
+    final btnColor = correct ? const Color(0xFF00E676) : accent;
+    final btnFg = correct ? const Color(0xFF0D1117) : Colors.white;
+
+    return _DailyCatPanel(
+      message: catMsg,
+      accentColor: accent,
+      button: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () { SoundService.playClick(); onNext(); },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: btnColor,
+            foregroundColor: btnFg,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 0,
+          ),
+          child: Text(buttonLabel,
+            style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700)),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Reusable cat feedback panel for daily challenges ─────────────────────────
+
+class _DailyCatPanel extends StatefulWidget {
+  final Widget button;
+  final String message;
+  final Color accentColor;
+  const _DailyCatPanel({required this.button, required this.message, required this.accentColor});
+  @override
+  State<_DailyCatPanel> createState() => _DailyCatPanelState();
+}
+
+class _DailyCatPanelState extends State<_DailyCatPanel> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 4500))..repeat();
+  }
+  @override
+  void dispose() { _ctrl.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF161B2E),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+      child: SizedBox(
+        height: 180,
+        child: Stack(clipBehavior: Clip.none, children: [
+          Positioned(left: 0, right: 0, bottom: 0, child: widget.button),
+          Positioned(
+            left: -18, bottom: 15,
+            child: ClipRect(
+              child: SizedBox(
+                width: 160, height: 160,
+                child: Lottie.asset('assets/animations/cat.json', controller: _ctrl, fit: BoxFit.contain),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 130, bottom: 80,
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 210),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1A1848),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16), topRight: Radius.circular(16),
+                  bottomLeft: Radius.circular(4), bottomRight: Radius.circular(16)),
+                border: Border.all(color: widget.accentColor.withValues(alpha: 0.5), width: 1.5),
+              ),
+              child: Text(widget.message,
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white, height: 1.45, fontWeight: FontWeight.w500)),
+            ),
+          ),
+        ]),
       ),
     );
   }
