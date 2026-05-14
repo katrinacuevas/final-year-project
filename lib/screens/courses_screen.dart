@@ -337,19 +337,35 @@ class _CourseCardState extends State<CourseCard> {
               if (isCompleted)
                 SizedBox(
                   width: double.infinity,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF00E676).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFF00E676).withValues(alpha: 0.3))),
-                    child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      const Icon(Icons.verified_rounded, color: Color(0xFF00E676), size: 18),
-                      const SizedBox(width: 8),
+                  child: Column(children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      const Icon(Icons.verified_rounded, color: Color(0xFF00E676), size: 16),
+                      const SizedBox(width: 6),
                       Text('Completed!',
-                        style: GoogleFonts.fredoka(fontSize: 17, fontWeight: FontWeight.w700, color: Color(0xFF00E676))),
+                        style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w600,
+                          color: const Color(0xFF00E676))),
                     ]),
-                  ),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: () { SoundService.playClick(); widget.onStart(lessonId); },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: difficulty.color.withValues(alpha: 0.15),
+                        foregroundColor: difficulty.color,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          side: BorderSide(color: difficulty.color.withValues(alpha: 0.5)),
+                        ),
+                      ),
+                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        Text(difficulty.emoji, style: const TextStyle(fontSize: 14)),
+                        const SizedBox(width: 6),
+                        Text('Replay at ${difficulty.label} →',
+                          style: GoogleFonts.fredoka(fontSize: 16, fontWeight: FontWeight.w700)),
+                      ]),
+                    ),
+                  ]),
                 ),
 
               AnimatedSize(
