@@ -1173,7 +1173,9 @@ class MilestoneBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => showDialog(
+      onTap: () {
+        SoundService.playClick();
+        showDialog(
         context: context,
         builder: (context) => Dialog(
           backgroundColor: const Color(0xFF161B2E),
@@ -1272,7 +1274,8 @@ class MilestoneBadge extends StatelessWidget {
             ),
           ),
         ),
-      ),
+        );
+      },
       child: Column(
         children: [
           AnimatedContainer(

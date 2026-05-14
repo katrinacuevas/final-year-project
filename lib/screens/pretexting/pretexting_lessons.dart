@@ -16,6 +16,30 @@ import 'pretexting_cat_messages.dart';
 import 'pretexting_theme.dart';
 import 'pretexting_widgets.dart';
 
+// ─── Progress Dots ────────────────────────────────────────────────────────────
+class _RevealProgress extends StatelessWidget {
+  final int revealed;
+  final int total;
+  final Color color;
+  const _RevealProgress({required this.revealed, required this.total, required this.color});
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: List.generate(total, (i) => AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+      margin: const EdgeInsets.symmetric(horizontal: 3),
+      width: i < revealed ? 18 : 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: i < revealed ? color : color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(4),
+      ),
+    )),
+  );
+}
+
 // ─── Intro ────────────────────────────────────────────────────────────────────
 class PretextingIntroStep extends StatelessWidget {
   final VoidCallback onNext;
@@ -114,7 +138,9 @@ class _PretextingLesson1State extends State<PretextingLesson1> {
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const PretextingLessonLabel(label: 'WHAT IS PRETEXTING?'),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
+            _RevealProgress(revealed: _revealed, total: _total, color: kPretextAccent),
+            const SizedBox(height: 12),
 
             // Reveal 1: Core concept card
             if (_revealed >= 1)
@@ -212,7 +238,9 @@ class _PretextingLesson2State extends State<PretextingLesson2> {
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const PretextingLessonLabel(label: 'WHY DOES IT WORK?'),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
+            _RevealProgress(revealed: _revealed, total: _total, color: kPretextAccent),
+            const SizedBox(height: 12),
             Text('Pretexters are sneaky! They use 3 clever tricks to make you believe their fake story.',
                 style: GoogleFonts.fredoka(
                     fontSize: 13, color: Colors.white54, height: 1.4)),
@@ -296,7 +324,9 @@ class _PretextingLesson3State extends State<PretextingLesson3> {
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const PretextingLessonLabel(label: 'WHO DO THEY PRETEND TO BE?'),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
+            _RevealProgress(revealed: _revealed, total: _total, color: kPretextAccent),
+            const SizedBox(height: 12),
             Text('Pretexters put on LOTS of disguises. Tap to reveal each one!',
                 style: GoogleFonts.fredoka(
                     fontSize: 13, color: Colors.white38)),
@@ -325,6 +355,23 @@ class _PretextingLesson3State extends State<PretextingLesson3> {
               ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
 
             if (_revealed >= 2) const SizedBox(height: 12),
+
+            if (_revealed >= 2 && _revealed < _total)
+              Container(
+                margin: const EdgeInsets.only(top: 4, bottom: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: kPretextAccent.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: kPretextAccent.withValues(alpha: 0.25)),
+                ),
+                child: Row(children: [
+                  const Text('😸', style: TextStyle(fontSize: 22)),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                    style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+                ]),
+              ).animate().fadeIn(duration: 400.ms),
 
             // Reveal 3: Fake Competition
             if (_revealed >= 3)
@@ -395,7 +442,9 @@ class _PretextingLesson4State extends State<PretextingLesson4> {
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const PretextingLessonLabel(label: 'SNEAKY ONLINE TRICKS'),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
+            _RevealProgress(revealed: _revealed, total: _total, color: kPretextAccent),
+            const SizedBox(height: 12),
             Text('Online, pretexters have even MORE ways to fool you. Tap to see them!',
                 style: GoogleFonts.fredoka(
                     fontSize: 13, color: Colors.white38)),
@@ -479,6 +528,23 @@ class _PretextingLesson4State extends State<PretextingLesson4> {
               ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
               const SizedBox(height: 8),
             ],
+
+            if (_revealed >= 2 && _revealed < _total)
+              Container(
+                margin: const EdgeInsets.only(top: 4, bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: kPretextAccent.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: kPretextAccent.withValues(alpha: 0.25)),
+                ),
+                child: Row(children: [
+                  const Text('😸', style: TextStyle(fontSize: 22)),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                    style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+                ]),
+              ).animate().fadeIn(duration: 400.ms),
 
             // Reveal 3: Real email comparison
             if (_revealed >= 3) ...[
@@ -721,7 +787,9 @@ class _PretextingLesson6State extends State<PretextingLesson6> {
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const PretextingLessonLabel(label: 'THE PAUSE RULE'),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
+            _RevealProgress(revealed: _revealed, total: _total, color: kPretextAccent),
+            const SizedBox(height: 12),
             Text('Your secret weapon against pretexting! Tap to reveal each step.',
                 style: GoogleFonts.fredoka(
                     fontSize: 13, color: Colors.white38)),
@@ -749,7 +817,7 @@ class _PretextingLesson6State extends State<PretextingLesson6> {
             const SizedBox(height: 16),
 
             // Tap-to-reveal PAUSE steps
-            for (int i = 0; i < _steps.length; i++)
+            for (int i = 0; i < _steps.length; i++) ...[
               if (_revealed > i) ...[
                 _PauseStepCard(
                   letter: _steps[i].$1,
@@ -760,6 +828,23 @@ class _PretextingLesson6State extends State<PretextingLesson6> {
                 ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
                 const SizedBox(height: 10),
               ],
+              if (i == 2 && _revealed > i && _revealed < _total)
+                Container(
+                  margin: const EdgeInsets.only(top: 4, bottom: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: kPretextAccent.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: kPretextAccent.withValues(alpha: 0.25)),
+                  ),
+                  child: Row(children: [
+                    const Text('😸', style: TextStyle(fontSize: 22)),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                      style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+                  ]),
+                ).animate().fadeIn(duration: 400.ms),
+            ],
 
             const SizedBox(height: 20),
             PretextingCatButton(

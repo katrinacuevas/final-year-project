@@ -18,6 +18,30 @@ import 'baiting_cat_messages.dart';
 import 'baiting_theme.dart';
 import 'baiting_widgets.dart';
 
+// ─── Progress Dots ────────────────────────────────────────────────────────────
+class _RevealProgress extends StatelessWidget {
+  final int revealed;
+  final int total;
+  final Color color;
+  const _RevealProgress({required this.revealed, required this.total, required this.color});
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: List.generate(total, (i) => AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+      margin: const EdgeInsets.symmetric(horizontal: 3),
+      width: i < revealed ? 18 : 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: i < revealed ? color : color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(4),
+      ),
+    )),
+  );
+}
+
 // ─── Intro ────────────────────────────────────────────────────────────────────
 class BaitingIntroStep extends StatelessWidget {
   final VoidCallback onNext;
@@ -81,7 +105,9 @@ class _BaitingLesson1State extends State<BaitingLesson1> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const BaitingLessonLabel(label: 'WHAT IS BAITING?'),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kBaitAccent),
+        const SizedBox(height: 12),
         if (_revealed >= 1)
           BaitingCard(child: Column(children: [
             const Text('🪤', style: TextStyle(fontSize: 52)), const SizedBox(height: 10),
@@ -104,6 +130,22 @@ class _BaitingLesson1State extends State<BaitingLesson1> {
           BaitingCard(child: const BaitingTrapRow(emoji: '🎮', text: 'You see "FREE game skins — click here NOW!"'))
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
+        if (_revealed >= 3 && _revealed < _total)
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: kBaitAccent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: kBaitAccent.withValues(alpha: 0.25)),
+            ),
+            child: Row(children: [
+              const Text('😸', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 10),
+              Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+            ]),
+          ).animate().fadeIn(duration: 400.ms),
         if (_revealed >= 4) ...[
           const SizedBox(height: 8),
           BaitingCard(child: const BaitingTrapRow(emoji: '🪤', text: 'The fish bites and gets caught'))
@@ -150,10 +192,12 @@ class _BaitingLesson2State extends State<BaitingLesson2> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const BaitingLessonLabel(label: 'HOW BAITERS HOOK YOU'),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kBaitAccent),
+        const SizedBox(height: 12),
         Text('Baiting is different from phishing — it targets your GREED, not your fear.',
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54, height: 1.4)),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         // Phishing vs Baiting comparison card
         BaitingCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('⚡ Phishing vs Baiting', style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w700, color: kBaitAccent)),
@@ -196,6 +240,22 @@ class _BaitingLesson2State extends State<BaitingLesson2> {
             body: '"Only 5 minutes left!" — even though the offer is about exciting things, they add a countdown to stop you thinking carefully.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
+        if (_revealed >= 2 && _revealed < _total)
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: kBaitAccent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: kBaitAccent.withValues(alpha: 0.25)),
+            ),
+            child: Row(children: [
+              const Text('😸', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 10),
+              Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+            ]),
+          ).animate().fadeIn(duration: 400.ms),
         if (_revealed >= 3) ...[
           const SizedBox(height: 10),
           BaitingInfoCard(color: kBaitGreen, emoji: '🧠', title: 'They bypass your brain',
@@ -244,10 +304,12 @@ class _BaitingLesson3State extends State<BaitingLesson3> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const BaitingLessonLabel(label: 'ONLINE BAITING EXAMPLES'),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kBaitAccent),
+        const SizedBox(height: 12),
         Text("Here's how baiters trick people online — see if you recognise any of these!",
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         if (_revealed >= 1)
           BaitingExampleCard(emoji: '🎮', color: const Color(0xFFE8D5FB),
             title: 'Free Game Items',
@@ -262,6 +324,22 @@ class _BaitingLesson3State extends State<BaitingLesson3> {
             why: 'You never entered a competition — they just want your personal details or home address.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
+        if (_revealed >= 2 && _revealed < _total)
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: kBaitAccent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: kBaitAccent.withValues(alpha: 0.25)),
+            ),
+            child: Row(children: [
+              const Text('😸', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 10),
+              Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+            ]),
+          ).animate().fadeIn(duration: 400.ms),
         if (_revealed >= 3) ...[
           const SizedBox(height: 12),
           BaitingExampleCard(emoji: '🎵', color: const Color(0xFFB2EBF2),
@@ -314,10 +392,12 @@ class _BaitingLesson4State extends State<BaitingLesson4> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const BaitingLessonLabel(label: 'REAL-LIFE BAITING'),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kBaitAccent),
+        const SizedBox(height: 12),
         Text("Baiting doesn't just happen online — it can happen in real life too!",
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         if (_revealed >= 1)
           BaitingCard(child: Column(children: [
             const Text('🖲️', style: TextStyle(fontSize: 52)), const SizedBox(height: 12),
@@ -437,10 +517,12 @@ class _BaitingLesson6State extends State<BaitingLesson6> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const BaitingLessonLabel(label: 'REAL VS FAKE REWARDS'),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kBaitAccent),
+        const SizedBox(height: 12),
         Text("Not everything is a trap — here's how to tell the difference:",
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         if (_revealed >= 1)
           Container(padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: kBaitGreen.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(16),
@@ -505,10 +587,12 @@ class _BaitingLesson7State extends State<BaitingLesson7> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const BaitingLessonLabel(label: 'WHAT TO DO'),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kBaitAccent),
+        const SizedBox(height: 12),
         Text("If you think you've spotted a bait — follow these steps:",
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
         if (_revealed >= 1)
           BaitingStepCard(number: '1', emoji: '🛑', color: kBaitRed,
             title: 'STOP — close the tab or put down the device',
@@ -528,6 +612,22 @@ class _BaitingLesson7State extends State<BaitingLesson7> {
             body: 'Show a parent, carer, or teacher. They can check if it\'s real and report it if not.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
+        if (_revealed >= 3 && _revealed < _total)
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: kBaitAccent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: kBaitAccent.withValues(alpha: 0.25)),
+            ),
+            child: Row(children: [
+              const Text('😸', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 10),
+              Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+            ]),
+          ).animate().fadeIn(duration: 400.ms),
         if (_revealed >= 4) ...[
           const SizedBox(height: 10),
           BaitingStepCard(number: '4', emoji: '🚫', color: kBaitCyan,

@@ -6,6 +6,30 @@ import 'phishing_cat_messages.dart';
 import 'phishing_theme.dart';
 import 'phishing_widgets.dart';
 
+// ─── Progress Dots ────────────────────────────────────────────────────────────
+class _RevealProgress extends StatelessWidget {
+  final int revealed;
+  final int total;
+  final Color color;
+  const _RevealProgress({required this.revealed, required this.total, required this.color});
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: List.generate(total, (i) => AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+      margin: const EdgeInsets.symmetric(horizontal: 3),
+      width: i < revealed ? 18 : 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: i < revealed ? color : color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(4),
+      ),
+    )),
+  );
+}
+
 // ─── Intro ────────────────────────────────────────────────────────────────────
 class PhishingIntroStep extends StatelessWidget {
   final VoidCallback onNext;
@@ -74,7 +98,9 @@ class _PhishingLesson1State extends State<PhishingLesson1> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const PhishingLessonLabel(label: 'WHAT IS PHISHING?'),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kPhishingAccent),
+        const SizedBox(height: 12),
 
         if (_revealed >= 1)
           PhishingDarkCard(child: Column(children: [
@@ -100,6 +126,22 @@ class _PhishingLesson1State extends State<PhishingLesson1> {
           PhishingDarkCard(child: const PhishingSimpleRow(emoji: '📧', text: 'A phisher sends fake messages hoping YOU will bite'))
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
+        if (_revealed >= 3 && _revealed < _total)
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: kPhishingAccent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: kPhishingAccent.withValues(alpha: 0.25)),
+            ),
+            child: Row(children: [
+              const Text('😸', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 10),
+              Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+            ]),
+          ).animate().fadeIn(duration: 400.ms),
         if (_revealed >= 4) ...[
           const SizedBox(height: 8),
           PhishingDarkCard(child: const PhishingSimpleRow(emoji: '🐟', text: 'The fish gets caught — you give away your password'))
@@ -151,10 +193,12 @@ class _PhishingLesson2State extends State<PhishingLesson2> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const PhishingLessonLabel(label: 'WHO DO PHISHERS PRETEND TO BE?'),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kPhishingAccent),
+        const SizedBox(height: 12),
         Text('Phishers disguise themselves as people and organisations you already trust.',
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
 
         if (_revealed >= 1)
           PhishingInfoCard(color: kPhishingAccent, emoji: '🏫', title: 'Your school',
@@ -213,10 +257,12 @@ class _PhishingLesson3State extends State<PhishingLesson3> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const PhishingLessonLabel(label: 'SPOTTING FAKE MESSAGES'),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kPhishingAccent),
+        const SizedBox(height: 12),
         Text('Can you tell a real message from a fake one? Let\'s compare.',
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
 
         if (_revealed >= 1)
           PhishingEmailCard(
@@ -278,10 +324,12 @@ class _PhishingLesson4State extends State<PhishingLesson4> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const PhishingLessonLabel(label: 'RED FLAGS TO LOOK FOR'),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kPhishingAccent),
+        const SizedBox(height: 12),
         Text('These warning signs mean a message is probably a scam. 🚩',
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
 
         if (_revealed >= 1)
           PhishingRedFlagCard(flag: '⏰ Extreme urgency',
@@ -293,6 +341,22 @@ class _PhishingLesson4State extends State<PhishingLesson4> {
             detail: 'Look closely — "amaz0n.com" or "sch00l-help.com" are fake. Check the full address.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
+        if (_revealed >= 2 && _revealed < _total)
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: kPhishingAccent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: kPhishingAccent.withValues(alpha: 0.25)),
+            ),
+            child: Row(children: [
+              const Text('😸', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 10),
+              Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+            ]),
+          ).animate().fadeIn(duration: 400.ms),
         if (_revealed >= 3) ...[
           const SizedBox(height: 8),
           PhishingRedFlagCard(flag: '🔑 Asking for your password',
@@ -347,10 +411,12 @@ class _PhishingLesson5State extends State<PhishingLesson5> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const PhishingLessonLabel(label: 'SUSPICIOUS LINKS'),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kPhishingAccent),
+        const SizedBox(height: 12),
         Text('A dangerous link can look completely normal. Tap to compare real vs fake:',
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
 
         PhishingDarkCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('⚠️  Real vs Fake Links',
@@ -491,10 +557,12 @@ class _PhishingLesson7State extends State<PhishingLesson7> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const PhishingLessonLabel(label: 'WHAT TO DO'),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
+        _RevealProgress(revealed: _revealed, total: _total, color: kPhishingAccent),
+        const SizedBox(height: 12),
         Text('If you think you\'ve received a phishing message — follow these steps:',
           style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
 
         if (_revealed >= 1)
           PhishingStepCard(number: '1', emoji: '🛑', color: kPhishingRed,
@@ -515,6 +583,22 @@ class _PhishingLesson7State extends State<PhishingLesson7> {
             body: 'Show the message to a parent or teacher. They can help you check if it\'s real.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
+        if (_revealed >= 3 && _revealed < _total)
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: kPhishingAccent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: kPhishingAccent.withValues(alpha: 0.25)),
+            ),
+            child: Row(children: [
+              const Text('😸', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 10),
+              Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+            ]),
+          ).animate().fadeIn(duration: 400.ms),
         if (_revealed >= 4) ...[
           const SizedBox(height: 10),
           PhishingStepCard(number: '4', emoji: '🚫', color: const Color(0xFFBA68C8),

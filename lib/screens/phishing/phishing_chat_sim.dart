@@ -37,6 +37,7 @@ class _PhishingChatSimState extends State<PhishingChatSim> {
       'roomAvatar': '🎮',
       'strangerEmoji': '😈',
       'strangerColour': '0xFFE53935',
+      'lessonHint': 'Remember Lesson 5? Weird domains with hyphens and numbers are always red flags! 🔗',
       'messages': [
         {'from': 'stranger', 'text': 'Hey!! I found a glitch that gives unlimited Robux 💎 Want some for free?', 'delay': 600},
         {'from': 'you',      'text': 'Wait... really?? 😮',                                                       'delay': 1200},
@@ -58,6 +59,7 @@ class _PhishingChatSimState extends State<PhishingChatSim> {
       'roomAvatar': '🏫',
       'strangerEmoji': '🦹',
       'strangerColour': '0xFF1565C0',
+      'lessonHint': 'Remember Lesson 4? Urgency is a trick to make you panic — slow down! ⏰',
       'messages': [
         {'from': 'stranger', 'text': 'URGENT: Your school email will be deleted in 24 hours 🚨',                  'delay': 600},
         {'from': 'you',      'text': 'What?! Why?? 😱',                                                            'delay': 1200},
@@ -79,6 +81,7 @@ class _PhishingChatSimState extends State<PhishingChatSim> {
       'roomAvatar': '⛏️',
       'strangerEmoji': '🤖',
       'strangerColour': '0xFF6A1B9A',
+      'lessonHint': 'Remember Lesson 2? Real companies never DM you with free offers! 🕵️',
       'messages': [
         {'from': 'stranger', 'text': 'Hey! I\'m from the Minecraft support team 🎮 You\'ve been selected for a FREE rank upgrade!', 'delay': 600},
         {'from': 'you',      'text': 'Oh wow, really? 😮',                                                                          'delay': 1200},
@@ -163,6 +166,32 @@ class _PhishingChatSimState extends State<PhishingChatSim> {
     else { setState(() => scenarioIndex++); _startScenario(); }
   }
 
+  void _retryScenario() {
+    SoundService.playClick();
+    _msgTimer?.cancel();
+    setState(() { choice = null; showFeedback = false; });
+    _startScenario();
+  }
+
+  String _catMsg(Map<String, dynamic> fb) {
+    final base = fb['catMessage'] as String;
+    if (fb['safe'] as bool) return base;
+    final hint = scenario['lessonHint'] as String? ?? '';
+    return hint.isEmpty ? base : '$hint\n\n$base';
+  }
+
+  Widget _retryButton() => SizedBox(
+    width: double.infinity,
+    child: ElevatedButton(
+      onPressed: _retryScenario,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: kPhishingAccent, foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)), elevation: 0),
+      child: Text('Try Again 🔄', style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700)),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final fb = showFeedback ? (scenario['feedback'] as List)[choice!] as Map<String, dynamic> : null;
@@ -210,18 +239,20 @@ class _PhishingChatSimState extends State<PhishingChatSim> {
       if (showFeedback && fb != null) ...[
         Positioned.fill(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Container(color: Colors.black.withValues(alpha: 0.45)),
+            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+            child: Container(color: Colors.black.withValues(alpha: 0.25)),
           ),
         ),
         Positioned(
           bottom: 0, left: 0, right: 0,
           child: PhishingCatButton(
-            button: PhishingNextButton(
-              onTap: _nextScenario,
-              label: isLastScenario ? 'Take the Quiz! 🎯' : 'Next Scenario →',
-            ),
-            message: fb['catMessage'] as String,
+            button: (fb['safe'] as bool)
+              ? PhishingNextButton(
+                  onTap: _nextScenario,
+                  label: isLastScenario ? 'Take the Quiz! 🎯' : 'Next Scenario →',
+                )
+              : _retryButton(),
+            message: _catMsg(fb),
             accentColor: (fb['safe'] as bool) ? kPhishingGreen : kPhishingRed,
             showBubble: true,
             showButton: true,

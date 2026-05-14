@@ -18,7 +18,7 @@ class SoundService {
   static Future<void> playCatHappy() async {
     try {
       await _player.stop();
-      await _player.setVolume(-0.1);
+      await _player.setVolume(0.08);
       await _player.play(AssetSource('sounds/cat_meow_1.mp3'));
     } catch (_) {}
   }
@@ -26,7 +26,7 @@ class SoundService {
   static Future<void> playCatIncorrect() async {
     try {
       await _player.stop();
-      await _player.setVolume(0.1);
+      await _player.setVolume(0.08);
       await _player.play(AssetSource('sounds/cat_meow_2.mp3'));
     } catch (_) {}
   }

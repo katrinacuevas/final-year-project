@@ -305,7 +305,7 @@ class _CourseCardState extends State<CourseCard> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => widget.onStart(lessonId),
+                    onPressed: () { SoundService.playClick(); widget.onStart(lessonId); },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: accent, foregroundColor: const Color(0xFF0D1117),
                       elevation: 0, padding: const EdgeInsets.symmetric(vertical: 14),

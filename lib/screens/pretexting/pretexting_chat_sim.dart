@@ -37,6 +37,7 @@ class _PretextingChatSimState extends State<PretextingChatSim> {
       'roomAvatar': '🖥️',
       'strangerEmoji': '🧑‍💻',
       'strangerColour': '0xFF1565C0',
+      'lessonHint': 'Remember Lesson 1? Real IT staff NEVER need your password — they have admin tools! 🔑',
       'messages': [
         {
           'from': 'stranger',
@@ -86,6 +87,7 @@ class _PretextingChatSimState extends State<PretextingChatSim> {
       'roomAvatar': '👧',
       'strangerEmoji': '🕵️',
       'strangerColour': '0xFF6A1B9A',
+      'lessonHint': 'Remember Lesson 2? Pretexters build fake trust step by step to collect your info! 🏠',
       'messages': [
         {
           'from': 'stranger',
@@ -139,6 +141,7 @@ class _PretextingChatSimState extends State<PretextingChatSim> {
       'roomAvatar': '🎮',
       'strangerEmoji': '👾',
       'strangerColour': '0xFFB71C1C',
+      'lessonHint': 'Remember Lesson 3? PAUSE before you act — fake urgency is the classic pretexting trick! ⏰',
       'messages': [
         {
           'from': 'stranger',
@@ -290,6 +293,32 @@ class _PretextingChatSimState extends State<PretextingChatSim> {
     }
   }
 
+  void _retryScenario() {
+    SoundService.playClick();
+    _msgTimer?.cancel();
+    setState(() { choice = null; showFeedback = false; });
+    _startScenario();
+  }
+
+  String _catMsg(Map<String, dynamic> fb) {
+    final base = fb['catMessage'] as String;
+    if (fb['safe'] as bool) return base;
+    final hint = scenario['lessonHint'] as String? ?? '';
+    return hint.isEmpty ? base : '$hint\n\n$base';
+  }
+
+  Widget _retryButton() => SizedBox(
+    width: double.infinity,
+    child: ElevatedButton(
+      onPressed: _retryScenario,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: kPretextAccent, foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)), elevation: 0),
+      child: Text('Try Again 🔄', style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700)),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final fb = showFeedback
@@ -371,18 +400,20 @@ class _PretextingChatSimState extends State<PretextingChatSim> {
       if (showFeedback && fb != null) ...[
         Positioned.fill(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Container(color: Colors.black.withValues(alpha: 0.45)),
+            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+            child: Container(color: Colors.black.withValues(alpha: 0.25)),
           ),
         ),
         Positioned(
           bottom: 0, left: 0, right: 0,
           child: PretextingCatButton(
-            button: PretextingNextButton(
-              onTap: _nextScenario,
-              label: isLastScenario ? 'Quiz Time! 🎯' : 'Next Scenario →',
-            ),
-            message: fb['catMessage'] as String,
+            button: (fb['safe'] as bool)
+              ? PretextingNextButton(
+                  onTap: _nextScenario,
+                  label: isLastScenario ? 'Quiz Time! 🎯' : 'Next Scenario →',
+                )
+              : _retryButton(),
+            message: _catMsg(fb),
             accentColor: (fb['safe'] as bool) ? kPretextGreen : kPretextRed,
           ),
         ),

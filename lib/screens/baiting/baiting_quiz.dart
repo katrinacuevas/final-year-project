@@ -5,6 +5,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/sound_service.dart';
 import 'baiting_cat_messages.dart';
 import 'baiting_theme.dart';
@@ -25,19 +26,24 @@ class _BaitingQuizStepState extends State<BaitingQuizStep> {
   static const List<Map<String, dynamic>> questions = [
     {'question': 'What makes baiting different from phishing?', 'emoji': '🪤',
       'options': ['Baiting uses fear and urgency', 'Baiting uses greed and temptation', 'Baiting only happens by email', 'Baiting is less dangerous'],
-      'correct': 1},
+      'correct': 1,
+      'explanation': 'Phishing uses fear ("your account will be deleted!"), while baiting uses greed and temptation ("free prizes, free games!") to trick you.'},
     {'question': 'You see "FREE 10,000 V-Bucks — click here in the next 5 mins!" What do you do?', 'emoji': '🎮',
       'options': ['Click quickly before it expires!', 'Ask a friend if it\'s real', 'Ignore it — free game currency is always a trap', 'Share it with your friends first'],
-      'correct': 2},
+      'correct': 2,
+      'explanation': 'Free in-game currency is always a trap. The countdown is fake urgency to stop you thinking. Official games never give away currency through random messages!'},
     {'question': 'You find a USB stick on the floor labelled "SECRET FILES". What should you do?', 'emoji': '🖲️',
       'options': ['Plug it in to see what\'s on it!', 'Give it to a trusted adult without plugging it in', 'Put it back where you found it', 'Share it with a friend'],
-      'correct': 1},
+      'correct': 1,
+      'explanation': 'Hackers leave USB sticks with tempting labels on purpose. Plugging in an unknown USB can instantly infect a computer with malware — always give it to a trusted adult!'},
     {'question': 'You get a message saying you\'ve won a PS5 in a competition you never entered. What is this?', 'emoji': '🏆',
       'options': ['A genuine prize — fill in your details!', 'A mistake — someone sent it to the wrong person', 'Classic baiting — you can\'t win something you didn\'t enter', 'A loyalty reward from a game company'],
-      'correct': 2},
+      'correct': 2,
+      'explanation': 'You can\'t win a competition you never entered — that\'s an instant red flag! Fake prize messages are designed to steal your personal details.'},
     {'question': 'You spot a baiting trap online. What\'s the BEST first step?', 'emoji': '🛡️',
       'options': ['Click it to check if it\'s real', 'Tell your friends about it', 'Stop, close it, and tell a trusted adult', 'Report it but keep looking at it'],
-      'correct': 2},
+      'correct': 2,
+      'explanation': 'Always stop and close the trap straight away. Clicking to "check" is still dangerous — the harm can happen in a single click. Then tell a trusted adult!'},
   ];
 
   void _next() {
@@ -113,7 +119,7 @@ class _BaitingQuizStepState extends State<BaitingQuizStep> {
                         color: answered && isCorrect ? kBaitGreen : kBaitAccent.withValues(alpha: 0.7))))),
                   const SizedBox(width: 12),
                   Expanded(child: Text(e.value, style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w600, color: tc))),
-                  ?trailing,
+                  if (trailing != null) trailing,
                 ]),
               ),
             ),
@@ -125,8 +131,8 @@ class _BaitingQuizStepState extends State<BaitingQuizStep> {
       if (answered) ...[
         Positioned.fill(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Container(color: Colors.black.withValues(alpha: 0.45)),
+            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+            child: Container(color: Colors.black.withValues(alpha: 0.25)),
           ),
         ),
         Positioned(
@@ -134,7 +140,7 @@ class _BaitingQuizStepState extends State<BaitingQuizStep> {
           child: BaitingCatButton(
             button: BaitingNextButton(onTap: _next,
               label: qi < questions.length - 1 ? 'Next Question →' : 'See Results! 🎉'),
-            message: BaitingCatMessages.quizFeedback(qi, selected == correct),
+            message: '${selected == correct ? "Purrfect! ✅" : "Not quite! 😿"} ${q['explanation'] as String}',
             accentColor: selected == correct ? kBaitGreen : kBaitRed,
           ),
         ),

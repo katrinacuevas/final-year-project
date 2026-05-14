@@ -31,6 +31,7 @@ class _BaitingChatSimState extends State<BaitingChatSim> {
       'roomAvatar': '🎮',
       'strangerEmoji': '😈',
       'strangerColour': '0xFFE53935',
+      'lessonHint': 'Remember Lesson 3? Free game currency offers are always bait — nobody gives that stuff away! 🎮',
       'messages': [
         {'from': 'stranger', 'text': 'Yo!! I know a way to get FREE V-Bucks 💎 Want 10,000 for nothing?', 'delay': 700},
         {'from': 'you',      'text': 'Wait… seriously?? 😮',                                                'delay': 1200},
@@ -52,6 +53,7 @@ class _BaitingChatSimState extends State<BaitingChatSim> {
       'roomAvatar': '🏆',
       'strangerEmoji': '🤑',
       'strangerColour': '0xFFFF8A65',
+      'lessonHint': 'Remember Lesson 2? Baiters use excitement and fake urgency to stop you thinking! ⏰',
       'messages': [
         {'from': 'stranger', 'text': 'Congratulations!! 🎉 You\'ve been randomly selected to win a FREE PlayStation 5!', 'delay': 700},
         {'from': 'you',      'text': 'Really?? I never entered anything though… 😕',                                       'delay': 1300},
@@ -73,6 +75,7 @@ class _BaitingChatSimState extends State<BaitingChatSim> {
       'roomAvatar': '🧑',
       'strangerEmoji': '🕵️',
       'strangerColour': '0xFF7B1FA2',
+      'lessonHint': 'Remember Lesson 4? Hackers leave labelled USB sticks as physical bait on purpose! 🖲️',
       'messages': [
         {'from': 'stranger', 'text': 'Oi!! I found this USB on the floor outside school — it says "FUNNY VIDEOS" 😂', 'delay': 700},
         {'from': 'you',      'text': 'Haha no way, what\'s on it?? 👀',                                                 'delay': 1200},
@@ -153,6 +156,32 @@ class _BaitingChatSimState extends State<BaitingChatSim> {
     else { setState(() => scenarioIndex++); _startScenario(); }
   }
 
+  void _retryScenario() {
+    SoundService.playClick();
+    _msgTimer?.cancel();
+    setState(() { choice = null; showFeedback = false; });
+    _startScenario();
+  }
+
+  String _catMsg(Map<String, dynamic> fb) {
+    final base = fb['catMessage'] as String;
+    if (fb['safe'] as bool) return base;
+    final hint = scenario['lessonHint'] as String? ?? '';
+    return hint.isEmpty ? base : '$hint\n\n$base';
+  }
+
+  Widget _retryButton() => SizedBox(
+    width: double.infinity,
+    child: ElevatedButton(
+      onPressed: _retryScenario,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: kBaitAccent, foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)), elevation: 0),
+      child: Text('Try Again 🔄', style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700)),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final fb = showFeedback ? (scenario['feedback'] as List)[choice!] as Map<String, dynamic> : null;
@@ -200,16 +229,18 @@ class _BaitingChatSimState extends State<BaitingChatSim> {
       if (showFeedback && fb != null) ...[
         Positioned.fill(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Container(color: Colors.black.withValues(alpha: 0.45)),
+            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+            child: Container(color: Colors.black.withValues(alpha: 0.25)),
           ),
         ),
         Positioned(
           bottom: 0, left: 0, right: 0,
           child: BaitingCatButton(
-            button: BaitingNextButton(onTap: _nextScenario,
-              label: isLastScenario ? 'Quiz Time! 🎯' : 'Next Scenario →'),
-            message: fb['catMessage'] as String,
+            button: (fb['safe'] as bool)
+              ? BaitingNextButton(onTap: _nextScenario,
+                  label: isLastScenario ? 'Quiz Time! 🎯' : 'Next Scenario →')
+              : _retryButton(),
+            message: _catMsg(fb),
             accentColor: (fb['safe'] as bool) ? kBaitGreen : kBaitRed,
           ),
         ),

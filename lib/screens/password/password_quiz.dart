@@ -22,15 +22,20 @@ class _QuizStepState extends State<QuizStep> {
 
   static const List<Map<String, dynamic>> questions = [
     {'question': 'Which of these is the STRONGEST password?', 'emoji': '🤔',
-      'options': ['fluffy123', 'password', 'Tr0pic@lFish!2024', '12345678'], 'correct': 2},
+      'options': ['fluffy123', 'password', 'Tr0pic@lFish!2024', '12345678'], 'correct': 2,
+      'explanation': 'A strong password mixes uppercase, lowercase, numbers AND symbols. "Tr0pic@lFish!2024" has all of these and is long enough to be very hard to crack!'},
     {'question': 'What is the MINIMUM length a strong password should be?', 'emoji': '📏',
-      'options': ['4 characters', '8 characters', '12 characters', '6 characters'], 'correct': 2},
+      'options': ['4 characters', '8 characters', '12 characters', '6 characters'], 'correct': 2,
+      'explanation': 'A password should be at least 12 characters long. Longer passwords take much longer to crack — every extra character makes it exponentially harder for hackers!'},
     {'question': 'Why is "yourname123" a weak password?', 'emoji': '🤨',
-      'options': ['It\'s too long', 'It uses your name — easy to guess!', 'It has numbers', 'It\'s hard to remember'], 'correct': 1},
+      'options': ['It\'s too long', 'It uses your name — easy to guess!', 'It has numbers', 'It\'s hard to remember'], 'correct': 1,
+      'explanation': 'Hackers always try names first because people use them so often. Never use your own name, pet\'s name, or birthday in a password — they\'re the first things guessed!'},
     {'question': 'Which symbol makes your password stronger?', 'emoji': '✨',
-      'options': ['A space', '@ or ! or #', 'Only letters', 'A smiley face'], 'correct': 1},
+      'options': ['A space', '@ or ! or #', 'Only letters', 'A smiley face'], 'correct': 1,
+      'explanation': 'Special symbols like @, !, # and \$ make passwords much harder to crack. Adding even one symbol dramatically increases the number of possible combinations!'},
     {'question': 'A passphrase uses... ?', 'emoji': '🧠',
-      'options': ['One short word', 'Your birthday', 'Random words joined together', 'Just numbers'], 'correct': 2},
+      'options': ['One short word', 'Your birthday', 'Random words joined together', 'Just numbers'], 'correct': 2,
+      'explanation': 'A passphrase joins random words together — like "PurpleTurtle!BounceCloud" — making something long, strong, AND easy to remember. Much better than a short random password!'},
   ];
 
   void selectAnswer(int index) {
@@ -140,7 +145,7 @@ class _QuizStepState extends State<QuizStep> {
                   const SizedBox(width: 12),
                   Expanded(child: Text(opt, style: GoogleFonts.fredoka(
                     fontSize: 14, fontWeight: FontWeight.w600, color: textColor))),
-                  if (trailing != null) trailing,
+                  ?trailing,
                 ]),
               ),
             ),
@@ -153,8 +158,8 @@ class _QuizStepState extends State<QuizStep> {
       if (answered) ...[
         Positioned.fill(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Container(color: Colors.black.withValues(alpha: 0.45)),
+            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+            child: Container(color: Colors.black.withValues(alpha: 0.25)),
           ),
         ),
         Positioned(
@@ -164,7 +169,7 @@ class _QuizStepState extends State<QuizStep> {
               onTap: nextQuestion,
               label: questionIndex < questions.length - 1 ? 'Next Question →' : 'See Results! 🏆',
             ),
-            message: PasswordCatMessages.quizFeedback(questionIndex, selectedAnswer == correct),
+            message: '${selectedAnswer == correct ? "Purrfect! ✅" : "Not quite! 😿"} ${q['explanation'] as String}',
             accentColor: selectedAnswer == correct ? kPasswordGreen : kPasswordRed,
           ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.3, end: 0),
         ),

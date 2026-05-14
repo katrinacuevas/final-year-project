@@ -126,8 +126,8 @@ class _PhishingQuizStepState extends State<PhishingQuizStep> {
       if (answered) ...[
         Positioned.fill(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Container(color: Colors.black.withValues(alpha: 0.45)),
+            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+            child: Container(color: Colors.black.withValues(alpha: 0.25)),
           ),
         ),
         Positioned(
@@ -135,7 +135,7 @@ class _PhishingQuizStepState extends State<PhishingQuizStep> {
           child: PhishingCatButton(
             button: PhishingNextButton(onTap: _next,
               label: qi < questions.length - 1 ? 'Next Question →' : 'See Results! 🎉'),
-            message: PhishingCatMessages.quizFeedback(qi, selected == correct),
+            message: '${selected == correct ? "Purrfect! ✅" : "Not quite! 😿"} ${q['explanation'] as String}',
             accentColor: selected == correct ? kPhishingGreen : kPhishingRed,
             minHeight: 200,
           ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.3, end: 0),

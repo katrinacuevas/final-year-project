@@ -87,7 +87,22 @@ class _XpSheetState extends State<_XpSheet> with SingleTickerProviderStateMixin 
           const SizedBox(height: 20),
           CatMascot(message: catMessage, accentColor: widget.levelledUp ? _kGreen : accent, mood: catMood, size: 90),
           const SizedBox(height: 20),
-          if (widget.levelledUp)
+          if (widget.levelledUp) ...[
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              for (int i = 0; i < 5; i++)
+                Animate(
+                  effects: [
+                    ScaleEffect(delay: Duration(milliseconds: i * 80), curve: Curves.elasticOut, duration: 500.ms),
+                    FadeEffect(delay: Duration(milliseconds: i * 80)),
+                    MoveEffect(delay: Duration(milliseconds: i * 80), begin: const Offset(0, 20), end: Offset.zero),
+                  ],
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4),
+                    child: Text('⭐', style: TextStyle(fontSize: 28)),
+                  ),
+                ),
+            ]),
+            const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(color: _kGreen.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16),
@@ -96,8 +111,8 @@ class _XpSheetState extends State<_XpSheet> with SingleTickerProviderStateMixin 
                 const Text('🎉', style: TextStyle(fontSize: 26)), const SizedBox(width: 10),
                 Text('Level ${widget.newLevel}!', style: GoogleFonts.fredoka(fontSize: 26, fontWeight: FontWeight.w700, color: _kGreen)),
               ]),
-            ).animate().scale(curve: Curves.elasticOut)
-          else if (!widget.alreadyAwarded)
+            ).animate().scale(curve: Curves.elasticOut),
+          ] else if (!widget.alreadyAwarded)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(color: const Color(0xFFFFD700).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16),
@@ -106,7 +121,7 @@ class _XpSheetState extends State<_XpSheet> with SingleTickerProviderStateMixin 
                 const Text('⭐', style: TextStyle(fontSize: 26)), const SizedBox(width: 10),
                 Text('+${widget.amount} XP', style: GoogleFonts.fredoka(fontSize: 26, fontWeight: FontWeight.w700, color: Color(0xFFFFD700))),
               ]),
-            ).animate().scale(curve: Curves.elasticOut),
+            ).animate().scale(curve: Curves.elasticOut, duration: 600.ms).then().shimmer(duration: 1200.ms, color: Colors.white30),
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.all(14),
@@ -144,7 +159,7 @@ class _XpSheetState extends State<_XpSheet> with SingleTickerProviderStateMixin 
               style: ElevatedButton.styleFrom(backgroundColor: accent, foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)), elevation: 0),
-              child: Text('Back to Dashboard', style: GoogleFonts.fredoka(fontSize: 17, fontWeight: FontWeight.w700)),
+              child: Text('Awesome! Let\'s go! 🚀', style: GoogleFonts.fredoka(fontSize: 17, fontWeight: FontWeight.w700)),
             ),
           ),
         ]),

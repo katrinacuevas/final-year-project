@@ -5,6 +5,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/sound_service.dart';
 import 'pretexting_cat_messages.dart';
 import 'pretexting_theme.dart';
@@ -34,6 +35,7 @@ class _PretextingQuizStepState extends State<PretextingQuizStep> {
         'Pretending to be ill to skip school',
       ],
       'correct': 1,
+      'explanation': 'Pretexting means inventing a fake story and identity to trick you into sharing information — like pretending to be a teacher, IT support, or an old friend!',
     },
     {
       'emoji': '🧑‍💻',
@@ -45,6 +47,7 @@ class _PretextingQuizStepState extends State<PretextingQuizStep> {
         'Ignore it and hope they go away',
       ],
       'correct': 2,
+      'explanation': 'Real IT staff have special admin tools and NEVER need your password. Anyone asking for it is using pretexting — always refuse and tell a trusted adult!',
     },
     {
       'emoji': '🔍',
@@ -56,6 +59,7 @@ class _PretextingQuizStepState extends State<PretextingQuizStep> {
         'It uses capital letters',
       ],
       'correct': 1,
+      'explanation': 'Pretexters swap letters for similar-looking numbers — "sch00l.com" fakes "school.com". Always read email addresses very carefully before trusting them!',
     },
     {
       'emoji': '🤔',
@@ -67,6 +71,7 @@ class _PretextingQuizStepState extends State<PretextingQuizStep> {
         'Ask them to send a digital card instead',
       ],
       'correct': 2,
+      'explanation': 'Pretexters build fake trust step by step, collecting small pieces of information to find out where you live. Never share your address online without checking with a grown-up!',
     },
     {
       'emoji': '🛑',
@@ -78,6 +83,7 @@ class _PretextingQuizStepState extends State<PretextingQuizStep> {
         'Privacy',
       ],
       'correct': 1,
+      'explanation': 'PAUSE = stop and think before you respond! Pretexters use urgency to rush you. The "P" reminds you to slow down, think, and ask a trusted adult before sharing anything.',
     },
   ];
 
@@ -240,8 +246,8 @@ class _PretextingQuizStepState extends State<PretextingQuizStep> {
       if (answered) ...[
         Positioned.fill(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Container(color: Colors.black.withValues(alpha: 0.45)),
+            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+            child: Container(color: Colors.black.withValues(alpha: 0.25)),
           ),
         ),
         Positioned(
@@ -251,7 +257,7 @@ class _PretextingQuizStepState extends State<PretextingQuizStep> {
               onTap: _next,
               label: qi < questions.length - 1 ? 'Next Question →' : 'See Results! 🎉',
             ),
-            message: PretextingCatMessages.quizFeedback(qi, selected == correct),
+            message: '${selected == correct ? "Purrfect! ✅" : "Not quite! 😿"} ${q['explanation'] as String}',
             accentColor: selected == correct ? kPretextGreen : kPretextRed,
           ),
         ),

@@ -6,6 +6,30 @@ import 'password_cat_messages.dart';
 import 'password_theme.dart';
 import 'password_widgets.dart';
 
+// ─── Progress Dots ────────────────────────────────────────────────────────────
+class _RevealProgress extends StatelessWidget {
+  final int revealed;
+  final int total;
+  final Color color;
+  const _RevealProgress({required this.revealed, required this.total, required this.color});
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: List.generate(total, (i) => AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+      margin: const EdgeInsets.symmetric(horizontal: 3),
+      width: i < revealed ? 18 : 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: i < revealed ? color : color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(4),
+      ),
+    )),
+  );
+}
+
 // ─── Intro ────────────────────────────────────────────────────────────────────
 class IntroStep extends StatelessWidget {
   final VoidCallback onNext;
@@ -83,7 +107,9 @@ class _LessonStep1State extends State<LessonStep1> {
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const LessonLabel(label: 'WHY PASSWORDS MATTER'),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          _RevealProgress(revealed: _revealed, total: _total, color: kPasswordAccent),
+          const SizedBox(height: 12),
           if (_revealed >= 1)
             Container(width: double.infinity, padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(color: kPasswordCard, borderRadius: BorderRadius.circular(22),
@@ -110,6 +136,22 @@ class _LessonStep1State extends State<LessonStep1> {
               .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
             const SizedBox(height: 8),
           ],
+          if (_revealed >= 3 && _revealed < _total)
+            Container(
+              margin: const EdgeInsets.only(top: 4, bottom: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: kPasswordAccent.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: kPasswordAccent.withValues(alpha: 0.25)),
+              ),
+              child: Row(children: [
+                const Text('😸', style: TextStyle(fontSize: 22)),
+                const SizedBox(width: 10),
+                Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                  style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+              ]),
+            ).animate().fadeIn(duration: 400.ms),
           if (_revealed >= 4) ...[
             ScenarioCard(emoji: '📸', text: 'Strangers see your private photos', isBad: true)
               .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
@@ -173,10 +215,12 @@ class _LessonStep2State extends State<LessonStep2> {
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const LessonLabel(label: 'SPOT THE WEAK PASSWORDS'),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          _RevealProgress(revealed: _revealed, total: _passwords.length, color: kPasswordAccent),
+          const SizedBox(height: 12),
           Text('These are the ones hackers try FIRST. Never use them!',
             style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54, height: 1.4)),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           for (int i = 0; i < _revealed; i++) ...[
             WeakPasswordTile(password: _passwords[i].$1, reason: _passwords[i].$2)
               .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
@@ -312,10 +356,12 @@ class _LessonStep4State extends State<LessonStep4> {
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const LessonLabel(label: 'THE PASSPHRASE TRICK'),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
+          _RevealProgress(revealed: _revealed, total: _total, color: kPasswordAccent),
+          const SizedBox(height: 12),
           Text('Hard to guess, but easy for YOU to remember!',
             style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           if (_revealed >= 1)
             Container(width: double.infinity, padding: const EdgeInsets.all(18),
@@ -372,6 +418,22 @@ class _LessonStep4State extends State<LessonStep4> {
               ])).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
           ],
 
+          if (_revealed >= 3 && _revealed < _total)
+            Container(
+              margin: const EdgeInsets.only(top: 4, bottom: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: kPasswordAccent.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: kPasswordAccent.withValues(alpha: 0.25)),
+              ),
+              child: Row(children: [
+                const Text('😸', style: TextStyle(fontSize: 22)),
+                const SizedBox(width: 10),
+                Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
+                  style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
+              ]),
+            ).animate().fadeIn(duration: 400.ms),
           if (_revealed >= 4) ...[
             const SizedBox(height: 10),
             InfoCard(color: kPasswordGreen, emoji: '✅', title: 'Why it works',
