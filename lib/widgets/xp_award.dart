@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:lottie/lottie.dart';
 import 'package:final_year_project/services/user_service.dart';
 import 'cat_mascot.dart';
 import 'cat_messages.dart';
@@ -48,9 +49,12 @@ class _XpSheet extends StatefulWidget {
   @override State<_XpSheet> createState() => _XpSheetState();
 }
 
-class _XpSheetState extends State<_XpSheet> with SingleTickerProviderStateMixin {
+class _XpSheetState extends State<_XpSheet> with TickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _barAnim;
+  late AnimationController _confettiCtrl;
+  late AnimationController _trophyCtrl;
+
   @override
   void initState() {
     super.initState();
@@ -58,8 +62,17 @@ class _XpSheetState extends State<_XpSheet> with SingleTickerProviderStateMixin 
     _barAnim = Tween<double>(begin: 0, end: widget.xpProgress)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
     _ctrl.forward();
+    _confettiCtrl = AnimationController(vsync: this);
+    _trophyCtrl = AnimationController(vsync: this);
   }
-  @override void dispose() { _ctrl.dispose(); super.dispose(); }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    _confettiCtrl.dispose();
+    _trophyCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +86,9 @@ class _XpSheetState extends State<_XpSheet> with SingleTickerProviderStateMixin 
     final CatMood catMood = widget.levelledUp ? CatMood.excited
         : widget.alreadyAwarded ? CatMood.cheeky : CatMood.proud;
 
-    return Container(
+    return Stack(
+      children: [
+      Container(
       decoration: BoxDecoration(
         color: _kBg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -88,6 +103,18 @@ class _XpSheetState extends State<_XpSheet> with SingleTickerProviderStateMixin 
           CatMascot(message: catMessage, accentColor: widget.levelledUp ? _kGreen : accent, mood: catMood, size: 90),
           const SizedBox(height: 20),
           if (widget.levelledUp) ...[
+            Lottie.asset(
+              'assets/animations/trophy.json',
+              controller: _trophyCtrl,
+              width: 110,
+              height: 110,
+              fit: BoxFit.contain,
+              onLoaded: (comp) {
+                _trophyCtrl
+                  ..duration = comp.duration
+                  ..forward();
+              },
+            ),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               for (int i = 0; i < 5; i++)
                 Animate(
@@ -164,6 +191,21 @@ class _XpSheetState extends State<_XpSheet> with SingleTickerProviderStateMixin 
           ),
         ]),
       ),
+    ),
+    if (widget.levelledUp)
+      IgnorePointer(
+        child: Lottie.asset(
+          'assets/animations/confetti.json',
+          controller: _confettiCtrl,
+          fit: BoxFit.cover,
+          onLoaded: (comp) {
+            _confettiCtrl
+              ..duration = comp.duration
+              ..forward();
+          },
+        ),
+      ),
+    ],
     );
   }
 }

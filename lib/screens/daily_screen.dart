@@ -615,12 +615,17 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
     final stars = _totalScore >= total - 1 ? 3 : _totalScore >= total ~/ 2 + 1 ? 2 : 1;
     final perfect = stars == 3;
 
-    return SingleChildScrollView(
+    return Stack(
+      children: [
+      SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(children: [
         const SizedBox(height: 20),
-        Text(perfect ? '🏆' : stars == 2 ? '🌟' : '💪', style: const TextStyle(fontSize: 80))
-            .animate().scale(curve: Curves.elasticOut, duration: 800.ms),
+        if (perfect)
+          Lottie.asset('assets/animations/trophy.json', width: 120, height: 120, repeat: false)
+        else
+          Text(stars == 2 ? '🌟' : '💪', style: const TextStyle(fontSize: 80))
+              .animate().scale(curve: Curves.elasticOut, duration: 800.ms),
         const SizedBox(height: 16),
         Text(perfect ? 'Perfect! You\'re a cyber hero!' : stars == 2 ? 'Great job, agent!' : 'Good effort today!',
           textAlign: TextAlign.center,
@@ -687,6 +692,12 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
           ),
         ),
       ]),
+    ),
+      if (perfect)
+        IgnorePointer(
+          child: Lottie.asset('assets/animations/confetti.json', repeat: false, fit: BoxFit.cover),
+        ),
+    ],
     );
   }
 
