@@ -203,7 +203,7 @@ class _BaitingChatSimState extends State<BaitingChatSim> {
         controller: _scrollCtrl,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         children: [
-          ...(msgs.sublist(0, visibleMsgCount) as List).map((m) {
+          ...msgs.sublist(0, visibleMsgCount).map((m) {
             final bool isYou = (m as Map)['from'] == 'you';
             return _AnimatedChatBubble(
               key: ValueKey('${scenarioIndex}_${msgs.indexOf(m)}'),

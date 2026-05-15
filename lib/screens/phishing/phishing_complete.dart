@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../../widgets/xp_award.dart';
+import '../../widgets/badge_unlock.dart';
 import 'phishing_cat_messages.dart';
 import 'phishing_theme.dart';
 import 'phishing_widgets.dart';
@@ -42,6 +43,13 @@ class _PhishingCompleteStepState extends State<PhishingCompleteStep> {
         stars: _stars, completed: true));
       if (!ctx.mounted) return;
       await XpAward.show(ctx, lessonId: 'phishing_detective', amount: 150);
+      if (!ctx.mounted) return;
+      await BadgeUnlock.show(ctx,
+        emoji: '🕵️',
+        name: 'Phishing Detective',
+        description: 'You can now spot a phishing attempt before it catches you!',
+        accent: kPhishingAccent,
+      );
       if (!ctx.mounted) return;
       widget.onDone();
     } catch (e) { debugPrint('Error: $e'); if (ctx.mounted) widget.onDone(); }
@@ -131,8 +139,8 @@ class _PhishingCompleteStepState extends State<PhishingCompleteStep> {
             ])),
         ])),
         const SizedBox(height: 16),
-        PhishingInfoCard(color: kPhishingAccent, emoji: '🕵️', title: 'Badge Unlocked: Phishing Detective!',
-          body: 'You can now spot a phishing attempt before it catches you!'),
+        PhishingInfoCard(color: kPhishingAccent, emoji: '🕵️', title: 'Badge incoming: Phishing Detective!',
+          body: 'Claim your XP below — your badge is waiting for you!'),
         const SizedBox(height: 20),
         Align(alignment: Alignment.centerLeft,
           child: Text('WHAT YOU LEARNED',

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../../widgets/xp_award.dart';
+import '../../widgets/badge_unlock.dart';
 import 'password_cat_messages.dart';
 import 'password_theme.dart';
 import 'password_widgets.dart';
@@ -47,6 +48,13 @@ class _CompleteStepState extends State<CompleteStep> {
         stars: _stars, completed: true));
       if (!ctx.mounted) return;
       await XpAward.show(ctx, lessonId: 'password_power', amount: 200);
+      if (!ctx.mounted) return;
+      await BadgeUnlock.show(ctx,
+        emoji: '🏅',
+        name: 'Password Master',
+        description: "You know how to build a password that even hackers can't crack!",
+        accent: kPasswordAccent,
+      );
       if (!ctx.mounted) return;
       widget.onDone();
     } catch (e) {
@@ -151,8 +159,8 @@ class _CompleteStepState extends State<CompleteStep> {
               ])),
           ])),
         const SizedBox(height: 16),
-        InfoCard(color: kPasswordAccent, emoji: '🏅', title: 'Badge Unlocked: Password Master!',
-          body: "You know how to build a password that even hackers can't crack — AND you made one yourself!"),
+        InfoCard(color: kPasswordAccent, emoji: '🏅', title: 'Badge incoming: Password Master!',
+          body: "Claim your XP below — your badge is waiting for you!"),
         const SizedBox(height: 20),
         Align(alignment: Alignment.centerLeft,
           child: Text('WHAT YOU LEARNED',

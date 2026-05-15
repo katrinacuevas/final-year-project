@@ -66,7 +66,7 @@ class _AvatarScreenState extends State<AvatarScreen> with TickerProviderStateMix
         avatarIndex: selectedIndex,
         avatarEmoji: av['emoji'] as String,
         avatarName: av['name'] as String,
-        avatarColour: '0x${((av['color'] as Color).value.toRadixString(16)).padLeft(8, '0')}',
+        avatarColour: '0x${((av['color'] as Color).toARGB32().toRadixString(16)).padLeft(8, '0')}',
       );
       await UserService.instance.saveProfile(profile);
       if (!mounted) return;

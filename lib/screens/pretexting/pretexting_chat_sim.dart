@@ -7,7 +7,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:characters/characters.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../../services/sound_service.dart';
 import 'pretexting_theme.dart';
@@ -361,7 +360,7 @@ class _PretextingChatSimState extends State<PretextingChatSim> {
           controller: _scrollCtrl,
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           children: [
-            ...(msgs.sublist(0, visibleMsgCount) as List).map((m) {
+            ...msgs.sublist(0, visibleMsgCount).map((m) {
               final bool isYou = (m as Map)['from'] == 'you';
               return _AnimatedChatBubble(
                 key: ValueKey('${scenarioIndex}_${msgs.indexOf(m)}'),

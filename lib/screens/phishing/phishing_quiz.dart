@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/sound_service.dart';
-import 'phishing_cat_messages.dart';
 import 'phishing_theme.dart';
 import 'phishing_widgets.dart';
 

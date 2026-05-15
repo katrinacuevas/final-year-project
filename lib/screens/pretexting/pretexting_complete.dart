@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../../widgets/xp_award.dart';
+import '../../widgets/badge_unlock.dart';
 import 'pretexting_cat_messages.dart';
 import 'pretexting_theme.dart';
 import 'pretexting_widgets.dart';
@@ -49,6 +50,13 @@ class _PretextingCompleteStepState extends State<PretextingCompleteStep> {
       ));
       if (!ctx.mounted) return;
       await XpAward.show(ctx, lessonId: 'pretexting', amount: 180);
+      if (!ctx.mounted) return;
+      await BadgeUnlock.show(ctx,
+        emoji: '🎭',
+        name: 'Pretexting Detective',
+        description: 'You can now see through fake stories and fake identities!',
+        accent: kPretextAccent,
+      );
       if (!ctx.mounted) return;
       widget.onDone();
     } catch (e) {
@@ -223,8 +231,8 @@ class _PretextingCompleteStepState extends State<PretextingCompleteStep> {
           PretextingInfoCard(
             color: kPretextAccent,
             emoji: '🎭',
-            title: 'Badge Unlocked: Pretexting Detective!',
-            body: 'You can now see through fake stories and fake identities!',
+            title: 'Badge incoming: Pretexting Detective!',
+            body: 'Claim your XP below — your badge is waiting for you!',
           ),
           const SizedBox(height: 20),
           Align(
