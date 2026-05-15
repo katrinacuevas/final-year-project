@@ -82,7 +82,7 @@ class PretextingIntroStep extends StatelessWidget {
             color: kPretextCyan,
             emoji: '📖',
             title: "What you'll learn",
-            body: "What pretexting is, why it works, the disguises people use, sneaky online tricks, and how to trust your gut.",
+            body: "See through fake identities, trust your instincts, and outsmart tricksters!",
           ),
           const SizedBox(height: 10),
           PretextingInfoCard(
@@ -149,7 +149,7 @@ class _PretextingLesson1State extends State<PretextingLesson1> {
                   const Text('🎭', style: TextStyle(fontSize: 52)),
                   const SizedBox(height: 10),
                   Text(
-                      'Pretexting is when someone makes up a fake story — a "made-up reason" — and pretends to be someone they\'re not, to trick you into sharing your secrets.',
+                      'Someone makes up a FAKE story and pretends to be a person you\'d trust — to trick you into sharing your secrets!',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.fredoka(
                           fontSize: 14,
@@ -252,7 +252,7 @@ class _PretextingLesson2State extends State<PretextingLesson2> {
                 color: kPretextPurple,
                 emoji: '🤝',
                 title: 'We trust grown-ups in charge',
-                body: 'Teachers, IT staff, doctors, police — we\'re taught to listen to them. Sneaky people pretend to BE these important people!',
+                body: 'Teachers, police, IT staff — pretexters pretend to BE the people we\'re taught to trust!',
               ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
 
             if (_revealed >= 1) const SizedBox(height: 10),
@@ -263,7 +263,7 @@ class _PretextingLesson2State extends State<PretextingLesson2> {
                 color: kPretextCyan,
                 emoji: '⚡',
                 title: 'They make it feel URGENT',
-                body: '"This needs to happen RIGHT NOW!" — rushing you stops you from stopping to think. That\'s exactly what they want!',
+                body: '"Do it RIGHT NOW!" — rushing you stops you from stopping to think!',
               ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
 
             if (_revealed >= 2) const SizedBox(height: 10),
@@ -274,7 +274,7 @@ class _PretextingLesson2State extends State<PretextingLesson2> {
                 color: Colors.orange,
                 emoji: '🧠',
                 title: 'They know a little bit about you',
-                body: 'Knowing your school name or teacher\'s name makes the fake story sound more believable. But it\'s still completely made up!',
+                body: 'Knowing your school name makes the fake story sound real — but it\'s still completely made up!',
               ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
               const SizedBox(height: 12),
             ],
@@ -339,7 +339,7 @@ class _PretextingLesson3State extends State<PretextingLesson3> {
                 role: 'Fake IT / Tech Support',
                 color: const Color(0xFFDCEDC8),
                 script: 'Your account has a virus — send me your password so I can fix it.',
-                clue: 'Real IT staff NEVER need your password. They can reset it themselves without asking you!',
+                clue: 'Real IT staff NEVER need your password — they can reset it themselves!',
               ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
 
             if (_revealed >= 1) const SizedBox(height: 12),
@@ -356,22 +356,6 @@ class _PretextingLesson3State extends State<PretextingLesson3> {
 
             if (_revealed >= 2) const SizedBox(height: 12),
 
-            if (_revealed >= 2 && _revealed < _total)
-              Container(
-                margin: const EdgeInsets.only(top: 4, bottom: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: kPretextAccent.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: kPretextAccent.withValues(alpha: 0.25)),
-                ),
-                child: Row(children: [
-                  const Text('😸', style: TextStyle(fontSize: 22)),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
-                    style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
-                ]),
-              ).animate().fadeIn(duration: 400.ms),
 
             // Reveal 3: Fake Competition
             if (_revealed >= 3)
@@ -380,7 +364,7 @@ class _PretextingLesson3State extends State<PretextingLesson3> {
                 role: 'Fake Competition Person',
                 color: const Color(0xFFFFF9C4),
                 script: 'Congratulations! You\'ve won a prize! I just need your parent\'s bank details to send the money.',
-                clue: 'Real competitions NEVER ask for bank details over the phone or in a message. It\'s always fake!',
+                clue: 'Real competitions NEVER ask for bank details over the phone or in a message!',
               ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
 
             if (_revealed >= 3) const SizedBox(height: 12),
@@ -392,7 +376,7 @@ class _PretextingLesson3State extends State<PretextingLesson3> {
                 role: 'Fake Friend / Classmate',
                 color: const Color(0xFFF0EBFF),
                 script: 'Hey! It\'s me from school! I lost my phone — can you send me your address? I want to post your birthday card!',
-                clue: 'Real friends don\'t suddenly ask for your address out of nowhere! Verify by calling them on a real number.',
+                clue: 'Real friends don\'t suddenly ask for your address — call them directly to check!',
               ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
               const SizedBox(height: 12),
             ],
@@ -529,22 +513,6 @@ class _PretextingLesson4State extends State<PretextingLesson4> {
               const SizedBox(height: 8),
             ],
 
-            if (_revealed >= 2 && _revealed < _total)
-              Container(
-                margin: const EdgeInsets.only(top: 4, bottom: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: kPretextAccent.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: kPretextAccent.withValues(alpha: 0.25)),
-                ),
-                child: Row(children: [
-                  const Text('😸', style: TextStyle(fontSize: 22)),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
-                    style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
-                ]),
-              ).animate().fadeIn(duration: 400.ms),
 
             // Reveal 3: Real email comparison
             if (_revealed >= 3) ...[
@@ -828,22 +796,6 @@ class _PretextingLesson6State extends State<PretextingLesson6> {
                 ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
                 const SizedBox(height: 10),
               ],
-              if (i == 2 && _revealed > i && _revealed < _total)
-                Container(
-                  margin: const EdgeInsets.only(top: 4, bottom: 4),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: kPretextAccent.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: kPretextAccent.withValues(alpha: 0.25)),
-                  ),
-                  child: Row(children: [
-                    const Text('😸', style: TextStyle(fontSize: 22)),
-                    const SizedBox(width: 10),
-                    Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
-                      style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
-                  ]),
-                ).animate().fadeIn(duration: 400.ms),
             ],
 
             const SizedBox(height: 20),

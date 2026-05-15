@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'CyberShield',
+      navigatorObservers: [MainNavigationScreen.routeObserver],
       theme: ThemeData(
         useMaterial3: true,
         textTheme: GoogleFonts.quicksandTextTheme(

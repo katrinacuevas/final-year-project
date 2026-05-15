@@ -151,6 +151,13 @@ class UserService with ChangeNotifier {
   
   Map<String, LessonProgress> get progressCache => _progressCache;
 
+  String? _pendingCatNudge;
+  String? takePendingCatNudge() {
+    final msg = _pendingCatNudge;
+    _pendingCatNudge = null;
+    return msg;
+  }
+
   Future<void> init() async {
     if (_auth.currentUser == null) {
       await _auth.signInAnonymously();
@@ -235,7 +242,8 @@ class UserService with ChangeNotifier {
         .set({'awardedAt': FieldValue.serverTimestamp()});
 
     _profile = _profile!.withXp(newXp);
-    _awardedLessons.add(lessonId); 
+    _awardedLessons.add(lessonId);
+    _pendingCatNudge = '🏆 You just earned +$amount XP! Check the leaderboard — you might have moved up the rankings! 👀';
     notifyListeners();
 
     return (

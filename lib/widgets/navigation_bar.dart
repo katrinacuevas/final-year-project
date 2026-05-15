@@ -7,16 +7,18 @@ import '../screens/courses_screen.dart';
 import '../screens/achievements_screen.dart';
 import '../screens/profile_screen.dart';
 import '../services/sound_service.dart';
+import '../services/user_service.dart';
 import 'cat_messages.dart';
 
 class MainNavigationScreen extends StatefulWidget {
+  static final routeObserver = RouteObserver<ModalRoute<void>>();
   const MainNavigationScreen({super.key});
   @override
   State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, RouteAware {
   int currentIndex = 0;
   late PageController pageController;
 
@@ -109,7 +111,27 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      MainNavigationScreen.routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void didPopNext() {
+    final nudge = UserService.instance.takePendingCatNudge();
+    if (nudge != null && mounted) {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) _openBubble(autoClose: true, message: nudge);
+      });
+    }
+  }
+
+  @override
   void dispose() {
+    MainNavigationScreen.routeObserver.unsubscribe(this);
     pageController.dispose();
     _lottieCtrl.dispose();
     _bubbleTimer?.cancel();
@@ -128,11 +150,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           PageView(
             controller: pageController,
             onPageChanged: (i) => setState(() => currentIndex = i),
-            children: const [
-              DashboardScreen(),
-              CoursesScreen(),
-              AchievementsScreen(),
-              ProfileScreen(),
+            children: [
+              const DashboardScreen(),
+              const CoursesScreen(),
+              AchievementsScreen(
+                onCatMessage: (msg) => _openBubble(autoClose: true, message: msg),
+              ),
+              const ProfileScreen(),
             ],
           ),
 

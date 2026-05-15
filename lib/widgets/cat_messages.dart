@@ -65,4 +65,10 @@ class CatMessages {
     final choices = [randomTip, randomEncouragement];
     return choices[_rng.nextInt(choices.length)]();
   }
+
+  static String leaderboardGreeting() =>
+      '🌍 Welcome to the leaderboard!\nSee how you rank against other cyber detectives — keep earning XP to climb higher! 🏆';
+
+  static String leaderboardNudge(int xpGained) =>
+      '🏆 You just earned +$xpGained XP! Check the leaderboard — you might have moved up the rankings! 👀';
 }

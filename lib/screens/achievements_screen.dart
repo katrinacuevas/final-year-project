@@ -80,7 +80,8 @@ class _LeaderboardEntry {
 }
 
 class AchievementsScreen extends StatefulWidget {
-  const AchievementsScreen({super.key});
+  final Function(String)? onCatMessage;
+  const AchievementsScreen({super.key, this.onCatMessage});
 
   @override
   State<AchievementsScreen> createState() => _AchievementsScreenState();
@@ -92,6 +93,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
   String selectedFilter = 'All';
   bool loading = true;
   bool leaderboardLoading = true;
+  bool _leaderboardGreetingShown = false;
   List<_LeaderboardEntry> leaderboardEntries = [];
 
   @override
@@ -99,8 +101,20 @@ class _AchievementsScreenState extends State<AchievementsScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
-      if (_tabController.index == 1 && leaderboardEntries.isEmpty) {
-        _loadLeaderboard();
+      if (_tabController.index == 1 && !_tabController.indexIsChanging) {
+        if (!_leaderboardGreetingShown) {
+          _leaderboardGreetingShown = true;
+          Future.delayed(const Duration(milliseconds: 600), () {
+            if (mounted) {
+              widget.onCatMessage?.call(
+                '🌍 Welcome to the leaderboard!\nSee how you rank against other cyber detectives — keep earning XP to climb higher! 🏆',
+              );
+            }
+          });
+        }
+        if (leaderboardEntries.isEmpty) {
+          _loadLeaderboard();
+        }
       }
     });
     load();

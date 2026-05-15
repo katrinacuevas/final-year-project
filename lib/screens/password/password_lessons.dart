@@ -55,7 +55,7 @@ class IntroStep extends StatelessWidget {
           style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54, height: 1.5)),
         const SizedBox(height: 24),
         InfoCard(color: kPasswordAccent, emoji: '📖', title: 'What you\'ll learn',
-          body: 'Why passwords matter, what makes them weak or strong, and how to build one that\'s really hard to guess!'),
+          body: 'Why passwords matter, what makes them weak or strong, and how to build a super-strong one!'),
         const SizedBox(height: 10),
         InfoCard(color: kPasswordGreen, emoji: '⏱️', title: '~10 minutes',
           body: '4 quick lessons + build your own password + a quiz at the end!'),

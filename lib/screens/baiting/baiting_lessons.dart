@@ -66,7 +66,7 @@ class BaitingIntroStep extends StatelessWidget {
         style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54, height: 1.5)),
       const SizedBox(height: 24),
       BaitingInfoCard(color: kBaitCyan, emoji: '📖', title: "What you'll learn",
-        body: "What baiting is, how baiters use your excitement against you, online and real-life traps, red flags, and what to do."),
+        body: "Spot digital traps, recognise red flags, and never take the bait!"),
       const SizedBox(height: 10),
       BaitingInfoCard(color: kBaitGreen, emoji: '⏱️', title: '~20 minutes',
         body: '7 lessons + Chat Simulation + quiz at the end!'),
@@ -111,8 +111,11 @@ class _BaitingLesson1State extends State<BaitingLesson1> {
         if (_revealed >= 1)
           BaitingCard(child: Column(children: [
             const Text('🪤', style: TextStyle(fontSize: 52)), const SizedBox(height: 10),
-            Text('Baiting is when a trickster offers you something exciting — free games, prizes, money — to get you to do something dangerous, like clicking a bad link or giving away your personal info.',
+            Text('A trickster offers something exciting — free stuff, prizes...',
               textAlign: TextAlign.center,
+              style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+            const SizedBox(height: 4),
+            Text('It\'s a trap to make you click something or give away your info!', textAlign: TextAlign.center,
               style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white70, height: 1.5)),
           ])).animate().fadeIn(duration: 350.ms).slideY(begin: 0.1, end: 0),
         if (_revealed >= 1) ...[
@@ -130,22 +133,6 @@ class _BaitingLesson1State extends State<BaitingLesson1> {
           BaitingCard(child: const BaitingTrapRow(emoji: '🎮', text: 'You see "FREE game skins — click here NOW!"'))
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
-        if (_revealed >= 3 && _revealed < _total)
-          Container(
-            margin: const EdgeInsets.only(top: 12, bottom: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: kBaitAccent.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: kBaitAccent.withValues(alpha: 0.25)),
-            ),
-            child: Row(children: [
-              const Text('😸', style: TextStyle(fontSize: 22)),
-              const SizedBox(width: 10),
-              Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
-                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
-            ]),
-          ).animate().fadeIn(duration: 400.ms),
         if (_revealed >= 4) ...[
           const SizedBox(height: 8),
           BaitingCard(child: const BaitingTrapRow(emoji: '🪤', text: 'The fish bites and gets caught'))
@@ -231,7 +218,7 @@ class _BaitingLesson2State extends State<BaitingLesson2> {
         if (_revealed >= 1) ...[
           const SizedBox(height: 14),
           BaitingInfoCard(color: kBaitAccent, emoji: '🎮', title: 'They target what you love',
-            body: 'Baiters research what\'s popular — games, music, films — then use exactly that as the bait. If you love Fortnite, they offer free V-Bucks.')
+            body: 'Love Fortnite? They offer free V-Bucks. Love music? Free downloads. They know exactly what to dangle!')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
         if (_revealed >= 2) ...[
@@ -240,32 +227,16 @@ class _BaitingLesson2State extends State<BaitingLesson2> {
             body: '"Only 5 minutes left!" — even though the offer is about exciting things, they add a countdown to stop you thinking carefully.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
-        if (_revealed >= 2 && _revealed < _total)
-          Container(
-            margin: const EdgeInsets.only(top: 12, bottom: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: kBaitAccent.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: kBaitAccent.withValues(alpha: 0.25)),
-            ),
-            child: Row(children: [
-              const Text('😸', style: TextStyle(fontSize: 22)),
-              const SizedBox(width: 10),
-              Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
-                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
-            ]),
-          ).animate().fadeIn(duration: 400.ms),
         if (_revealed >= 3) ...[
           const SizedBox(height: 10),
           BaitingInfoCard(color: kBaitGreen, emoji: '🧠', title: 'They bypass your brain',
-            body: 'When you\'re excited, you stop thinking clearly. That\'s exactly what they want — for you to click BEFORE you realise it\'s a trap.')
+            body: 'Excitement switches off careful thinking — and they know it!')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
         if (_revealed >= 4) ...[
           const SizedBox(height: 10),
           BaitingInfoCard(color: kBaitRed, emoji: '🔑', title: 'The price is your safety',
-            body: 'The "free" thing always costs you something — your password, your personal details, or a virus on your device.')
+            body: 'Nothing\'s actually free — it costs your password, your details, or a virus on your device.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
           const SizedBox(height: 12)
         ],
@@ -314,38 +285,22 @@ class _BaitingLesson3State extends State<BaitingLesson3> {
           BaitingExampleCard(emoji: '🎮', color: const Color(0xFFE8D5FB),
             title: 'Free Game Items',
             baitMsg: 'Get 10,000 free V-Bucks! Click here NOW before it expires!',
-            why: 'Hackers know you love in-game currency. The link either steals your login or installs malware.')
+            why: 'The link steals your login or puts harmful software on your device — not V-Bucks!')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         if (_revealed >= 2) ...[
           const SizedBox(height: 12),
           BaitingExampleCard(emoji: '🏆', color: const Color(0xFFFFF9C4),
             title: 'Fake Prize Winner',
             baitMsg: 'You\'ve been randomly selected! Claim your £500 prize now!',
-            why: 'You never entered a competition — they just want your personal details or home address.')
+            why: 'You never entered — they just want your personal details or home address.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
-        if (_revealed >= 2 && _revealed < _total)
-          Container(
-            margin: const EdgeInsets.only(top: 12, bottom: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: kBaitAccent.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: kBaitAccent.withValues(alpha: 0.25)),
-            ),
-            child: Row(children: [
-              const Text('😸', style: TextStyle(fontSize: 22)),
-              const SizedBox(width: 10),
-              Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
-                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
-            ]),
-          ).animate().fadeIn(duration: 400.ms),
         if (_revealed >= 3) ...[
           const SizedBox(height: 12),
           BaitingExampleCard(emoji: '🎵', color: const Color(0xFFB2EBF2),
             title: 'Free Music & Films',
             baitMsg: 'Download any song or movie for free — no account needed!',
-            why: 'Illegal download sites bundle hidden malware with the file. Your device gets infected.')
+            why: 'The download secretly hides harmful software inside — your device gets infected.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
         if (_revealed >= 4) ...[
@@ -353,7 +308,7 @@ class _BaitingLesson3State extends State<BaitingLesson3> {
           BaitingExampleCard(emoji: '📱', color: const Color(0xFFDCEDC8),
             title: 'Win a Free Phone',
             baitMsg: 'Win the latest iPhone — just complete this quick survey!',
-            why: 'Surveys steal your personal info. Nobody gives away free phones to random strangers online.')
+            why: 'Surveys steal your info. Nobody gives away phones to random strangers!')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
           const SizedBox(height: 12)
         ],
@@ -404,7 +359,7 @@ class _BaitingLesson4State extends State<BaitingLesson4> {
             Text('The USB Stick Trick', textAlign: TextAlign.center,
               style: GoogleFonts.fredoka(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white)),
             const SizedBox(height: 8),
-            Text('A hacker leaves a USB stick on the floor labelled "FREE GAMES" or "SECRET FILES". Someone picks it up and plugs it into their computer...',
+            Text('A hacker leaves a USB stick on the floor with a tempting label. Someone picks it up and plugs it in... and the trap is sprung! 💥',
               textAlign: TextAlign.center,
               style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white70, height: 1.5)),
             const SizedBox(height: 12),
@@ -424,7 +379,7 @@ class _BaitingLesson4State extends State<BaitingLesson4> {
         if (_revealed >= 3) ...[
           const SizedBox(height: 8),
           BaitingInfoCard(color: Colors.purple, emoji: '🎁', title: 'Suspicious "Prize" Packages',
-            body: '"You\'ve won a prize — pick it up at this address!" Used to collect your details or lure you somewhere unsafe.')
+            body: '"You\'ve won! Pick it up here!" — used to steal your details or lure you somewhere unsafe.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
           const SizedBox(height: 12)
         ],
@@ -612,22 +567,6 @@ class _BaitingLesson7State extends State<BaitingLesson7> {
             body: 'Show a parent, carer, or teacher. They can check if it\'s real and report it if not.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
-        if (_revealed >= 3 && _revealed < _total)
-          Container(
-            margin: const EdgeInsets.only(top: 12, bottom: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: kBaitAccent.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: kBaitAccent.withValues(alpha: 0.25)),
-            ),
-            child: Row(children: [
-              const Text('😸', style: TextStyle(fontSize: 22)),
-              const SizedBox(width: 10),
-              Expanded(child: Text('Great work so far! Keep tapping to learn more! 👆',
-                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white54, height: 1.4))),
-            ]),
-          ).animate().fadeIn(duration: 400.ms),
         if (_revealed >= 4) ...[
           const SizedBox(height: 10),
           BaitingStepCard(number: '4', emoji: '🚫', color: kBaitCyan,
