@@ -66,12 +66,6 @@ class PretextingIntroStep extends StatelessWidget {
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
                   color: Colors.white)),
-          const SizedBox(height: 10),
-          Text(
-              'Learn how sneaky tricksters pretend to be someone else — and how to see right through their disguise! 🕵️',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.fredoka(
-                  fontSize: 15, color: Colors.white54, height: 1.5)),
           const SizedBox(height: 24),
           PretextingInfoCard(
             color: kPretextCyan,
@@ -84,7 +78,7 @@ class PretextingIntroStep extends StatelessWidget {
             color: kPretextGreen,
             emoji: '⏱️',
             title: '~20 minutes',
-            body: '6 lessons + Chat Simulation + quiz at the end!',
+            body: '6 lessons + Chat Scenario + quiz at the end!',
           ),
           const SizedBox(height: 10),
           PretextingInfoCard(
@@ -509,31 +503,6 @@ class _PretextingLesson4State extends State<PretextingLesson4> {
               const SizedBox(height: 14),
             ],
 
-            if (_revealed >= 4) ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: kPretextGreen.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                      color: kPretextGreen.withValues(alpha: 0.35)),
-                ),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('🔐 How to check if it\'s real:',
-                      style: GoogleFonts.fredoka(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: kPretextGreen)),
-                  const SizedBox(height: 10),
-                  _CheckRow(emoji: '👀', text: 'Look at the FULL email address — spot any weird letters or numbers?'),
-                  _CheckRow(emoji: '👨‍👩‍👧', text: 'Ask a trusted grown-up to look at it with you'),
-                  _CheckRow(emoji: '🌐', text: 'Go to the official website yourself — never click the link in the message!'),
-                  _CheckRow(emoji: '🤔', text: 'Ask: would my real school actually send this?'),
-                ]),
-              ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
-              const SizedBox(height: 12),
-            ],
-
             const SizedBox(height: 20),
             PretextingCatButton(
               button: PretextingNextButton(onTap: widget.onNext),
@@ -567,23 +536,6 @@ class _BulletWarning extends StatelessWidget {
               child: Text(text,
                   style: GoogleFonts.fredoka(
                       fontSize: 13, color: Colors.white54, height: 1.4))),
-        ]),
-      );
-}
-
-class _CheckRow extends StatelessWidget {
-  final String emoji, text;
-  const _CheckRow({required this.emoji, required this.text});
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(emoji, style: const TextStyle(fontSize: 16)),
-          const SizedBox(width: 10),
-          Expanded(
-              child: Text(text,
-                  style: GoogleFonts.fredoka(
-                      fontSize: 13, color: Colors.white70, height: 1.4))),
         ]),
       );
 }
@@ -781,7 +733,7 @@ class _PretextingLesson6State extends State<PretextingLesson6> {
             const SizedBox(height: 20),
             PretextingCatButton(
               button: PretextingNextButton(
-                  onTap: widget.onNext, label: 'Chat Simulation 💬'),
+                  onTap: widget.onNext, label: 'Chat Scenario 💬'),
               message: _allRevealed
                   ? PretextingCatMessages.lesson6Tip
                   : 'Tap to reveal each step! 👆',

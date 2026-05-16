@@ -63,7 +63,7 @@ class PhishingIntroStep extends StatelessWidget {
         body: 'Spot fake messages, learn red flags, and practise with real scenarios!'),
       const SizedBox(height: 10),
       PhishingInfoCard(color: kPhishingGreen, emoji: '⏱️', title: '~20 minutes',
-        body: '7 lessons + chat simulation + quiz at the end!'),
+        body: '7 lessons + chat scenario + quiz at the end!'),
       const SizedBox(height: 10),
       PhishingInfoCard(color: kPhishingAccent, emoji: '⭐', title: 'Earn +150 XP',
         body: 'Complete everything to earn your Phishing Detective badge!'),
@@ -261,7 +261,6 @@ class _PhishingLesson3State extends State<PhishingLesson3> {
             subject: 'URGENT: Your account will be deleted in 24 hours!',
             body: 'Dear student, your school account has been flagged. Click the link below immediately to avoid losing access forever.',
             isReal: false,
-            clue: '"sch00l-help.com" uses zeros instead of "o" — a classic fake address trick.',
           ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.1, end: 0),
 
         if (_revealed >= 2) ...[
@@ -271,11 +270,9 @@ class _PhishingLesson3State extends State<PhishingLesson3> {
             subject: 'Scheduled maintenance this weekend',
             body: 'The school portal will be offline Saturday 9am–1pm for updates. No action required from students.',
             isReal: true,
-            clue: 'Official domain, no urgency, no links, no request for personal info.',
           ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.1, end: 0),
           const SizedBox(height: 10)
         ],
-
         const SizedBox(height: 20),
         PhishingCatButton(
           button: PhishingNextButton(onTap: widget.onNext),
@@ -317,9 +314,6 @@ class _PhishingLesson4State extends State<PhishingLesson4> {
         const PhishingLessonLabel(label: 'RED FLAGS TO LOOK FOR'),
         const SizedBox(height: 8),
         _RevealProgress(revealed: _revealed, total: _total, color: kPhishingAccent),
-        const SizedBox(height: 12),
-        Text('These warning signs mean a message is probably a scam. 🚩',
-          style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
         const SizedBox(height: 10),
 
         if (_revealed >= 1)
@@ -447,10 +441,10 @@ class PhishingLesson6 extends StatefulWidget {
 
 class _PhishingLesson6State extends State<PhishingLesson6> {
   static const _steps = [
-    ('🌐', kPhishingAccent,          'Go directly to the website',      'Type the official website address yourself in your browser instead of clicking the link.'),
-    ('🔒', kPhishingGreen,           'Check for https://',              'Real websites use "https://" and show a padlock icon. No padlock = not secure.'),
-    ('🔍', Color(0xFFBA68C8), 'Look for sneaky spelling tricks', '"r0blox" uses zero instead of "o". "amaz0n" fakes Amazon. Read the full address carefully.'),
-    ('🙋', kPhishingAccent,          'Ask a trusted adult',             'If you\'re ever unsure — don\'t click. Show a parent or teacher first.'),
+    ('🌐', kPhishingAccent, 'Go directly to the website', 'Type the official website address yourself in your browser instead of clicking the link.'),
+    ('🔒', kPhishingGreen, 'Check for https://', 'Real websites use "https://" and show a padlock icon. No padlock = not secure.'),
+    ('🔍', Color(0xFFBA68C8), 'Look for sneaky spelling tricks', '"r0blox" uses zero instead of "o". Read the full address carefully.'),
+    ('🙋', kPhishingAccent, 'Ask a trusted adult', 'If you\'re ever unsure — don\'t click. Show a parent or teacher first.'),
   ];
 
   final Set<int> _expanded = {};
@@ -474,9 +468,6 @@ class _PhishingLesson6State extends State<PhishingLesson6> {
     padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const PhishingLessonLabel(label: 'HOW TO CHECK A LINK SAFELY'),
-      const SizedBox(height: 6),
-      Text('Tap each step to learn how to stay safe. 🛡️',
-        style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white38)),
       const SizedBox(height: 16),
 
       for (int i = 0; i < _steps.length; i++) ...[
@@ -535,9 +526,6 @@ class _PhishingLesson7State extends State<PhishingLesson7> {
         const PhishingLessonLabel(label: 'WHAT TO DO'),
         const SizedBox(height: 8),
         _RevealProgress(revealed: _revealed, total: _total, color: kPhishingAccent),
-        const SizedBox(height: 12),
-        Text('If you think you\'ve received a phishing message — follow these steps:',
-          style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white54)),
         const SizedBox(height: 10),
 
         if (_revealed >= 1)
@@ -566,18 +554,9 @@ class _PhishingLesson7State extends State<PhishingLesson7> {
             body: 'Use the "Report" button in your email or app, then delete the message.')
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
-        if (_revealed >= 5) ...[
-          const SizedBox(height: 10),
-          PhishingStepCard(number: '5', emoji: '🔒', color: kPhishingGreen,
-            title: 'Change your password if needed',
-            body: 'Accidentally entered your details? Tell an adult straight away!')
-            .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
-          const SizedBox(height: 14)
-        ],
-
         const SizedBox(height: 20),
         PhishingCatButton(
-          button: PhishingNextButton(onTap: widget.onNext, label: 'Chat Simulation 💬'),
+          button: PhishingNextButton(onTap: widget.onNext, label: 'Chat Scenario 💬'),
           message: _allRevealed ? PhishingCatMessages.lesson7Tip : 'Tap to reveal each step! 👆',
           showBubble: !_promptShown || _allRevealed,
           showButton: _allRevealed,

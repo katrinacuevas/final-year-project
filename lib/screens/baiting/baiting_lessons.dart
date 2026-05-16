@@ -53,20 +53,16 @@ class BaitingIntroStep extends StatelessWidget {
       const SizedBox(height: 20),
       Text('Baiting Pro!', textAlign: TextAlign.center,
         style: GoogleFonts.fredoka(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
-      const SizedBox(height: 10),
-      Text('Learn how tricksters use tempting offers and freebies to trap you — and how to never fall for it! 🪤',
-        textAlign: TextAlign.center,
-        style: GoogleFonts.fredoka(fontSize: 15, color: Colors.white54, height: 1.5)),
-      const SizedBox(height: 24),
+      const SizedBox(height: 20),
       BaitingInfoCard(color: kBaitCyan, emoji: '📖', title: "What you'll learn",
         body: "Spot digital traps, recognise red flags, and never take the bait!"),
       const SizedBox(height: 10),
       BaitingInfoCard(color: kBaitGreen, emoji: '⏱️', title: '~20 minutes',
-        body: '7 lessons + Chat Simulation + quiz at the end!'),
+        body: '7 lessons + Chat Scenario + quiz at the end!'),
       const SizedBox(height: 10),
       BaitingInfoCard(color: kBaitAccent, emoji: '⭐', title: 'Earn +200 XP',
         body: 'Complete everything to earn your Baiting Pro badge!'),
-      const SizedBox(height: 28),
+      const SizedBox(height: 20),
       BaitingCatButton(
         button: BaitingNextButton(onTap: onNext, label: '▶  Start Course'),
         message: BaitingCatMessages.lessonIntro,
@@ -103,7 +99,7 @@ class _BaitingLesson1State extends State<BaitingLesson1> {
         const SizedBox(height: 12),
         if (_revealed >= 1)
           BaitingCard(child: Column(children: [
-            const Text('🪤', style: TextStyle(fontSize: 52)), const SizedBox(height: 10),
+            const Text('🪤', style: TextStyle(fontSize: 45)), const SizedBox(height: 10),
             Text('A trickster offers something exciting — free stuff, prizes...',
               textAlign: TextAlign.center,
               style: GoogleFonts.fredoka(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
@@ -119,21 +115,21 @@ class _BaitingLesson1State extends State<BaitingLesson1> {
           const SizedBox(height: 10),
         ],
         if (_revealed >= 2)
-          BaitingCard(child: const BaitingTrapRow(emoji: '🐟', text: 'A fish sees yummy bait dangling on a hook'))
+          BaitingCard(child: const BaitingTrapRow(emoji: '🧀', text: 'A mousetrap has yummy cheese sitting on it'))
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         if (_revealed >= 3) ...[
           const SizedBox(height: 8),
-          BaitingCard(child: const BaitingTrapRow(emoji: '🎮', text: 'You see "FREE game skins — click here NOW!"'))
+          BaitingCard(child: const BaitingTrapRow(emoji: '🎮', text: 'You see "FREE Roblox robux — click here NOW!'))
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
         if (_revealed >= 4) ...[
           const SizedBox(height: 8),
-          BaitingCard(child: const BaitingTrapRow(emoji: '🪤', text: 'The fish bites and gets caught'))
+          BaitingCard(child: const BaitingTrapRow(emoji: '🪤', text: 'The mouse reaches for the cheese... SNAP!'))
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
         ],
         if (_revealed >= 5) ...[
           const SizedBox(height: 8),
-          BaitingCard(child: const BaitingTrapRow(emoji: '😨', text: 'You click and your device or account gets hacked'))
+          BaitingCard(child: const BaitingTrapRow(emoji: '😨', text: 'You click and your device or account gets hacked!'))
             .animate().fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0),
           const SizedBox(height: 30)
         ],
@@ -580,7 +576,7 @@ class _BaitingLesson7State extends State<BaitingLesson7> {
         ],
         const SizedBox(height: 20),
         BaitingCatButton(
-          button: BaitingNextButton(onTap: widget.onNext, label: 'Chat Simulation 💬'),
+          button: BaitingNextButton(onTap: widget.onNext, label: 'Chat Scenario 💬'),
           message: _allRevealed ? BaitingCatMessages.lesson7Tip : 'Tap to reveal each step! 👆',
           showBubble: !_promptShown || _allRevealed,
           showButton: _allRevealed,

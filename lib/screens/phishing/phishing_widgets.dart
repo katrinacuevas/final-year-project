@@ -285,10 +285,10 @@ class PhishingTappableStepCard extends StatelessWidget {
 
 // ----- email card -----
 class PhishingEmailCard extends StatelessWidget {
-  final String from, subject, body, clue;
+  final String from, subject, body;
   final bool isReal;
   const PhishingEmailCard({super.key, required this.from, required this.subject,
-    required this.body, required this.clue, required this.isReal});
+    required this.body, required this.isReal});
   @override
   Widget build(BuildContext context) {
     final Color c = isReal ? kPhishingGreen : kPhishingRed;
@@ -317,13 +317,6 @@ class PhishingEmailCard extends StatelessWidget {
           ]),
           const SizedBox(height: 8),
           Text(body, style: GoogleFonts.fredoka(fontSize: 12, color: Colors.white54, height: 1.4)),
-          const SizedBox(height: 10),
-          Container(padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: c.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('🔍 ', style: TextStyle(fontSize: 13)),
-              Expanded(child: Text(clue, style: GoogleFonts.fredoka(fontSize: 12, color: c, height: 1.4))),
-            ])),
         ])),
       ]),
     );

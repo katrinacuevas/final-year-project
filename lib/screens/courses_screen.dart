@@ -57,7 +57,7 @@ const List<Map<String, dynamic>> coursesMeta = [
   {
     'lessonId': 'baiting_pro',
     'emoji': '🎁',
-    'title': 'Baiting Pro',
+    'title': 'Baiting Detective',
     'subtitle': 'Investigate offers that are too good to be true!',
     'totalSteps': 9,
     'accentColor': Color(0xFFFF8A65),
@@ -76,7 +76,7 @@ const List<Map<String, dynamic>> coursesMeta = [
   {
     'lessonId': 'pretexting',
     'emoji': '🎭',
-    'title': 'Pretexting',
+    'title': 'Pretexting Detective',
     'subtitle': 'Learn how tricksters pretend to be someone else!',
     'totalSteps': 8,
     'accentColor': Color(0xFFBA68C8),
@@ -120,11 +120,11 @@ class _CoursesScreenState extends State<CoursesScreen> {
   // map a lessonid to its corresponding lesson screen widget 
   Widget screenFor(String lessonId) {
     switch (lessonId) {
-      case 'password_power':    return const PasswordPowerScreen();
+      case 'password_power': return const PasswordPowerScreen();
       case 'phishing_detective': return const PhishingDetectiveScreen();
-      case 'baiting_pro':       return const BaitingScreen();
-      case 'pretexting':        return const PretextingScreen();
-      default:                  return const SizedBox();
+      case 'baiting_pro': return const BaitingScreen();
+      case 'pretexting': return const PretextingScreen();
+      default: return const SizedBox();
     }
   }
 
@@ -285,7 +285,7 @@ class _CourseCardState extends State<CourseCard> {
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Row(children: [
                     Expanded(child: Text(widget.course['title'] as String,
-                      style: GoogleFonts.fredoka(fontSize: 19, fontWeight: FontWeight.w700, color: Colors.white))),
+                      style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white))),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                       decoration: BoxDecoration(

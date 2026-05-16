@@ -1,6 +1,51 @@
-# final-year-project
-An interactive educational platform for social engineering awareness among children
+# Final Year Project
 
-flutter doctor 
-flutter pub get 
+A Flutter mobile application with Firebase integration to teach children about social engineering 
+(phishing, baiting and pretexting)
+
+------------------------------------------------------
+## Prerequisites
+
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (>=3.11.4)
+- [Dart SDK](https://dart.dev/get-dart) (included with Flutter)
+- [Android Studio](https://developer.android.com/studio) or [Xcode](https://developer.apple.com/xcode/) (for iOS)
+- A connected device or emulator 
+
+------------------------------------------------------
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone <repository-url>
+cd final-year-project
+```
+
+### 2. Install dependencies
+
+```bash
+flutter pub get
+```
+
+### 3. Run the app
+
+```bash
 flutter run
+```
+
+To target a specific device:
+
+```bash
+flutter devices # list available devices
+flutter run -d <device-id> # run on a specific device
+```
+------------------------------------------------------
+## Common Commands
+
+| Command | Description |
+|---|---|
+| `flutter run` | Run in debug mode |
+| `flutter run --release` | Run in release mode |
+| `flutter test` | Run tests |
+| `flutter clean` | Clear build cache |
+| `flutter pub get` | Install dependencies |
