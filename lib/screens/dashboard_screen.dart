@@ -12,7 +12,7 @@ import '../services/sound_service.dart';
 import 'password/password_screen.dart';
 import 'phishing/phishing_screen.dart';
 import '../widgets/welcome_card.dart';
-import '../widgets/daily_challenge.dart';
+import 'daily challenge/daily_challenge.dart';
 import '../widgets/learning_task.dart';
 
 class DashboardScreen extends StatefulWidget {
