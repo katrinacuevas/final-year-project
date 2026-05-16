@@ -1,3 +1,14 @@
+// ========================================================================
+// avatar_screen.dart 
+// ------------------------------------------------------------------------
+// step 2 of the setup flow 
+// let the user pick an avatar to represent 
+//  - display a 3-column grid of selectable avatars 
+//  - cat mascot reacts to each avatar with a mood + message 
+//  - save the completed userProfile to the backend via user_service 
+//  - clear the navigation stack and transitions to welcome_flash on success
+// ========================================================================
+
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:final_year_project/services/user_service.dart';
 import 'package:flutter/material.dart';

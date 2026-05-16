@@ -1,3 +1,15 @@
+// ========================================================================
+// username_screen.dart 
+// ------------------------------------------------------------------------
+// step 1 of the setup flow 
+// lets the user pick a username before moving onto the avatar selection screen
+//  - text input with live availability checking via user_service 
+//  - debounced backend calls to avoid spamming the button 
+//  - suggested usernames for quick selection 
+//  - cat mascot reacts to input state with mood + message 
+//  - navigate to avatar_screen on success
+// ========================================================================
+
 import 'dart:async';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:final_year_project/services/user_service.dart';
