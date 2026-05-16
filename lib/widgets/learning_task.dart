@@ -1,3 +1,11 @@
+// ========================================================================
+// learning_task.dart
+// ------------------------------------------------------------------------
+// course card displayed on the courses screen
+// shows the lesson emoji, title, progress bar and a start/continue button
+// card is dimmed and non-tappable once the lesson is fully completed
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -26,8 +34,10 @@ class LearningTaskCard extends StatefulWidget {
 }
 
 class _LearningTaskCardState extends State<LearningTaskCard> {
+  // tracks the pressed state for the scale-down tap feedback
   double scale = 1.0;
 
+  // ----- computed state helpers -----
   bool get isCompleted =>
       widget.progress >= widget.totalLessons && widget.totalLessons > 0;
   bool get isStarted => widget.progress > 0;
@@ -40,14 +50,17 @@ class _LearningTaskCardState extends State<LearningTaskCard> {
     final Color accent = widget.accentColor;
 
     return GestureDetector(
+      // scale the card down slightly on press for a tactile feeling
       onTapDown: (details) => setState(() => scale = 0.97),
       onTapUp: (details) => setState(() => scale = 1.0),
       onTapCancel: () => setState(() => scale = 1.0),
+      // completed lessons are not tappable — no point reopening them
       onTap: isCompleted ? null : widget.onTap,
       child: AnimatedScale(
         scale: scale,
         duration: const Duration(milliseconds: 150),
         child: Opacity(
+          // dim completed cards so they feel "done" rather than interactive
           opacity: isCompleted ? 0.7 : 1.0,
           child: Container(
             padding: const EdgeInsets.all(20),
@@ -55,6 +68,7 @@ class _LearningTaskCardState extends State<LearningTaskCard> {
               color: const Color(0xFF161B2E),
               borderRadius: BorderRadius.circular(28),
               border: Border.all(
+                // completed cards get a green border, others use the lesson's accent colour
                 color: isCompleted
                     ? const Color(0xFF00E676).withValues(alpha: 0.4)
                     : accent.withValues(alpha: 0.25),
@@ -66,6 +80,9 @@ class _LearningTaskCardState extends State<LearningTaskCard> {
               children: [
                 Row(
                   children: [
+                    // ----- lesson icon -----
+                    // uses a gradient from the accent colour to dark so each lesson
+                    // has a distinct identity without needing separate images
                     Container(
                       width: 64,
                       height: 64,
@@ -82,6 +99,7 @@ class _LearningTaskCardState extends State<LearningTaskCard> {
                         ),
                       ),
                       child: Center(
+                        // hero tag lets the emoji animate across to the lesson screen on open
                         child: Hero(
                           tag: 'hero_${widget.title}',
                           child: Material(
@@ -95,6 +113,8 @@ class _LearningTaskCardState extends State<LearningTaskCard> {
                       ),
                     ),
                     const SizedBox(width: 14),
+
+                    // ----- title and status badge -----
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,26 +131,24 @@ class _LearningTaskCardState extends State<LearningTaskCard> {
                                   ),
                                 ),
                               ),
+                              // status pill: DONE / IN PROGRESS / START
+                              // colour changes to match the current state
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 9, vertical: 3),
                                 decoration: BoxDecoration(
                                   color: isCompleted
-                                      ? const Color(0xFF00E676)
-                                          .withValues(alpha: 0.15)
+                                      ? const Color(0xFF00E676).withValues(alpha: 0.15)
                                       : isStarted
                                           ? accent.withValues(alpha: 0.15)
-                                          : const Color(0xFF00D1FF)
-                                              .withValues(alpha: 0.1),
+                                          : const Color(0xFF00D1FF).withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
                                     color: isCompleted
-                                        ? const Color(0xFF00E676)
-                                            .withValues(alpha: 0.5)
+                                        ? const Color(0xFF00E676).withValues(alpha: 0.5)
                                         : isStarted
                                             ? accent.withValues(alpha: 0.4)
-                                            : const Color(0xFF00D1FF)
-                                                .withValues(alpha: 0.3),
+                                            : const Color(0xFF00D1FF).withValues(alpha: 0.3),
                                   ),
                                 ),
                                 child: Text(
@@ -168,6 +186,8 @@ class _LearningTaskCardState extends State<LearningTaskCard> {
                   ],
                 ),
                 const SizedBox(height: 16),
+
+                // ----- progress counter -----
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -176,9 +196,7 @@ class _LearningTaskCardState extends State<LearningTaskCard> {
                       style: GoogleFonts.fredoka(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: isCompleted
-                            ? const Color(0xFF00E676)
-                            : accent,
+                        color: isCompleted ? const Color(0xFF00E676) : accent,
                       ),
                     ),
                     Text(
@@ -186,14 +204,15 @@ class _LearningTaskCardState extends State<LearningTaskCard> {
                       style: GoogleFonts.fredoka(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: isCompleted
-                            ? const Color(0xFF00E676)
-                            : accent,
+                        color: isCompleted ? const Color(0xFF00E676) : accent,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
+
+                // ----- progress bar -----
+                // animates from 0 each time the widget builds so filling up feels rewarding
                 TweenAnimationBuilder<double>(
                   duration: const Duration(milliseconds: 900),
                   curve: Curves.easeOutCubic,
@@ -203,14 +222,17 @@ class _LearningTaskCardState extends State<LearningTaskCard> {
                     child: LinearProgressIndicator(
                       value: value,
                       minHeight: 7,
-                      backgroundColor:
-                          accent.withValues(alpha: 0.12),
+                      backgroundColor: accent.withValues(alpha: 0.12),
+                      // goes green when complete, otherwise stays as the lesson's accent colour
                       valueColor: AlwaysStoppedAnimation<Color>(
                         isCompleted ? const Color(0xFF00E676) : accent,
                       ),
                     ),
                   ),
                 ),
+
+                // ----- start/continue button -----
+                // only shown for incomplete lessons — completed ones don't need it
                 if (!isCompleted) ...[
                   const SizedBox(height: 16),
                   SizedBox(

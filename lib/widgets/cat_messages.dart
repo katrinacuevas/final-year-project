@@ -1,8 +1,18 @@
+// ========================================================================
+// cat_messages.dart
+// ------------------------------------------------------------------------
+// static string provider for all cat mascot dialogue throughout the app
+// covers tab introductions, random tips, encouragement, xp and level ups
+// ========================================================================
+
 import 'dart:math';
 
 class CatMessages {
   static final Random _rng = Random();
 
+  // ----- tab intro messages -----
+  // shown the first time the user visits each tab so the cat can guide them around
+  // index matches the tab order: home, lessons, badges, profile
   static const List<String> _tabIntro = [
     "Hi! 👋 Welcome to your dashboard!\nThis is where you can see all your progress and daily challenges!",
     "These are your lessons! 📚\nEach one teaches you a different trick to stay safe online. Pick one to start!",
@@ -12,6 +22,9 @@ class CatMessages {
 
   static String tabIntro(int index) => _tabIntro[index.clamp(0, _tabIntro.length - 1)];
 
+  // ----- random safety tips -----
+  // pulled at random when the user taps the cat after the first visit
+  // mix of actual cyber safety advice and cat personality messages
   static const List<String> _tips = [
     "🔐 Never share your password with anyone — not even your best friend!",
     "🎣 If a message says 'click here to win a prize!' — it's probably a trick! Don't click it!",
@@ -37,6 +50,7 @@ class CatMessages {
 
   static String randomTip() => _tips[_rng.nextInt(_tips.length)];
 
+  // ----- encouragement messages -----
   static const List<String> _encouragement = [
     "You're doing amazing! Keep going! 🌟",
     "Purrr... you're one of the best cyber detectives I know! 😸",
@@ -49,15 +63,22 @@ class CatMessages {
 
   static String randomEncouragement() => _encouragement[_rng.nextInt(_encouragement.length)];
 
+  // ----- xp and level up messages -----
+  // specific messages triggered by progression events rather than random selection
+
   static String levelUp(int newLevel) =>
       "LEVEL UP! 🎉 You're now Level $newLevel!\nYou're absolutely unstoppable! Keep going! 🚀";
 
   static String xpEarned(int amount) =>
       "Amazing work! ⭐ You just earned +$amount XP!\nI'm so proud of you! 🐱";
 
+  // shown if the user replays a lesson they've already earned XP for
   static String xpAlreadyEarned() =>
       "You already earned XP for this one! 😸\nReplay for practice anytime — I'll be here!";
 
+  // ----- first tap and repeat tap messages -----
+  // first tap gets a specific message explaining what the cat does
+  // subsequent taps get a random tip or encouragement so it stays fresh
   static String afterFirstTap() =>
       "Tap me anytime for a cyber safety tip! 🐾\nI've got loads of secrets to share! 😼";
 
@@ -66,9 +87,11 @@ class CatMessages {
     return choices[_rng.nextInt(choices.length)]();
   }
 
+  // ----- leaderboard messages -----
   static String leaderboardGreeting() =>
       '🌍 Welcome to the leaderboard!\nSee how you rank against other cyber detectives — keep earning XP to climb higher! 🏆';
 
+  // shown as a nudge after earning XP — fires when the user returns to the nav screen
   static String leaderboardNudge(int xpGained) =>
       '🏆 You just earned +$xpGained XP! Check the leaderboard — you might have moved up the rankings! 👀';
 }

@@ -1,3 +1,11 @@
+// ========================================================================
+// daily_challenge.dart
+// ------------------------------------------------------------------------
+// dashboard card that shows the daily challenge entry point
+// hides itself automatically once all 3 challenges are completed
+// tapping launches the full DailyChallengeScreen and refreshes on return
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
@@ -13,6 +21,8 @@ class DailyChallengeCard extends StatefulWidget {
 class _DailyChallengeCardState extends State<DailyChallengeCard>
     with SingleTickerProviderStateMixin {
   int _done = 0;
+
+  // ----- glow pulse animation -----
   late AnimationController _pulseCtrl;
   late Animation<double> _pulseAnim;
 
@@ -27,8 +37,12 @@ class _DailyChallengeCardState extends State<DailyChallengeCard>
   }
 
   @override
-  void dispose() { _pulseCtrl.dispose(); super.dispose(); }
+  void dispose() {
+    _pulseCtrl.dispose();
+    super.dispose();
+  }
 
+  // ----- load progress -----
   void _loadProgress() {
     final p = UserService.instance.getProgress('daily_challenge');
     setState(() => _done = p?.stepsCompleted ?? 0);
@@ -36,15 +50,18 @@ class _DailyChallengeCardState extends State<DailyChallengeCard>
 
   @override
   Widget build(BuildContext context) {
+    // once all 3 challenges are done the card disappears 
     if (_done >= 3) return const SizedBox.shrink();
     const Color accent = Color(0xFFFFC857);
 
     return GestureDetector(
       onTap: () async {
         SoundService.playClick();
+        // wait for the screen to close, then reload progress so the card updates
         await Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyChallengeScreen()));
         _loadProgress();
       },
+      // ----- animated glow wrapper -----
       child: AnimatedBuilder(
         animation: _pulseAnim,
         builder: (_, child) => Container(
@@ -61,7 +78,7 @@ class _DailyChallengeCardState extends State<DailyChallengeCard>
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            // Header badges
+            // ----- header badges -----
             Row(children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -93,7 +110,7 @@ class _DailyChallengeCardState extends State<DailyChallengeCard>
             ]),
             const SizedBox(height: 16),
 
-            // Icon + title + description
+            // ----- icon and title -----
             Row(children: [
               Container(
                 width: 64, height: 64,
@@ -108,6 +125,7 @@ class _DailyChallengeCardState extends State<DailyChallengeCard>
               ),
               const SizedBox(width: 14),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                // title updates dynamically based on how many challenges are done
                 Text(
                   _done == 0 ? "Today's 3 Challenges" : 'Keep Going! ($_done/3 done)',
                   style: GoogleFonts.fredoka(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
@@ -118,7 +136,8 @@ class _DailyChallengeCardState extends State<DailyChallengeCard>
               ])),
             ]),
 
-            // Progress bar if partially done
+            // ----- progress bar -----
+            // only shows up once the user has started at least one challenge
             if (_done > 0) ...[
               const SizedBox(height: 14),
               ClipRRect(
@@ -133,6 +152,7 @@ class _DailyChallengeCardState extends State<DailyChallengeCard>
             ],
 
             const SizedBox(height: 18),
+            // ----- play / continue button -----
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

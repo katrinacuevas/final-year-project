@@ -1,3 +1,11 @@
+// ========================================================================
+// navigation_bar.dart
+// ------------------------------------------------------------------------
+// main app shell with a four-tab bottom navigation bar
+// manages the cat mascot speech bubble that auto-shows on first visit
+// and after tab changes, with tap-to-dismiss and auto-dismiss timer
+// ========================================================================
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,6 +19,8 @@ import '../services/user_service.dart';
 import 'cat_messages.dart';
 
 class MainNavigationScreen extends StatefulWidget {
+  // routeObserver is static so any screen can subscribe to it and trigger
+  // the cat nudge when returning to the nav shell (e.g. after earning XP)
   static final routeObserver = RouteObserver<ModalRoute<void>>();
   const MainNavigationScreen({super.key});
   @override
@@ -22,29 +32,35 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   int currentIndex = 0;
   late PageController pageController;
 
+  // ----- cat bubble state -----
   bool _bubbleVisible = false;
-  bool _hasAutoShown = false;
+  bool _hasAutoShown = false; // prevents the intro bubble firing more than once
   Timer? _bubbleTimer;
-  final Set<int> _visitedTabs = {};
-  bool _shownAfterFirstTap = false;
+  final Set<int> _visitedTabs = {}; // tracks which tabs have already had their intro
+  bool _shownAfterFirstTap = false; // first cat tap gets a specific message
   late AnimationController _lottieCtrl;
 
+  // ----- tab accent colours -----
   static const List<Color> _tabAccents = [
-    Color(0xFF00D1FF),
-    Color(0xFF00D1FF),
-    Color(0xFFFFD700),
-    Color(0xFFBA68C8),
+    Color(0xFF00D1FF), // home
+    Color.fromARGB(255, 202, 255, 198), // lessons
+    Color(0xFFFFD700), // badges
+    Color(0xFFBA68C8), // profile
   ];
 
   @override
   void initState() {
     super.initState();
     pageController = PageController(initialPage: 0);
+    // single controller shared by the cat lottie in the nav bar
     _lottieCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 4500),
     )..repeat();
 
+    // ----- auto intro bubble -----
+    // fires once after a short delay on first load so the user notices the cat
+    // postFrameCallback ensures the widget tree is fully built before we access context
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 900), () {
         if (mounted && !_hasAutoShown) {
@@ -61,23 +77,29 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   String _currentMessage = '';
 
+  // ----- open bubble -----
+  // shows the speech bubble with a new message and optionally starts the auto-close timer
   void _openBubble({bool autoClose = false, String? message}) {
     if (!mounted) return;
     _currentMessage = message ?? _currentMessage;
     SoundService.playCatHappy();
     setState(() => _bubbleVisible = true);
+    // cancel any existing timer so a new message resets the countdown
     _bubbleTimer?.cancel();
     if (autoClose) {
       _bubbleTimer = Timer(const Duration(seconds: 5), _closeBubble);
     }
   }
 
+  // ----- close bubble -----
   void _closeBubble() {
     if (!mounted) return;
     _bubbleTimer?.cancel();
     setState(() => _bubbleVisible = false);
   }
 
+  // ----- cat tap handler -----
+  // tapping while open closes it; tapping while closed shows the next message
   void _onCatTapped() {
     if (_bubbleVisible) {
       _closeBubble();
@@ -91,6 +113,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     }
   }
 
+  // ----- tab tap handler -----
+  // animates the page view to the new tab and shows a tab intro bubble
   void onTabTapped(int index) {
     if (currentIndex != index) {
       SoundService.playClick();
@@ -100,11 +124,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       _closeBubble();
       if (!_visitedTabs.contains(index)) {
         _visitedTabs.add(index);
+        // small delay so the page animation completes before the bubble pops up
         Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) _openBubble(
+          if (mounted) {
+            _openBubble(
             autoClose: true,
             message: CatMessages.tabIntro(index),
           );
+          }
         });
       }
     }
@@ -119,6 +146,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     }
   }
 
+  // ----- didPopNext -----
+  // fires when the user returns to the nav shell from a pushed screen
+  // checks for a pending cat nudge that was queued by UserService when the lesson completed
   @override
   void didPopNext() {
     final nudge = UserService.instance.takePendingCatNudge();
@@ -140,6 +170,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   @override
   Widget build(BuildContext context) {
+    // clamp prevents an out-of-range index crashing the colour lookup
     final int safeIndex = currentIndex.clamp(0, _tabAccents.length - 1);
     final Color accent = _tabAccents[safeIndex];
 
@@ -147,6 +178,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       backgroundColor: const Color(0xFF0D1117),
       body: Stack(
         children: [
+          // ----- page view -----
           PageView(
             controller: pageController,
             onPageChanged: (i) => setState(() => currentIndex = i),
@@ -154,13 +186,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
               const DashboardScreen(),
               const CoursesScreen(),
               AchievementsScreen(
+                // achievements screen can trigger a cat message directly
+                // e.g. when the leaderboard loads and the user is in first place
                 onCatMessage: (msg) => _openBubble(autoClose: true, message: msg),
               ),
               const ProfileScreen(),
             ],
           ),
 
-          // Speech bubble — positioned just above and to the right of the cat
+          // ----- speech bubble -----
+          // positioned above-right of the cat, animates in/out with opacity + scale
           Positioned(
             left: 90,
             bottom: 62,
@@ -210,7 +245,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             ),
           ),
 
-          // Cat — your exact left/bottom values preserved
+          // ----- cat -----
           Positioned(
             left: -18,
             bottom: -44.5,
@@ -229,6 +264,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           ),
         ],
       ),
+
+      // ----- bottom navigation bar -----
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: const Color(0xFF161B2E),
@@ -255,6 +292,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     );
   }
 
+  // ----- nav item builder -----
   Widget _buildNavItem({required IconData icon, required String label, required int index}) {
     final bool isSelected = currentIndex == index;
     return GestureDetector(
@@ -276,11 +314,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           AnimatedScale(
             scale: isSelected ? 1.1 : 1.0,
             duration: const Duration(milliseconds: 250),
-            child: Icon(icon,
+            child: Icon(
+              icon,
               color: isSelected
                   ? const Color(0xFF00D1FF)
                   : Colors.white.withValues(alpha: 0.3),
-              size: 26),
+              size: 26,
+            ),
           ),
           const SizedBox(height: 4),
           AnimatedDefaultTextStyle(

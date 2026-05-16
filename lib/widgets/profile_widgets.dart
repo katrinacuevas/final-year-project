@@ -1,5 +1,13 @@
+// ========================================================================
+// profile_widgets.dart
+// ------------------------------------------------------------------------
+// small reusable widgets for the profile screen
+// currently contains StatItem — a compact emoji + value + label display
+// ========================================================================
+
 import 'package:flutter/material.dart';
 
+// ----- stat item -----
 class StatItem extends StatelessWidget {
   final String value, label, emoji;
   const StatItem({super.key, required this.value, required this.label, required this.emoji});
@@ -19,12 +27,14 @@ class StatItem extends StatelessWidget {
   }
 }
 
+// ----- vertical divider -----
 class VertDivider extends StatelessWidget {
   const VertDivider({super.key});
   @override
   Widget build(BuildContext context) => Container(width: 1, height: 36, color: const Color(0xFFD0DFF0));
 }
 
+// ----- carousel -----
 class Carousel extends StatelessWidget {
   final int itemCount;
   final int currentPage;
@@ -44,10 +54,14 @@ class Carousel extends StatelessWidget {
             controller: controller,
             itemCount: itemCount,
             onPageChanged: onPageChanged,
-            itemBuilder: (_, i) => Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: itemBuilder(i)),
+            itemBuilder: (_, i) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: itemBuilder(i),
+            ),
           ),
         ),
         const SizedBox(height: 10),
+        // ----- dot indicators -----
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(itemCount, (i) => AnimatedContainer(
@@ -66,6 +80,9 @@ class Carousel extends StatelessWidget {
   }
 }
 
+// ----- task card -----
+// a single completed lesson entry shown in the tasks carousel
+// shows the lesson emoji, title, subtitle and XP earned
 class TaskCard extends StatelessWidget {
   final Map<String, dynamic> task;
   const TaskCard({super.key, required this.task});
@@ -82,9 +99,13 @@ class TaskCard extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // lesson icon with a tinted background using its accent colour
           Container(
             width: 52, height: 52,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(14)),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(14),
+            ),
             child: Center(child: Text(task['emoji'] as String, style: const TextStyle(fontSize: 28))),
           ),
           const SizedBox(width: 14),
@@ -99,6 +120,7 @@ class TaskCard extends StatelessWidget {
               ],
             ),
           ),
+          // xp pill on the right so the reward is visible
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(color: const Color(0xFFFFFDE7), borderRadius: BorderRadius.circular(10)),
@@ -110,6 +132,9 @@ class TaskCard extends StatelessWidget {
   }
 }
 
+// ----- badge card -----
+// a single unlocked badge entry shown in the badges carousel
+// uses a radial gradient glow behind the emoji to make it feel premium
 class BadgeCard extends StatelessWidget {
   final Map<String, dynamic> badge;
   const BadgeCard({super.key, required this.badge});
@@ -127,13 +152,20 @@ class BadgeCard extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // ----- badge emoji with radial glow -----
           Stack(
             children: [
               Container(
                 width: 60, height: 60,
-                decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [color.withValues(alpha: 0.3), color.withValues(alpha: 0.05)])),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(colors: [color.withValues(alpha: 0.3), color.withValues(alpha: 0.05)]),
+                ),
               ),
-              SizedBox(width: 60, height: 60, child: Center(child: Text(badge['emoji'] as String, style: const TextStyle(fontSize: 32)))),
+              SizedBox(
+                width: 60, height: 60,
+                child: Center(child: Text(badge['emoji'] as String, style: const TextStyle(fontSize: 32))),
+              ),
             ],
           ),
           const SizedBox(width: 14),
@@ -159,6 +191,8 @@ class BadgeCard extends StatelessWidget {
   }
 }
 
+// ----- rule accordion -----
+// expandable safety rule row — tapping toggles the detail text open and closed
 class RuleAccordion extends StatelessWidget {
   final String icon, title, detail;
   final bool expanded;
@@ -180,6 +214,7 @@ class RuleAccordion extends StatelessWidget {
                 Text(icon, style: const TextStyle(fontSize: 20)),
                 const SizedBox(width: 10),
                 Expanded(child: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF1A2E45)))),
+                // chevron rotates 180° when expanded so it doubles as an open/close indicator
                 AnimatedRotation(
                   turns: expanded ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
@@ -187,6 +222,7 @@ class RuleAccordion extends StatelessWidget {
                 ),
               ],
             ),
+            // cross-fade so the detail text appears and disappears smoothly
             AnimatedCrossFade(
               firstChild: const SizedBox(width: double.infinity),
               secondChild: Padding(

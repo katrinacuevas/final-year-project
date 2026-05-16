@@ -1,7 +1,17 @@
+// ========================================================================
+// welcome_card.dart
+// ------------------------------------------------------------------------
+// dashboard greeting card shown at the top of the home tab
+// displays the user's avatar, a randomised greeting, current level badge
+// and an animated XP progress bar towards the next level
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 
+// ----- welcome card widget -----
+// wraps in a ListenableBuilder so it automatically rebuilds when xp changes
 class WelcomeCard extends StatelessWidget {
   const WelcomeCard({super.key});
 
@@ -17,6 +27,10 @@ class WelcomeCard extends StatelessWidget {
         final xpCeiling = svc.xpNeededForNextLevel;
 
         final String name = profile?.username ?? 'Explorer';
+
+        // ----- greeting rotation -----
+        // pick a greeting based on the username length so it feels personalised
+        // but stays consistent on repeated visits
         final double totalProgress =
             xpCeiling > 0 ? (xp / xpCeiling).clamp(0.0, 1.0) : 1.0;
 
@@ -29,6 +43,7 @@ class WelcomeCard extends StatelessWidget {
         ];
         final String greeting = greetings[name.length % greetings.length];
 
+        // fall back to a default yellow if the profile hasn't loaded yet
         final Color avatarColor = profile != null
             ? Color(int.parse(profile.avatarColour))
             : const Color(0xFFFFC857);
@@ -45,6 +60,7 @@ class WelcomeCard extends StatelessWidget {
           ),
           child: Row(
             children: [
+              // ----- avatar -----
               TweenAnimationBuilder<double>(
                 tween: Tween<double>(begin: 0.6, end: 1.0),
                 duration: const Duration(milliseconds: 600),
@@ -75,10 +91,13 @@ class WelcomeCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
+
+              // ----- name, level badge and xp bar -----
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // greeting text split into two spans so the name can be bold
                     RichText(
                       text: TextSpan(
                         style: GoogleFonts.fredoka(
@@ -100,6 +119,8 @@ class WelcomeCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
+
+                    // ----- level badge -----
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
@@ -129,6 +150,8 @@ class WelcomeCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 10),
+
+                    // ----- xp progress bar -----
                     TweenAnimationBuilder<double>(
                       duration: const Duration(milliseconds: 1200),
                       curve: Curves.easeOutCubic,
@@ -140,6 +163,7 @@ class WelcomeCard extends StatelessWidget {
                           minHeight: 7,
                           backgroundColor:
                               const Color(0xFF00D1FF).withValues(alpha: 0.1),
+                          // switches to green when the bar is completely full
                           valueColor: AlwaysStoppedAnimation<Color>(
                             value >= 1.0
                                 ? const Color(0xFF00E676)

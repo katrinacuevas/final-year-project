@@ -1,3 +1,12 @@
+// ========================================================================
+// cat_mascot.dart
+// ------------------------------------------------------------------------
+// the app mascot cat widget — three variants available:
+//  - catMascot, inline cat with optional speech bubble above
+//  - catMascotOverlay, full bottom sheet overlay with tap-to-dismiss
+//  - inlineCatBanner, horizontal card with bouncing cat and message text
+// ========================================================================
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,8 +17,10 @@ const Color _kBg   = Color(0xFF0D1117);
 const Color _kCard = Color(0xFF161B2E);
 const Color _kCyan = Color(0xFF00D1FF);
 
+// ----- cat mood enum -----
 enum CatMood { happy, excited, thinking, proud, sad, cheeky }
 
+// ----- cat mascot -----
 class CatMascot extends StatefulWidget {
   final String message;
   final Color accentColor;
@@ -38,6 +49,7 @@ class _CatMascotState extends State<CatMascot> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    // keep the lottie looping indefinitely so the cat is always animated
     _lottieCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 4500),
@@ -55,6 +67,9 @@ class _CatMascotState extends State<CatMascot> with TickerProviderStateMixin {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // ----- speech bubble -----
+        // only rendered when showSpeechBubble is true — some screens (e.g. username)
+        // build their own inline bubble to set its exact position
         if (widget.showSpeechBubble) ...[
           _SpeechBubble(message: widget.message, accentColor: widget.accentColor)
               .animate().fadeIn(duration: 400.ms).slideY(begin: 0.2),
@@ -65,6 +80,7 @@ class _CatMascotState extends State<CatMascot> with TickerProviderStateMixin {
           ),
           const SizedBox(height: 2),
         ],
+        // ----- cat lottie -----
         GestureDetector(
           onTap: widget.onTap,
           child: SizedBox(
@@ -82,6 +98,7 @@ class _CatMascotState extends State<CatMascot> with TickerProviderStateMixin {
   }
 }
 
+// ----- speech bubble -----
 class _SpeechBubble extends StatelessWidget {
   final String message;
   final Color accentColor;
@@ -104,6 +121,7 @@ class _SpeechBubble extends StatelessWidget {
   );
 }
 
+// ----- bubble tail painter -----
 class _BubbleTailPainter extends CustomPainter {
   final Color color;
   const _BubbleTailPainter({required this.color});
@@ -123,6 +141,8 @@ class _BubbleTailPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+
+// ----- cat mascot overlay -----
 class CatMascotOverlay extends StatefulWidget {
   final String message;
   final Color accentColor;
@@ -141,6 +161,8 @@ class CatMascotOverlay extends StatefulWidget {
     this.autoDismissAfter = const Duration(seconds: 4),
   });
 
+  // ----- static show helper -----
+  // mirrors the pattern used in BadgeUnlock and XpAward so call sites are consistent
   static Future<void> show(
     BuildContext context, {
     required String message,
@@ -173,6 +195,7 @@ class _CatMascotOverlayState extends State<CatMascotOverlay> {
   @override
   void initState() {
     super.initState();
+    // start the countdown if auto-dismiss is requested, cancelled on manual tap
     if (widget.autoDismiss) {
       _dismissTimer = Timer(widget.autoDismissAfter, () {
         if (mounted) Navigator.pop(context);
@@ -201,10 +224,14 @@ class _CatMascotOverlayState extends State<CatMascotOverlay> {
       ),
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 36),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 40, height: 4,
+        // drag handle
+        Container(
+          width: 40, height: 4,
           decoration: BoxDecoration(
             color: widget.accentColor.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(2))),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
         const SizedBox(height: 20),
         CatMascot(
           message: widget.message,
@@ -220,6 +247,8 @@ class _CatMascotOverlayState extends State<CatMascotOverlay> {
   );
 }
 
+
+// ----- inline cat banner -----
 class InlineCatBanner extends StatefulWidget {
   final String message;
   final Color accentColor;
@@ -239,6 +268,7 @@ class InlineCatBanner extends StatefulWidget {
 }
 
 class _InlineCatBannerState extends State<InlineCatBanner> with TickerProviderStateMixin {
+  // ----- bounce animation -----
   late AnimationController _bounceCtrl;
   late Animation<double> _bounceAnim;
   late AnimationController _lottieCtrl;
@@ -246,19 +276,25 @@ class _InlineCatBannerState extends State<InlineCatBanner> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-    _bounceCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))
-      ..repeat(reverse: true);
+    _bounceCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
     _bounceAnim = Tween<double>(begin: -4, end: 4).animate(
       CurvedAnimation(parent: _bounceCtrl, curve: Curves.easeInOut),
     );
     _lottieCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 4500), // ← change speed here
+      duration: const Duration(milliseconds: 4500),
     )..repeat();
   }
 
   @override
-  void dispose() { _bounceCtrl.dispose(); _lottieCtrl.dispose(); super.dispose(); }
+  void dispose() {
+    _bounceCtrl.dispose();
+    _lottieCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Container(
@@ -272,7 +308,10 @@ class _InlineCatBannerState extends State<InlineCatBanner> with TickerProviderSt
     child: Row(children: [
       AnimatedBuilder(
         animation: _bounceAnim,
-        builder: (_, child) => Transform.translate(offset: Offset(0, _bounceAnim.value), child: child),
+        builder: (_, child) => Transform.translate(
+          offset: Offset(0, _bounceAnim.value),
+          child: child,
+        ),
         child: SizedBox(
           width: widget.catSize,
           height: widget.catSize,

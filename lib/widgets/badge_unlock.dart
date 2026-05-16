@@ -1,3 +1,9 @@
+// ========================================================================
+// badge_unlock.dart
+// ------------------------------------------------------------------------
+// modal bottom sheet shown when the user earns a new milestone badge
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -30,6 +36,7 @@ class BadgeUnlock {
   }
 }
 
+// ----- badge sheet -----
 class _BadgeSheet extends StatefulWidget {
   final String emoji, name, description;
   final Color accent;
@@ -44,6 +51,8 @@ class _BadgeSheet extends StatefulWidget {
 }
 
 class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin {
+  // two separate controllers, confetti plays once over the whole sheet,
+  // trophy plays once in its own sized box
   late AnimationController _confettiCtrl;
   late AnimationController _trophyCtrl;
 
@@ -65,6 +74,7 @@ class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin 
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        // ----- main sheet content -----
         Container(
           decoration: BoxDecoration(
             color: _kBg,
@@ -77,7 +87,7 @@ class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin 
             padding: EdgeInsets.fromLTRB(
                 24, 16, 24, MediaQuery.of(context).viewInsets.bottom + 36),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              // drag handle
+              // drag handle so the user knows they can swipe down to dismiss
               Container(
                 width: 40, height: 4,
                 decoration: BoxDecoration(
@@ -87,7 +97,7 @@ class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin 
               ),
               const SizedBox(height: 24),
 
-              // "NEW BADGE UNLOCKED" pill
+              // ----- new badge unlocked pill -----
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                 decoration: BoxDecoration(
@@ -106,7 +116,7 @@ class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin 
 
               const SizedBox(height: 16),
 
-              // Trophy animation
+              // ----- trophy lottie -----
               Lottie.asset(
                 'assets/animations/trophy.json',
                 controller: _trophyCtrl,
@@ -122,7 +132,7 @@ class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin 
 
               const SizedBox(height: 8),
 
-              // badge emoji with glow
+              // ----- badge emoji with glow -----
               Stack(alignment: Alignment.center, children: [
                 Container(
                   width: 140, height: 140,
@@ -136,6 +146,7 @@ class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin 
                     ],
                   ),
                 ),
+                // inner circle with the emoji centered
                 Container(
                   width: 128, height: 128,
                   decoration: BoxDecoration(
@@ -162,7 +173,7 @@ class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin 
 
               const SizedBox(height: 18),
 
-              // sparkle row
+              // ----- sparkle row -----
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(5, (i) {
@@ -179,7 +190,7 @@ class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin 
 
               const SizedBox(height: 18),
 
-              // badge name
+              // ----- badge name and description -----
               Text(
                 widget.name,
                 style: GoogleFonts.fredoka(
@@ -193,7 +204,6 @@ class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin 
 
               const SizedBox(height: 8),
 
-              // description
               Text(
                 widget.description,
                 style: GoogleFonts.fredoka(fontSize: 16, color: Colors.white60),
@@ -202,7 +212,7 @@ class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin 
 
               const SizedBox(height: 32),
 
-              // dismiss button
+              // ----- dismiss button -----
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -224,7 +234,7 @@ class _BadgeSheetState extends State<_BadgeSheet> with TickerProviderStateMixin 
           ),
         ),
 
-        // Confetti overlay — plays once on open, ignores pointer so sheet is still tappable
+        // ----- confetti overlay -----
         IgnorePointer(
           child: Lottie.asset(
             'assets/animations/confetti.json',
