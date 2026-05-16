@@ -1,17 +1,8 @@
+// ========================================================================
 // pretexting_screen.dart
-// Thin orchestrator for the Pretexting Detective course.
-// Routes steps 0–9 across the split lesson files.
-//
-// Step 0  → PretextingIntroStep
-// Step 1  → PretextingLesson1  (What is Pretexting?)
-// Step 2  → PretextingLesson2  (Why Does It Work?)
-// Step 3  → PretextingLesson3  (Who Do They Pretend To Be?)
-// Step 4  → PretextingLesson4  (Sneaky Online Tricks)
-// Step 5  → PretextingLesson5  (Trust Your Gut!)
-// Step 6  → PretextingLesson6  (The PAUSE Rule)
-// Step 7  → PretextingChatSim  (Chat Simulation)
-// Step 8  → PretextingQuizStep (Quiz)
-// Step 9  → PretextingCompleteStep (Results)
+// ------------------------------------------------------------------------
+// main poiint for the pretexting lesson
+// ========================================================================
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -59,7 +50,7 @@ class _PretextingScreenState extends State<PretextingScreen> {
             child: CustomPaint(painter: PretextingGridPainter())),
         SafeArea(
           child: Column(children: [
-            // ── Top bar ────────────────────────────────────────────────────
+            // ----- top bar -----
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Row(children: [
@@ -111,7 +102,7 @@ class _PretextingScreenState extends State<PretextingScreen> {
               ]),
             ),
 
-            // ── Progress bar (lessons 1–6 only) ────────────────────────────
+            // ----- progress bar -----
             if (showProgress)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
@@ -120,7 +111,7 @@ class _PretextingScreenState extends State<PretextingScreen> {
               ),
             const SizedBox(height: 4),
 
-            // ── Step content ───────────────────────────────────────────────
+            // ----- step content -----
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 350),

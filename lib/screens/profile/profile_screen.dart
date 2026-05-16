@@ -1,3 +1,10 @@
+// ========================================================================
+// profile_screen.dart
+// ------------------------------------------------------------------------
+// the user profile screen, shows XP, level, course badges and safety rules
+// reads live data from UserService so everything updates after lessons
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/user_service.dart';

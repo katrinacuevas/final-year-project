@@ -1,3 +1,10 @@
+// ========================================================================
+// password_complete.dart
+// ------------------------------------------------------------------------
+// results screen shown after finishing the password quiz
+// cat gives feedback, user can retry or claim their XP
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -68,7 +75,7 @@ class _CompleteStepState extends State<CompleteStep> {
     return _stars < 3 ? _buildRetry() : _buildSuccess(context);
   }
 
-  // ── Not enough stars — show score and retry ─────────────────────────────────
+  // not enough stars, show score to user and retry button
   Widget _buildRetry() {
     final int missed = widget.total - widget.score;
     return SingleChildScrollView(
@@ -112,7 +119,7 @@ class _CompleteStepState extends State<CompleteStep> {
     );
   }
 
-  // ── Perfect score — full celebration ────────────────────────────────────────
+  // perfect score
   Widget _buildSuccess(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),

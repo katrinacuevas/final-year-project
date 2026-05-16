@@ -1,3 +1,9 @@
+// ========================================================================
+// profile_widgets.dart
+// ------------------------------------------------------------------------
+// reusable widgets for the profile screen
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

@@ -1,13 +1,17 @@
+// ========================================================================
+// password_widgets.dart
+// ------------------------------------------------------------------------
+// shared UI components for the password lesson 
+// imported by password_lessons, password_quiz and password_build
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/sound_service.dart';
 import 'password_theme.dart';
 
-// ─── Cat + Button ─────────────────────────────────────────────────────────────
-// The cat always shows. showBubble controls the speech bubble.
-// showButton controls whether the Next button is visible.
-// Cat says "Tap the screen! 👆" initially, then the real tip once done.
+// ----- cat + button -----
 class PasswordCatButton extends StatefulWidget {
   final Widget button;
   final String message;
@@ -45,7 +49,6 @@ class _PasswordCatButtonState extends State<PasswordCatButton> with TickerProvid
         children: [
           if (widget.showButton)
             Positioned(left: 0, right: 0, bottom: 0, child: widget.button),
-          // Cat — always visible
           Positioned(
             left: -18,
             bottom: widget.showButton ? 15 : 0,
@@ -56,7 +59,6 @@ class _PasswordCatButtonState extends State<PasswordCatButton> with TickerProvid
               ),
             ),
           ),
-          // Speech bubble — controlled by showBubble
           if (widget.showBubble)
             Positioned(
               left: 130,
@@ -83,7 +85,7 @@ class _PasswordCatButtonState extends State<PasswordCatButton> with TickerProvid
   }
 }
 
-// ─── Next Button ──────────────────────────────────────────────────────────────
+// ----- next button -----
 class PasswordNextButton extends StatelessWidget {
   final VoidCallback onTap;
   final String label;
@@ -104,7 +106,7 @@ class PasswordNextButton extends StatelessWidget {
   );
 }
 
-// ─── Lesson Progress Bar ──────────────────────────────────────────────────────
+// ----- lesson progress bar -----
 class LessonProgressBar extends StatelessWidget {
   final int current, total;
   const LessonProgressBar({super.key, required this.current, required this.total});
@@ -122,7 +124,7 @@ class LessonProgressBar extends StatelessWidget {
   ]);
 }
 
-// ─── Lesson Label ─────────────────────────────────────────────────────────────
+// ----- lesson label -----
 class LessonLabel extends StatelessWidget {
   final String label;
   const LessonLabel({super.key, required this.label});
@@ -133,7 +135,7 @@ class LessonLabel extends StatelessWidget {
   ]);
 }
 
-// ─── Info Card ────────────────────────────────────────────────────────────────
+// ----- info card -----
 class InfoCard extends StatelessWidget {
   final Color color;
   final String emoji, title, body;
@@ -154,7 +156,7 @@ class InfoCard extends StatelessWidget {
   );
 }
 
-// ─── Scenario Card ────────────────────────────────────────────────────────────
+// ----- scenario card -----
 class ScenarioCard extends StatelessWidget {
   final String emoji, text;
   final bool isBad;
@@ -175,7 +177,7 @@ class ScenarioCard extends StatelessWidget {
   }
 }
 
-// ─── Weak Password Tile ───────────────────────────────────────────────────────
+// ----- weak password -----
 class WeakPasswordTile extends StatelessWidget {
   final String password, reason;
   const WeakPasswordTile({super.key, required this.password, required this.reason});
@@ -196,7 +198,7 @@ class WeakPasswordTile extends StatelessWidget {
   );
 }
 
-// ─── Tappable Rule Card (Lesson 3) ────────────────────────────────────────────
+// ----- tappable rule card -----
 class TappableRuleCard extends StatelessWidget {
   final String number, emoji, title, body;
   final Color color;
@@ -255,7 +257,6 @@ class TappableRuleCard extends StatelessWidget {
   }
 }
 
-// ─── Tag ──────────────────────────────────────────────────────────────────────
 class PasswordTag extends StatelessWidget {
   final String label;
   final Color color;
@@ -269,7 +270,6 @@ class PasswordTag extends StatelessWidget {
   );
 }
 
-// ─── Word Bubble (Lesson 4) ───────────────────────────────────────────────────
 class WordBubble extends StatelessWidget {
   final String word, emoji;
   const WordBubble({super.key, required this.word, required this.emoji});
@@ -286,7 +286,7 @@ class WordBubble extends StatelessWidget {
   );
 }
 
-// ─── Summary Tile (Complete screen) ──────────────────────────────────────────
+// ----- summary -----
 class SummaryTile extends StatelessWidget {
   final String emoji, text;
   const SummaryTile({super.key, required this.emoji, required this.text});
@@ -301,7 +301,7 @@ class SummaryTile extends StatelessWidget {
   );
 }
 
-// ─── Check Row (Build Password screen) ───────────────────────────────────────
+// ----- Build Password screen -----
 class CheckRow extends StatelessWidget {
   final String label;
   final bool passed;
@@ -322,7 +322,6 @@ class CheckRow extends StatelessWidget {
   ]);
 }
 
-// ─── Grid Painter (background) ───────────────────────────────────────────────
 class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

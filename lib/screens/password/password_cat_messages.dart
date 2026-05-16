@@ -1,3 +1,10 @@
+// ========================================================================
+// password_cat_messages.dart
+// ------------------------------------------------------------------------
+// all cat dialogue strings used throughout the password lesson
+// keeps the lesson copy in one place so it's easy to tweak wording
+// ========================================================================
+
 import 'dart:math';
 
 class PasswordCatMessages {

@@ -1,3 +1,10 @@
+// ========================================================================
+// phishing_complete.dart
+// ------------------------------------------------------------------------
+// results screen shown after finishing the phishing lesson
+// cat gives feedback, user can retry or claim their XP
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';

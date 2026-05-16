@@ -1,3 +1,10 @@
+// ========================================================================
+// password_screen.dart
+// ------------------------------------------------------------------------
+// main point for the Password lesson manages step state and routes between 
+// lessons, password builder, quiz and results
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -25,8 +32,11 @@ class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
   void _goNext() => setState(() => currentStep++);
 
   void _goBack() {
-    if (currentStep > 0) setState(() => currentStep--);
-    else Navigator.pop(context);
+    if (currentStep > 0) {
+      setState(() => currentStep--);
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -39,8 +49,6 @@ class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
       body: Stack(children: [
         Positioned.fill(child: CustomPaint(painter: GridPainter())),
         SafeArea(child: Column(children: [
-
-          // ── Top bar ──────────────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
             child: Row(children: [
@@ -76,13 +84,13 @@ class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
             ]),
           ),
 
-          // ── Progress bar ─────────────────────────────────────────────────────
+          // ----- progress bar -----
           if (showProgress)
             Padding(padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
               child: LessonProgressBar(current: currentStep, total: totalSteps)),
           const SizedBox(height: 4),
 
-          // ── Step content ─────────────────────────────────────────────────────
+          // ----- step content -----
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 350),
@@ -98,7 +106,7 @@ class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
     );
   }
 
-  // ── Step router ─────────────────────────────────────────────────────────────
+  // ----- step router -----
   Widget _buildStep() {
     switch (currentStep) {
       case 0:
@@ -112,7 +120,7 @@ class _PasswordPowerScreenState extends State<PasswordPowerScreen> {
       case 4:
         return LessonStep4(key: const ValueKey(4), onNext: _goNext);
       case 5:
-        // Build password first, then quiz
+        // build password first, then quiz
         return BuildPasswordStep(key: const ValueKey(5), onComplete: () async {
           await UserService.instance.saveProgress(const LessonProgress(
             lessonId: 'password_power', stepsCompleted: 6, totalSteps: 6,

@@ -1,14 +1,9 @@
+// ========================================================================
 // baiting_lessons.dart
-// Intro + all 7 lesson steps for the Baiting Pro course.
-// Baiting = greed and temptation (vs phishing = fear and urgency)
-//
-// Lesson 1 — What is Baiting?
-// Lesson 2 — How Baiters Hook You (the psychology of temptation)
-// Lesson 3 — Online Baiting Examples
-// Lesson 4 — Real-Life Baiting (USB sticks, physical traps)
-// Lesson 5 — Spot the Red Flags
-// Lesson 6 — Real vs Fake Rewards
-// Lesson 7 — What To Do
+// ------------------------------------------------------------------------
+// intro step and all lesson slides for the Baiting Pro course
+// baiting focuses on greed and temptation (vs phishing which uses fear)
+// ========================================================================
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,7 +13,6 @@ import 'baiting_cat_messages.dart';
 import 'baiting_theme.dart';
 import 'baiting_widgets.dart';
 
-// ─── Progress Dots ────────────────────────────────────────────────────────────
 class _RevealProgress extends StatelessWidget {
   final int revealed;
   final int total;
@@ -42,7 +36,6 @@ class _RevealProgress extends StatelessWidget {
   );
 }
 
-// ─── Intro ────────────────────────────────────────────────────────────────────
 class BaitingIntroStep extends StatelessWidget {
   final VoidCallback onNext;
   const BaitingIntroStep({super.key, required this.onNext});
@@ -82,7 +75,7 @@ class BaitingIntroStep extends StatelessWidget {
   );
 }
 
-// ─── Lesson 1: What is Baiting? ──────────────────────────────────────────────
+// ----- lesson 1 ------
 class BaitingLesson1 extends StatefulWidget {
   final VoidCallback onNext;
   const BaitingLesson1({super.key, required this.onNext});
@@ -156,7 +149,7 @@ class _BaitingLesson1State extends State<BaitingLesson1> {
   );
 }
 
-// ─── Lesson 2: How Baiters Hook You ──────────────────────────────────────────
+// ----- lesson 2 ------
 class BaitingLesson2 extends StatefulWidget {
   final VoidCallback onNext;
   const BaitingLesson2({super.key, required this.onNext});
@@ -252,7 +245,7 @@ class _BaitingLesson2State extends State<BaitingLesson2> {
   );
 }
 
-// ─── Lesson 3: Online Baiting Examples ───────────────────────────────────────
+// ----- lesson 3 ------
 class BaitingLesson3 extends StatefulWidget {
   final VoidCallback onNext;
   const BaitingLesson3({super.key, required this.onNext});
@@ -324,7 +317,7 @@ class _BaitingLesson3State extends State<BaitingLesson3> {
   );
 }
 
-// ─── Lesson 4: Real-Life Baiting ─────────────────────────────────────────────
+// ----- lesson 4 ------
 class BaitingLesson4 extends StatefulWidget {
   final VoidCallback onNext;
   const BaitingLesson4({super.key, required this.onNext});
@@ -395,7 +388,7 @@ class _BaitingLesson4State extends State<BaitingLesson4> {
   );
 }
 
-// ─── Lesson 5: Spot the Red Flags ────────────────────────────────────────────
+// ----- lesson 5 ------
 class BaitingLesson5 extends StatefulWidget {
   final VoidCallback onNext;
   const BaitingLesson5({super.key, required this.onNext});
@@ -417,8 +410,11 @@ class _BaitingLesson5State extends State<BaitingLesson5> {
     SoundService.playClick();
     setState(() {
       _everTapped.add(i);
-      if (_expanded.contains(i)) _expanded.remove(i);
-      else _expanded.add(i);
+      if (_expanded.contains(i)) {
+        _expanded.remove(i);
+      } else {
+        _expanded.add(i);
+      }
     });
   }
   @override
@@ -449,7 +445,7 @@ class _BaitingLesson5State extends State<BaitingLesson5> {
   );
 }
 
-// ─── Lesson 6: Real vs Fake Rewards ──────────────────────────────────────────
+// ----- lesson 6 ------
 class BaitingLesson6 extends StatefulWidget {
   final VoidCallback onNext;
   const BaitingLesson6({super.key, required this.onNext});
@@ -519,7 +515,7 @@ class _BaitingLesson6State extends State<BaitingLesson6> {
   );
 }
 
-// ─── Lesson 7: What To Do ────────────────────────────────────────────────────
+// ----- lesson 7 ------
 class BaitingLesson7 extends StatefulWidget {
   final VoidCallback onNext;
   const BaitingLesson7({super.key, required this.onNext});

@@ -1,6 +1,9 @@
+// ========================================================================
 // phishing_chat_sim.dart
-// Interactive chat simulation — user reads 3 phishing scenarios and picks
-// how to respond. Each scenario has right/wrong feedback.
+// ------------------------------------------------------------------------
+// interactive chat simulation for the phishing lesson
+// user reads 3 phishing scenarios and picks the right response each time
+// ========================================================================
 
 import 'dart:async';
 import 'dart:ui';
@@ -263,7 +266,7 @@ class _PhishingChatSimState extends State<PhishingChatSim> {
   }
 }
 
-// ─── Chat UI Components ───────────────────────────────────────────────────────
+// ----- chat ui components ------
 
 class _ChatRoomHeader extends StatelessWidget {
   final String roomName, avatar, title;
@@ -423,7 +426,7 @@ class _InlineDotsState extends State<_InlineDots> with SingleTickerProviderState
   @override
   Widget build(BuildContext context) => SizedBox(height: 20,
     child: Row(mainAxisSize: MainAxisSize.min, children: List.generate(3, (i) =>
-      AnimatedBuilder(animation: _anims[i], builder: (_, __) => Container(
+      AnimatedBuilder(animation: _anims[i], builder: (_, _) => Container(
         margin: const EdgeInsets.symmetric(horizontal: 3), width: 7, height: 7,
         decoration: BoxDecoration(shape: BoxShape.circle,
           color: widget.color.withValues(alpha: 0.4 + 0.6 * _anims[i].value)))))));
@@ -457,7 +460,7 @@ class _TypingIndicatorState extends State<_TypingIndicator> with SingleTickerPro
             bottomLeft: Radius.circular(4), bottomRight: Radius.circular(18)),
           border: Border.all(color: kPhishingRed.withValues(alpha: 0.2))),
         child: Row(mainAxisSize: MainAxisSize.min, children: List.generate(3, (i) =>
-          AnimatedBuilder(animation: _dotAnims[i], builder: (_, __) => Container(
+          AnimatedBuilder(animation: _dotAnims[i], builder: (_, _) => Container(
             margin: const EdgeInsets.symmetric(horizontal: 3), width: 7, height: 7,
             decoration: BoxDecoration(shape: BoxShape.circle,
               color: kPhishingRed.withValues(alpha: 0.3 + 0.6 * _dotAnims[i].value))))))),

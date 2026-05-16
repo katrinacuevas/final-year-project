@@ -1,3 +1,10 @@
+// ========================================================================
+// baiting_cat_messages.dart
+// ------------------------------------------------------------------------
+// all cat dialogue strings used throughout the Baiting Pro course
+// keeps the lesson copy in one place so it's easy to tweak wording
+// ========================================================================
+
 class BaitingCatMessages {
   static const String lessonIntro =
     "Baiters use shiny tempting offers to trap you — like bait on a hook! Let's learn how to spot the trap 🪤";

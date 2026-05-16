@@ -1,5 +1,9 @@
+// ========================================================================
 // pretexting_complete.dart
-// Results screen after the quiz — cat gives feedback, retry or claim XP.
+// ------------------------------------------------------------------------
+// results screen shown after finishing the pretexting lesson
+// cat gives feedback, user can retry or claim their XP
+// ========================================================================
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

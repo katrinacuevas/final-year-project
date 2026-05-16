@@ -1,3 +1,10 @@
+// ========================================================================
+// baiting_chat_sim.dart
+// ------------------------------------------------------------------------
+// interactive chat simulation for the Baiting Pro course
+// user reads a suspicious message and picks how they would respond
+// ========================================================================
+
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -395,7 +402,7 @@ class _InlineDotsState extends State<_InlineDots> with SingleTickerProviderState
   @override
   Widget build(BuildContext context) => SizedBox(height: 20,
     child: Row(mainAxisSize: MainAxisSize.min, children: List.generate(3, (i) =>
-      AnimatedBuilder(animation: _anims[i], builder: (_, __) => Container(
+      AnimatedBuilder(animation: _anims[i], builder: (_, _) => Container(
         margin: const EdgeInsets.symmetric(horizontal: 3), width: 7, height: 7,
         decoration: BoxDecoration(shape: BoxShape.circle,
           color: widget.color.withValues(alpha: 0.4 + 0.6 * _anims[i].value)))))));
@@ -426,7 +433,7 @@ class _TypingIndicatorState extends State<_TypingIndicator> with SingleTickerPro
             bottomLeft: Radius.circular(4), bottomRight: Radius.circular(18)),
           border: Border.all(color: kBaitAccent.withValues(alpha: 0.2))),
         child: Row(mainAxisSize: MainAxisSize.min, children: List.generate(3, (i) =>
-          AnimatedBuilder(animation: _dotAnims[i], builder: (_, __) => Container(
+          AnimatedBuilder(animation: _dotAnims[i], builder: (_, _) => Container(
             margin: const EdgeInsets.symmetric(horizontal: 3), width: 7, height: 7,
             decoration: BoxDecoration(shape: BoxShape.circle,
               color: kBaitAccent.withValues(alpha: 0.3 + 0.6 * _dotAnims[i].value))))))),

@@ -1,10 +1,17 @@
+// ========================================================================
+// baiting_widgets.dart
+// ------------------------------------------------------------------------
+// shared UI components for the baiting lesson
+// imported by baiting_lessons, baiting_quiz and baiting_chat_sim
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/sound_service.dart';
 import 'baiting_theme.dart';
 
-// ─── Cat + Button ─────────────────────────────────────────────────────────────
+// ----- cat + button -----
 class BaitingCatButton extends StatefulWidget {
   final Widget button;
   final String message;
@@ -65,7 +72,7 @@ class _BaitingCatButtonState extends State<BaitingCatButton> with TickerProvider
   }
 }
 
-// ─── Next Button ──────────────────────────────────────────────────────────────
+// ----- next button -----
 class BaitingNextButton extends StatelessWidget {
   final VoidCallback onTap;
   final String label;
@@ -86,7 +93,7 @@ class BaitingNextButton extends StatelessWidget {
   );
 }
 
-// ─── Progress Bar ─────────────────────────────────────────────────────────────
+// ----- progress bar -----
 class BaitingProgressBar extends StatelessWidget {
   final int current, total;
   const BaitingProgressBar({super.key, required this.current, required this.total});
@@ -104,7 +111,7 @@ class BaitingProgressBar extends StatelessWidget {
   ]);
 }
 
-// ─── Lesson Label ─────────────────────────────────────────────────────────────
+// ----- lesson label -----
 class BaitingLessonLabel extends StatelessWidget {
   final String label;
   const BaitingLessonLabel({super.key, required this.label});
@@ -115,7 +122,6 @@ class BaitingLessonLabel extends StatelessWidget {
   ]);
 }
 
-// ─── White Card ───────────────────────────────────────────────────────────────
 class BaitingCard extends StatelessWidget {
   final Widget child;
   const BaitingCard({super.key, required this.child});
@@ -129,7 +135,7 @@ class BaitingCard extends StatelessWidget {
   );
 }
 
-// ─── Info Card ────────────────────────────────────────────────────────────────
+// ----- info card -----
 class BaitingInfoCard extends StatelessWidget {
   final Color color;
   final String emoji, title, body;
@@ -150,7 +156,7 @@ class BaitingInfoCard extends StatelessWidget {
   );
 }
 
-// ─── Tip Box ──────────────────────────────────────────────────────────────────
+// ----- tip box -----
 class BaitingTipBox extends StatelessWidget {
   final String text;
   const BaitingTipBox({super.key, required this.text});
@@ -166,7 +172,7 @@ class BaitingTipBox extends StatelessWidget {
   );
 }
 
-// ─── Trap Row (simple icon + text) ───────────────────────────────────────────
+// ----- trap row -----
 class BaitingTrapRow extends StatelessWidget {
   final String emoji, text;
   const BaitingTrapRow({super.key, required this.emoji, required this.text});
@@ -180,7 +186,7 @@ class BaitingTrapRow extends StatelessWidget {
   );
 }
 
-// ─── Compare Row ──────────────────────────────────────────────────────────────
+// ----- compare row -----
 class BaitingCompareRow extends StatelessWidget {
   final String emoji, text;
   const BaitingCompareRow({super.key, required this.emoji, required this.text});
@@ -194,7 +200,7 @@ class BaitingCompareRow extends StatelessWidget {
   );
 }
 
-// ─── Red Flag Card ────────────────────────────────────────────────────────────
+// ----- red flag card -----
 class BaitingRedFlagCard extends StatelessWidget {
   final String flag, detail;
   const BaitingRedFlagCard({super.key, required this.flag, required this.detail});
@@ -211,7 +217,7 @@ class BaitingRedFlagCard extends StatelessWidget {
   );
 }
 
-// ─── Step Card ────────────────────────────────────────────────────────────────
+// ----- step card -----
 class BaitingStepCard extends StatelessWidget {
   final String number, emoji, title, body;
   final Color color;
@@ -242,7 +248,7 @@ class BaitingStepCard extends StatelessWidget {
   );
 }
 
-// ─── Tappable Step Card ───────────────────────────────────────────────────────
+// ----- tappable step card -----
 class BaitingTappableCard extends StatelessWidget {
   final String number, emoji, title, body;
   final Color color;
@@ -289,7 +295,7 @@ class BaitingTappableCard extends StatelessWidget {
   );
 }
 
-// ─── Bait Example Card ────────────────────────────────────────────────────────
+// ----- bait example card -----
 class BaitingExampleCard extends StatelessWidget {
   final String emoji, title, baitMsg, why;
   final Color color;
@@ -327,7 +333,7 @@ class BaitingExampleCard extends StatelessWidget {
   );
 }
 
-// ─── Summary Tile ─────────────────────────────────────────────────────────────
+// ----- summary title -----
 class BaitingSummaryTile extends StatelessWidget {
   final String emoji, text;
   const BaitingSummaryTile({super.key, required this.emoji, required this.text});
@@ -342,7 +348,6 @@ class BaitingSummaryTile extends StatelessWidget {
   );
 }
 
-// ─── Grid Painter ─────────────────────────────────────────────────────────────
 class BaitingGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

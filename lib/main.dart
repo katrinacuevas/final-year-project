@@ -1,3 +1,11 @@
+// ========================================================================
+// main.dart
+// ------------------------------------------------------------------------
+// app entry point — initialises Firebase then runs the Flutter app
+// starts on either the onboarding flow (new user) or the main nav shell
+// (returning user who already has a saved profile)
+// ========================================================================
+
 import 'package:final_year_project/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';

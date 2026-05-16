@@ -1,3 +1,9 @@
+// ========================================================================
+// profile_data.dart
+// ------------------------------------------------------------------------
+// course progress data and safety rules shown on the profile screen
+// ========================================================================
+
 import 'package:flutter/material.dart';
 
 const List<Map<String, dynamic>> profileCourses = [

@@ -1,3 +1,10 @@
+// ========================================================================
+// password_lessons.dart
+// ------------------------------------------------------------------------
+// intro step and all lesson slides for the password lesson
+// covers what makes a strong password, common mistakes and good habits
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -6,7 +13,6 @@ import 'password_cat_messages.dart';
 import 'password_theme.dart';
 import 'password_widgets.dart';
 
-// ─── Progress Dots ────────────────────────────────────────────────────────────
 class _RevealProgress extends StatelessWidget {
   final int revealed;
   final int total;
@@ -30,7 +36,7 @@ class _RevealProgress extends StatelessWidget {
   );
 }
 
-// ─── Intro ────────────────────────────────────────────────────────────────────
+// ----- intro -----
 class IntroStep extends StatelessWidget {
   final VoidCallback onNext;
   const IntroStep({super.key, required this.onNext});
@@ -73,9 +79,7 @@ class IntroStep extends StatelessWidget {
   }
 }
 
-// ─── Lesson 1: Why Passwords Matter ──────────────────────────────────────────
-// Tap anywhere to reveal the house card + 4 scenario cards one by one.
-// Cat says "Tap the screen!" once, then hides. Reappears with tip when done.
+// ----- lesson 1 -----
 class LessonStep1 extends StatefulWidget {
   final VoidCallback onNext;
   const LessonStep1({super.key, required this.onNext});
@@ -175,8 +179,7 @@ class _LessonStep1State extends State<LessonStep1> {
   }
 }
 
-// ─── Lesson 2: Spot the Weak Passwords ───────────────────────────────────────
-// Tap anywhere to reveal each weak password one at a time.
+// ----- lesson 2 -----
 class LessonStep2 extends StatefulWidget {
   final VoidCallback onNext;
   const LessonStep2({super.key, required this.onNext});
@@ -239,9 +242,7 @@ class _LessonStep2State extends State<LessonStep2> {
   }
 }
 
-// ─── Lesson 3: The 4 Rules of a Strong Password ───────────────────────────────
-// All 4 rule cards are visible. Tap each one to expand/collapse it.
-// Cat tip + Next button appear only once all 4 have been tapped open at least once.
+// ----- lesson 3 -----
 class LessonStep3 extends StatefulWidget {
   final VoidCallback onNext;
   const LessonStep3({super.key, required this.onNext});
@@ -265,8 +266,11 @@ class _LessonStep3State extends State<LessonStep3> {
     SoundService.playClick();
     setState(() {
       _everTapped.add(i);
-      if (_expanded.contains(i)) _expanded.remove(i);
-      else _expanded.add(i);
+      if (_expanded.contains(i)) {
+        _expanded.remove(i);
+      } else {
+        _expanded.add(i);
+      }
     });
   }
 
@@ -323,8 +327,7 @@ class _LessonStep3State extends State<LessonStep3> {
   }
 }
 
-// ─── Lesson 4: The Passphrase Trick ──────────────────────────────────────────
-// Tap anywhere to reveal each step one at a time (5 steps total).
+// ----- lesson 4 -----
 class LessonStep4 extends StatefulWidget {
   final VoidCallback onNext;
   const LessonStep4({super.key, required this.onNext});

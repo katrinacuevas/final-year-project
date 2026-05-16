@@ -1,11 +1,13 @@
+// ========================================================================
 // pretexting_quiz.dart
-// 5-question quiz for the Pretexting Detective course.
-// Cat gives feedback after each answer — no separate feedback boxes.
+// ------------------------------------------------------------------------
+// 5-question multiple choice quiz for the pretexting lesson
+// cat gives feedback after each answer 
+// ========================================================================
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/sound_service.dart';
 import 'pretexting_theme.dart';
 import 'pretexting_widgets.dart';
@@ -233,7 +235,7 @@ class _PretextingQuizStepState extends State<PretextingQuizStep> {
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: tc))),
-                  if (trailing != null) trailing,
+                  ?trailing,
                 ]),
               ),
             ),

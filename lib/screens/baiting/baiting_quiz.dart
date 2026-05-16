@@ -1,11 +1,13 @@
+// ========================================================================
 // baiting_quiz.dart
-// 5-question quiz for the Baiting Pro course.
-// Cat gives feedback after each answer — no separate feedback boxes.
+// ------------------------------------------------------------------------
+// 5-question multiple choice quiz for the baiting lesson and 
+// mascot gives feedback after each answer
+// ========================================================================
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/sound_service.dart';
 import 'baiting_theme.dart';
 import 'baiting_widgets.dart';
@@ -118,7 +120,7 @@ class _BaitingQuizStepState extends State<BaitingQuizStep> {
                         color: answered && isCorrect ? kBaitGreen : kBaitAccent.withValues(alpha: 0.7))))),
                   const SizedBox(width: 12),
                   Expanded(child: Text(e.value, style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w600, color: tc))),
-                  if (trailing != null) trailing,
+                  ?trailing,
                 ]),
               ),
             ),

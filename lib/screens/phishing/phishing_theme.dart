@@ -1,3 +1,9 @@
+// ========================================================================
+// phishing_theme.dart
+// ------------------------------------------------------------------------
+// shared colour constants for the phishing lesson
+// ========================================================================
+
 import 'package:flutter/material.dart';
 
 const Color kPhishingAccent = Color(0xFF4FC3F7);

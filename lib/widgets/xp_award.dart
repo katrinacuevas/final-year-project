@@ -243,7 +243,7 @@ class _XpSheetState extends State<_XpSheet> with TickerProviderStateMixin {
                   // bar animates from 0 to the current progress so it fills up visually
                   AnimatedBuilder(
                     animation: _barAnim,
-                    builder: (_, __) => ClipRRect(
+                    builder: (_, _) => ClipRRect(
                       borderRadius: BorderRadius.circular(6),
                       child: LinearProgressIndicator(
                         value: _barAnim.value,

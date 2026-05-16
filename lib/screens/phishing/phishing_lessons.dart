@@ -1,3 +1,9 @@
+// ========================================================================
+// phishing_lessons.dart
+// ------------------------------------------------------------------------
+// intro step and all lesson slides for the phishing lesson
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -6,7 +12,7 @@ import 'phishing_cat_messages.dart';
 import 'phishing_theme.dart';
 import 'phishing_widgets.dart';
 
-// ─── Progress Dots ────────────────────────────────────────────────────────────
+// ----- progress dots -----
 class _RevealProgress extends StatelessWidget {
   final int revealed;
   final int total;
@@ -30,7 +36,7 @@ class _RevealProgress extends StatelessWidget {
   );
 }
 
-// ─── Intro ────────────────────────────────────────────────────────────────────
+// ----- intro -----
 class PhishingIntroStep extends StatelessWidget {
   final VoidCallback onNext;
   const PhishingIntroStep({super.key, required this.onNext});
@@ -70,8 +76,7 @@ class PhishingIntroStep extends StatelessWidget {
   );
 }
 
-// ─── Lesson 1: What is Phishing? ─────────────────────────────────────────────
-// Tap to reveal the definition card + the fishing analogy rows.
+// ----- lesson 1 -----
 class PhishingLesson1 extends StatefulWidget {
   final VoidCallback onNext;
   const PhishingLesson1({super.key, required this.onNext});
@@ -80,7 +85,7 @@ class PhishingLesson1 extends StatefulWidget {
 }
 
 class _PhishingLesson1State extends State<PhishingLesson1> {
-  static const int _total = 5; // definition card + 4 analogy rows
+  static const int _total = 5; 
   int _revealed = 0;
   bool _promptShown = false;
   bool get _allRevealed => _revealed >= _total;
@@ -152,7 +157,7 @@ class _PhishingLesson1State extends State<PhishingLesson1> {
   );
 }
 
-// ─── Lesson 2: Who Do Phishers Pretend to Be? ────────────────────────────────
+// ----- lesson 2 -----
 class PhishingLesson2 extends StatefulWidget {
   final VoidCallback onNext;
   const PhishingLesson2({super.key, required this.onNext});
@@ -216,7 +221,7 @@ class _PhishingLesson2State extends State<PhishingLesson2> {
   );
 }
 
-// ─── Lesson 3: Spotting Fake Messages ────────────────────────────────────────
+// ----- lesson 3 -----
 class PhishingLesson3 extends StatefulWidget {
   final VoidCallback onNext;
   const PhishingLesson3({super.key, required this.onNext});
@@ -283,7 +288,7 @@ class _PhishingLesson3State extends State<PhishingLesson3> {
   );
 }
 
-// ─── Lesson 4: Red Flags to Look For ─────────────────────────────────────────
+// ----- lesson 4 -----
 class PhishingLesson4 extends StatefulWidget {
   final VoidCallback onNext;
   const PhishingLesson4({super.key, required this.onNext});
@@ -353,8 +358,7 @@ class _PhishingLesson4State extends State<PhishingLesson4> {
   );
 }
 
-// ─── Lesson 5: Suspicious Links ──────────────────────────────────────────────
-// Tap to reveal each real vs fake link pair one at a time.
+// ----- lesson 5 -----
 class PhishingLesson5 extends StatefulWidget {
   final VoidCallback onNext;
   const PhishingLesson5({super.key, required this.onNext});
@@ -433,8 +437,7 @@ class _PhishingLesson5State extends State<PhishingLesson5> {
   );
 }
 
-// ─── Lesson 6: How to Check a Link Safely ────────────────────────────────────
-// All 4 step cards visible. Tap each one to expand it.
+// ----- lesson 6 -----
 class PhishingLesson6 extends StatefulWidget {
   final VoidCallback onNext;
   const PhishingLesson6({super.key, required this.onNext});
@@ -458,8 +461,11 @@ class _PhishingLesson6State extends State<PhishingLesson6> {
     SoundService.playClick();
     setState(() {
       _everTapped.add(i);
-      if (_expanded.contains(i)) _expanded.remove(i);
-      else _expanded.add(i);
+      if (_expanded.contains(i)) {
+        _expanded.remove(i);
+      } else {
+        _expanded.add(i);
+      }
     });
   }
 
@@ -500,7 +506,7 @@ class _PhishingLesson6State extends State<PhishingLesson6> {
   );
 }
 
-// ─── Lesson 7: What To Do ────────────────────────────────────────────────────
+// ----- lesson 7 -----
 class PhishingLesson7 extends StatefulWidget {
   final VoidCallback onNext;
   const PhishingLesson7({super.key, required this.onNext});

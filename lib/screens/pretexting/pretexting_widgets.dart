@@ -1,10 +1,17 @@
+// ========================================================================
+// pretexting_widgets.dart
+// ------------------------------------------------------------------------
+// shared UI components for the pretexting lesson
+// imported by pretexting_lessons, pretexting_quiz and pretexting_chat_sim
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/sound_service.dart';
 import 'pretexting_theme.dart';
 
-// ─── Cat + Button ─────────────────────────────────────────────────────────────
+// ----- cat + button -----
 class PretextingCatButton extends StatefulWidget {
   final Widget button;
   final String message;
@@ -100,7 +107,7 @@ class _PretextingCatButtonState extends State<PretextingCatButton>
   }
 }
 
-// ─── Next Button ──────────────────────────────────────────────────────────────
+// ----- next button -----
 class PretextingNextButton extends StatelessWidget {
   final VoidCallback onTap;
   final String label;
@@ -137,7 +144,7 @@ class PretextingNextButton extends StatelessWidget {
       );
 }
 
-// ─── Progress Bar ─────────────────────────────────────────────────────────────
+// ----- progress bar -----
 class PretextingProgressBar extends StatelessWidget {
   final int current, total;
   const PretextingProgressBar(
@@ -168,7 +175,7 @@ class PretextingProgressBar extends StatelessWidget {
       ]);
 }
 
-// ─── Lesson Label ─────────────────────────────────────────────────────────────
+// ----- lesson label -----
 class PretextingLessonLabel extends StatelessWidget {
   final String label;
   const PretextingLessonLabel({super.key, required this.label});
@@ -186,7 +193,7 @@ class PretextingLessonLabel extends StatelessWidget {
       ]);
 }
 
-// ─── Card ─────────────────────────────────────────────────────────────────────
+// ----- card -----
 class PretextingCard extends StatelessWidget {
   final Widget child;
   const PretextingCard({super.key, required this.child});
@@ -209,7 +216,7 @@ class PretextingCard extends StatelessWidget {
       );
 }
 
-// ─── Info Card ────────────────────────────────────────────────────────────────
+// ----- info card -----
 class PretextingInfoCard extends StatelessWidget {
   final Color color;
   final String emoji, title, body;
@@ -247,7 +254,6 @@ class PretextingInfoCard extends StatelessWidget {
       );
 }
 
-// ─── Story Panel ──────────────────────────────────────────────────────────────
 class PretextingStoryStep {
   final String emoji, speaker, text;
   final bool isDanger;
@@ -327,7 +333,6 @@ class PretextingStoryPanel extends StatelessWidget {
       );
 }
 
-// ─── Fake ID Card ─────────────────────────────────────────────────────────────
 class PretextingFakeIDCard extends StatelessWidget {
   final String emoji, role, script, clue;
   final Color color;
@@ -403,7 +408,6 @@ class PretextingFakeIDCard extends StatelessWidget {
       );
 }
 
-// ─── Email Mockup ─────────────────────────────────────────────────────────────
 class PretextingEmailMockup extends StatelessWidget {
   final String from, subject, body;
   final bool isReal;
@@ -473,7 +477,7 @@ class PretextingEmailMockup extends StatelessWidget {
       );
 }
 
-// ─── Step Card (PAUSE rule, What To Do steps) ─────────────────────────────────
+// ----- step card, pause rule ----- 
 class PretextingStepCard extends StatelessWidget {
   final String number, emoji, title, body;
   final Color color;
@@ -537,7 +541,7 @@ class PretextingStepCard extends StatelessWidget {
       );
 }
 
-// ─── Tappable Card (for instinct feelings) ───────────────────────────────────
+// ----- taappable card -----
 class PretextingTappableCard extends StatelessWidget {
   final String emoji, title, body;
   final Color color;
@@ -630,7 +634,7 @@ class PretextingTappableCard extends StatelessWidget {
       );
 }
 
-// ─── Summary Tile ─────────────────────────────────────────────────────────────
+// ----- summary tile -----
 class PretextingSummaryTile extends StatelessWidget {
   final String emoji, text;
   const PretextingSummaryTile(
@@ -651,7 +655,6 @@ class PretextingSummaryTile extends StatelessWidget {
       );
 }
 
-// ─── Grid Painter ─────────────────────────────────────────────────────────────
 class PretextingGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

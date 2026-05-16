@@ -1,3 +1,9 @@
+// ========================================================================
+// password_theme.dart
+// ------------------------------------------------------------------------
+// shared colour constants for the password lesson 
+// ========================================================================
+
 import 'package:flutter/material.dart';
 
 const Color kPasswordAccent = Color(0xFFFFC857);

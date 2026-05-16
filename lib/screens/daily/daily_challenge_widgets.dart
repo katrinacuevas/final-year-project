@@ -1,3 +1,10 @@
+// ========================================================================
+// daily_challenge_widgets.dart
+// ------------------------------------------------------------------------
+// DailyCatPanel widget used in the daily challenge feedback sections
+// shows the cat mascot with a speech bubble and a next/continue button
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';

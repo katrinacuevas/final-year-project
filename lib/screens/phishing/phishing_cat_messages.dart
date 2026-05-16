@@ -1,3 +1,10 @@
+// ========================================================================
+// phishing_cat_messages.dart
+// ------------------------------------------------------------------------
+// all cat dialogue strings used throughout the phishing lesson
+// keeps the lesson copy in one place so it's easy to tweak wording
+// ========================================================================
+
 class PhishingCatMessages {
   static const String lessonIntro =
     "Let's learn how sneaky phishers try to trick you — and how to catch them first! 🕵️";

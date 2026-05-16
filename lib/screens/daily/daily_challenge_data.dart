@@ -1,3 +1,11 @@
+// ========================================================================
+// daily_challenge_data.dart
+// ------------------------------------------------------------------------
+// model classes and content for all three daily challenges
+// challenge 1: spot the fake (phishing), 2: what would you do (baiting),
+// 3: safe or risky (pretexting scenarios)
+// ========================================================================
+
 class ChallengeMessage {
   final String sender, body;
   const ChallengeMessage(this.sender, this.body);
@@ -7,8 +15,6 @@ const spotReal = ChallengeMessage('Roblox', 'Hi! Your 100 Robux from the develop
 const spotFake = ChallengeMessage('R0blox-Fr33', '🚨 YOUR ACCOUNT WILL BE DELETED IN 1 HOUR! Click NOW to save it → free-r0bux.xyz');
 const spotFakeIsB = true;
 const spotHint = '"R0blox-Fr33" uses zeros instead of letters — a classic fake name trick! Real Roblox never threatens to delete your account or sends you to random websites.';
-
-// ── Challenge 2 ───────────────────────────────────────────────────────────────
 
 class ChatMessage {
   final String from, body;
@@ -43,8 +49,6 @@ const chatChoices = [
     best: false,
   ),
 ];
-
-// ── Challenge 3 ───────────────────────────────────────────────────────────────
 
 class ChallengeScenario {
   final String emoji, text, feedback;

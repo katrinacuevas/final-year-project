@@ -1,3 +1,9 @@
+// ========================================================================
+// baiting_theme.dart
+// ------------------------------------------------------------------------
+// shared colour constants for the baiting lesson
+// ========================================================================
+
 import 'package:flutter/material.dart';
 
 const Color kBaitAccent = Color(0xFFFF8A65);

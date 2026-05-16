@@ -1,9 +1,14 @@
+// ========================================================================
+// pretexting_cat_messages.dart
+// ------------------------------------------------------------------------
+// all cat dialogue strings used throughout the pretexting lesson 
+// ========================================================================
+
 class PretextingCatMessages {
-  // ── Intro ─────────────────────────────────────────────────────────────────
   static const String lessonIntro =
       "Some people make up fake stories to trick you into sharing your secrets! 🎭 Let's learn how to catch them out! 🕵️";
 
-  // ── Lesson tips ────────────────────────────────────────────────────────────
+  // ----- lesson tips -----
   static const String lesson1Tip =
       "Anyone can SAY they have a made-up reason to talk to you. Now you know what pretexting looks like! 🎭";
 
@@ -22,7 +27,7 @@ class PretextingCatMessages {
   static const String lesson6Tip =
       "PAUSE is your secret weapon! Stop → Ask → Understand → Seek help → Exit. Five steps that keep you safe every time! 🛡️😸";
 
-  // ── Quiz feedback ──────────────────────────────────────────────────────────
+  // ----- quiz feedback -----
   static String quizFeedback(int questionIndex, bool correct) {
     if (correct) {
       const List<String> wins = [
@@ -45,7 +50,7 @@ class PretextingCatMessages {
     }
   }
 
-  // ── Completion messages ────────────────────────────────────────────────────
+  // ----- completion messages -----
   static String completeMessage(int stars) {
     if (stars == 3) {
       return "PERFECT SCORE! 🏆 You're a true Pretexting Detective! No sneaky faker will ever fool YOU now! 😸";

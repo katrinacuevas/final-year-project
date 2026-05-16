@@ -1,3 +1,10 @@
+// ========================================================================
+// password_build.dart
+// ------------------------------------------------------------------------
+// interactive password builder step in the password lesson
+// user constructs a strong password and the cat rates it in real time
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'password_cat_messages.dart';
@@ -107,7 +114,7 @@ class _BuildPasswordStepState extends State<BuildPasswordStep> {
 
         const SizedBox(height: 16),
 
-        // Rules checklist
+        // ----- rules checklist ----- 
         Container(padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(color: kPasswordCard, borderRadius: BorderRadius.circular(22),
             border: Border.all(color: kPasswordAccent.withValues(alpha: 0.15))),

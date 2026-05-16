@@ -1,3 +1,10 @@
+// ========================================================================
+// daily_challenge_screen.dart
+// ------------------------------------------------------------------------
+// main screen for the daily challenge flow
+// steps the user through all 3 mini-challenges and awards xp on completion
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,17 +21,14 @@ class DailyChallengeScreen extends StatefulWidget {
 }
 
 class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
-  int _step = 0; // 0=ch1, 1=ch2, 2=ch3, 3=done
+  int _step = 0; 
 
-  // Ch1 state
   bool? _spotPickedB;
   bool _spotAnswered = false;
 
-  // Ch2 state
   int? _chatPick;
   bool _chatAnswered = false;
 
-  // Ch3 state
   int _sortIdx = 0;
   int _sortScore = 0;
   bool _sortAnswered = false;
@@ -157,8 +161,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
     );
   }
 
-  // ── Challenge 1: Spot the Fake ──────────────────────────────────────────────
-
   Widget _buildCh1() {
     const accent = Color(0xFF4FC3F7);
     final bool? pickedFake = _spotAnswered ? (_spotPickedB == spotFakeIsB) : null;
@@ -270,8 +272,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
       ),
     );
   }
-
-  // ── Challenge 2: What Would You Do? ────────────────────────────────────────
 
   Widget _buildCh2() {
     const accent = Color(0xFFFF8A65);
@@ -401,8 +401,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
     ]);
   }
 
-  // ── Challenge 3: Safe or Risky? ─────────────────────────────────────────────
-
   Widget _buildCh3() {
     const accent = Color(0xFFBA68C8);
     final scenario = scenarios[_sortIdx];
@@ -518,8 +516,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
     ));
   }
 
-  // ── Complete screen ──────────────────────────────────────────────────────────
-
   Widget _buildComplete() {
     final total = 1 + 1 + scenarios.length;
     final stars = _totalScore >= total - 1 ? 3 : _totalScore >= total ~/ 2 + 1 ? 2 : 1;
@@ -617,8 +613,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
       Expanded(child: Text(text, style: GoogleFonts.fredoka(color: Colors.white54, fontSize: 13))),
     ]),
   );
-
-  // ── Shared widgets ───────────────────────────────────────────────────────────
 
   Widget _challengeHeader(String icon, String title, String subtitle, Color accent) {
     return Container(

@@ -1,3 +1,10 @@
+// ========================================================================
+// phishing_screen.dart
+// ------------------------------------------------------------------------
+// main point for the phishing lesson manages step state and routes 
+// between lessons, chat sim, quiz and results
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -17,14 +24,17 @@ class PhishingDetectiveScreen extends StatefulWidget {
 
 class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
   int currentStep = 0;
-  static const int totalSteps = 7; // 7 lessons
+  static const int totalSteps = 7; 
   int _quizScore = 0;
   int _quizTotal = 0;
 
   void _goNext() => setState(() => currentStep++);
   void _goBack() {
-    if (currentStep > 0) setState(() => currentStep--);
-    else Navigator.pop(context);
+    if (currentStep > 0) {
+      setState(() => currentStep--);
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -37,8 +47,6 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
       body: Stack(children: [
         Positioned.fill(child: CustomPaint(painter: PhishingGridPainter())),
         SafeArea(child: Column(children: [
-
-          // ── Top bar ──────────────────────────────────────────────────────────
           Padding(padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
             child: Row(children: [
               if (!isComplete)
@@ -64,13 +72,13 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
               ),
             ])),
 
-          // ── Progress bar (lessons 1–7 only) ──────────────────────────────────
+          // ----- progress bar -----
           if (showProgress)
             Padding(padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
               child: PhishingProgressBar(current: currentStep, total: totalSteps)),
           const SizedBox(height: 4),
 
-          // ── Step content ─────────────────────────────────────────────────────
+          // ----- step content -----
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 350),
@@ -86,7 +94,7 @@ class _PhishingDetectiveScreenState extends State<PhishingDetectiveScreen> {
     );
   }
 
-  // ── Step router ─────────────────────────────────────────────────────────────
+  // ----- step router -----
   Widget _buildStep() {
     switch (currentStep) {
       case 0:  return PhishingIntroStep(key: const ValueKey(0),  onNext: _goNext);

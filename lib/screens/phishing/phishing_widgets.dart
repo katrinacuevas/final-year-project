@@ -1,6 +1,9 @@
+// ========================================================================
 // phishing_widgets.dart
-// All shared UI components for the Phishing Detective course.
-// Import this in every phishing_*.dart file that needs these components.
+// ------------------------------------------------------------------------
+// shared UI components for the phishing lesson
+// imported by phishing_lessons, phishing_quiz and phishing_chat_sim
+// ========================================================================
 
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -8,7 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../services/sound_service.dart';
 import 'phishing_theme.dart';
 
-// ─── Cat + Button ─────────────────────────────────────────────────────────────
+// ----- cat + button -----
 class PhishingCatButton extends StatefulWidget {
   final Widget button;
   final String message;
@@ -73,7 +76,7 @@ class _PhishingCatButtonState extends State<PhishingCatButton> with TickerProvid
   }
 }
 
-// ─── Next Button ──────────────────────────────────────────────────────────────
+// ----- next button -----
 class PhishingNextButton extends StatelessWidget {
   final VoidCallback onTap;
   final String label;
@@ -94,7 +97,7 @@ class PhishingNextButton extends StatelessWidget {
   );
 }
 
-// ─── Progress Bar ─────────────────────────────────────────────────────────────
+// ----- progress bar -----
 class PhishingProgressBar extends StatelessWidget {
   final int current, total;
   const PhishingProgressBar({super.key, required this.current, required this.total});
@@ -112,7 +115,7 @@ class PhishingProgressBar extends StatelessWidget {
   ]);
 }
 
-// ─── Lesson Label ─────────────────────────────────────────────────────────────
+// ----- lesson label -----
 class PhishingLessonLabel extends StatelessWidget {
   final String label;
   const PhishingLessonLabel({super.key, required this.label});
@@ -123,7 +126,6 @@ class PhishingLessonLabel extends StatelessWidget {
   ]);
 }
 
-// ─── Dark Card ────────────────────────────────────────────────────────────────
 class PhishingDarkCard extends StatelessWidget {
   final Widget child;
   const PhishingDarkCard({super.key, required this.child});
@@ -136,7 +138,7 @@ class PhishingDarkCard extends StatelessWidget {
   );
 }
 
-// ─── Info Card ────────────────────────────────────────────────────────────────
+// ----- info card -----
 class PhishingInfoCard extends StatelessWidget {
   final Color color;
   final String emoji, title, body;
@@ -157,7 +159,7 @@ class PhishingInfoCard extends StatelessWidget {
   );
 }
 
-// ─── Tip Box ──────────────────────────────────────────────────────────────────
+// ----- tip box -----
 class PhishingTipBox extends StatelessWidget {
   final String text;
   const PhishingTipBox({super.key, required this.text});
@@ -173,7 +175,6 @@ class PhishingTipBox extends StatelessWidget {
   );
 }
 
-// ─── Simple Row ───────────────────────────────────────────────────────────────
 class PhishingSimpleRow extends StatelessWidget {
   final String emoji, text;
   const PhishingSimpleRow({super.key, required this.emoji, required this.text});
@@ -187,7 +188,7 @@ class PhishingSimpleRow extends StatelessWidget {
   );
 }
 
-// ─── Red Flag Card ────────────────────────────────────────────────────────────
+// ----- red flag card -----
 class PhishingRedFlagCard extends StatelessWidget {
   final String flag, detail;
   const PhishingRedFlagCard({super.key, required this.flag, required this.detail});
@@ -204,7 +205,7 @@ class PhishingRedFlagCard extends StatelessWidget {
   );
 }
 
-// ─── Step Card ────────────────────────────────────────────────────────────────
+// ----- step card -----
 class PhishingStepCard extends StatelessWidget {
   final String number, emoji, title, body;
   final Color color;
@@ -235,7 +236,7 @@ class PhishingStepCard extends StatelessWidget {
   );
 }
 
-// ─── Tappable Step Card (Lesson 6) ───────────────────────────────────────────
+// ----- tappable step card -----
 class PhishingTappableStepCard extends StatelessWidget {
   final String number, emoji, title, body;
   final Color color;
@@ -282,7 +283,7 @@ class PhishingTappableStepCard extends StatelessWidget {
   );
 }
 
-// ─── Email Card ───────────────────────────────────────────────────────────────
+// ----- email card -----
 class PhishingEmailCard extends StatelessWidget {
   final String from, subject, body, clue;
   final bool isReal;
@@ -329,7 +330,7 @@ class PhishingEmailCard extends StatelessWidget {
   }
 }
 
-// ─── Link Row ─────────────────────────────────────────────────────────────────
+// ----- link row -----
 class PhishingLinkRow extends StatelessWidget {
   final String label, link;
   final bool safe;
@@ -351,7 +352,7 @@ class PhishingLinkRow extends StatelessWidget {
   );
 }
 
-// ─── Summary Tile ─────────────────────────────────────────────────────────────
+// ----- summary tile -----
 class PhishingSummaryTile extends StatelessWidget {
   final String emoji, text;
   const PhishingSummaryTile({super.key, required this.emoji, required this.text});
@@ -366,7 +367,6 @@ class PhishingSummaryTile extends StatelessWidget {
   );
 }
 
-// ─── Grid Painter ─────────────────────────────────────────────────────────────
 class PhishingGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

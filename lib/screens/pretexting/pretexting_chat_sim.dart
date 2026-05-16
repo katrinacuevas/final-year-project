@@ -1,6 +1,9 @@
+// ========================================================================
 // pretexting_chat_sim.dart
-// 3-scenario chat simulation for the Pretexting Detective course.
-// Cat gives all feedback — no separate feedback boxes.
+// ------------------------------------------------------------------------
+// 3-scenario chat simulation for the pretexting lesson
+// user reads a suspicious message and decides if it's a pretexting attempt
+// ========================================================================
 
 import 'dart:async';
 import 'dart:ui';
@@ -421,7 +424,7 @@ class _PretextingChatSimState extends State<PretextingChatSim> {
   }
 }
 
-// ─── Chat Room Header ─────────────────────────────────────────────────────────
+// ----- chat room header -----
 class _ChatRoomHeader extends StatelessWidget {
   final String roomName, avatar, title;
   const _ChatRoomHeader(
@@ -487,7 +490,7 @@ class _ChatRoomHeader extends StatelessWidget {
       );
 }
 
-// ─── Animated Chat Bubble ─────────────────────────────────────────────────────
+// ----- animated chat bubble -----
 class _AnimatedChatBubble extends StatefulWidget {
   final String text, senderName;
   final bool isYou;
@@ -675,7 +678,7 @@ class _AnimatedChatBubbleState extends State<_AnimatedChatBubble>
   }
 }
 
-// ─── Typing Indicator ─────────────────────────────────────────────────────────
+// ----- typing indicator -----
 class _TypingIndicator extends StatefulWidget {
   final Color strangerColour;
   const _TypingIndicator({super.key, required this.strangerColour});
@@ -731,7 +734,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
                   3,
                   (i) => AnimatedBuilder(
                         animation: _dotAnims[i],
-                        builder: (_, __) => Container(
+                        builder: (_, _) => Container(
                           margin:
                               const EdgeInsets.symmetric(horizontal: 3),
                           width: 7,
@@ -749,7 +752,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
       );
 }
 
-// ─── Choice Prompt ────────────────────────────────────────────────────────────
+// ----- choice prompt -----
 class _ChoicePrompt extends StatelessWidget {
   final String question;
   final List choices;

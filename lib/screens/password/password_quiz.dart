@@ -1,3 +1,10 @@
+// ========================================================================
+// password_quiz.dart
+// ------------------------------------------------------------------------
+// 5-question multiple choice quiz for the password lesson
+// cat gives feedback after each answer
+// ========================================================================
+
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -86,7 +93,7 @@ class _QuizStepState extends State<QuizStep> {
             valueColor: const AlwaysStoppedAnimation<Color>(kPasswordAccent))),
         const SizedBox(height: 20),
 
-        // Question card
+        // ----- question card -----
         Container(width: double.infinity, padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(color: kPasswordCard, borderRadius: BorderRadius.circular(22),
             border: Border.all(color: kPasswordAccent.withValues(alpha: 0.2))),
@@ -98,7 +105,7 @@ class _QuizStepState extends State<QuizStep> {
           ])),
         const SizedBox(height: 16),
 
-        // Answer options
+        // ----- answer options -----
         ...options.asMap().entries.map((entry) {
           final i = entry.key;
           final opt = entry.value;

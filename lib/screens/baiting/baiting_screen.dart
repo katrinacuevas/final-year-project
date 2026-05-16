@@ -1,3 +1,10 @@
+// ========================================================================
+// baiting_screen.dart
+// ------------------------------------------------------------------------
+// main point for the baiting lesson manages step state and routes between 
+// lessons, chat sim, quiz and results
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -23,8 +30,11 @@ class _BaitingScreenState extends State<BaitingScreen> {
 
   void _goNext() => setState(() => _currentStep++);
   void _goBack() {
-    if (_currentStep > 0) setState(() => _currentStep--);
-    else Navigator.pop(context);
+    if (_currentStep > 0) {
+      setState(() => _currentStep--);
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -38,7 +48,7 @@ class _BaitingScreenState extends State<BaitingScreen> {
         Positioned.fill(child: CustomPaint(painter: BaitingGridPainter())),
         SafeArea(child: Column(children: [
 
-          // ── Top bar ──────────────────────────────────────────────────────────
+          // ----- top bar -----
           Padding(padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
             child: Row(children: [
               if (!isComplete)
@@ -64,13 +74,13 @@ class _BaitingScreenState extends State<BaitingScreen> {
               ),
             ])),
 
-          // ── Progress bar (lessons 1–7 only) ──────────────────────────────────
+          // ----- progress bar -----
           if (showProgress)
             Padding(padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
               child: BaitingProgressBar(current: _currentStep, total: _totalLessons)),
           const SizedBox(height: 4),
 
-          // ── Step content ─────────────────────────────────────────────────────
+          // ----- step content -----
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 350),
@@ -86,7 +96,7 @@ class _BaitingScreenState extends State<BaitingScreen> {
     );
   }
 
-  // ── Step router ─────────────────────────────────────────────────────────────
+  // ----- step router -----
   Widget _buildStep() {
     switch (_currentStep) {
       case 0:  return BaitingIntroStep(key: const ValueKey(0),  onNext: _goNext);

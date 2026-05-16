@@ -1,12 +1,8 @@
+// ========================================================================
 // pretexting_lessons.dart
-// Intro + 6 lessons for the Pretexting Detective course.
-//
-// Lesson 1 — What is Pretexting?        (intro concept + story example)
-// Lesson 2 — Why Does It Work?          (3 reasons: trust / urgency / details)
-// Lesson 3 — Who Do They Pretend To Be? (4 fake ID cards)
-// Lesson 4 — Sneaky Online Tricks       (fake profiles, emails, how to check)
-// Lesson 5 — Trust Your Gut!            (4 warning feelings)
-// Lesson 6 — The PAUSE Rule             (P-A-U-S-E breakdown + final tips)
+// ------------------------------------------------------------------------
+// intro step and all lessons for the pretexting lesson
+// ========================================================================
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,7 +12,7 @@ import 'pretexting_cat_messages.dart';
 import 'pretexting_theme.dart';
 import 'pretexting_widgets.dart';
 
-// ─── Progress Dots ────────────────────────────────────────────────────────────
+// ----- progress dots -----
 class _RevealProgress extends StatelessWidget {
   final int revealed;
   final int total;
@@ -40,7 +36,6 @@ class _RevealProgress extends StatelessWidget {
   );
 }
 
-// ─── Intro ────────────────────────────────────────────────────────────────────
 class PretextingIntroStep extends StatelessWidget {
   final VoidCallback onNext;
   const PretextingIntroStep({super.key, required this.onNext});
@@ -107,7 +102,7 @@ class PretextingIntroStep extends StatelessWidget {
       );
 }
 
-// ─── Lesson 1: What is Pretexting? ───────────────────────────────────────────
+// ----- lesson 1 -----
 class PretextingLesson1 extends StatefulWidget {
   final VoidCallback onNext;
   const PretextingLesson1({super.key, required this.onNext});
@@ -207,7 +202,7 @@ class _PretextingLesson1State extends State<PretextingLesson1> {
       );
 }
 
-// ─── Lesson 2: Why Does It Work? ─────────────────────────────────────────────
+// ----- lesson 2 -----
 class PretextingLesson2 extends StatefulWidget {
   final VoidCallback onNext;
   const PretextingLesson2({super.key, required this.onNext});
@@ -246,7 +241,6 @@ class _PretextingLesson2State extends State<PretextingLesson2> {
                     fontSize: 13, color: Colors.white54, height: 1.4)),
             const SizedBox(height: 16),
 
-            // Reveal 1: Trust authority
             if (_revealed >= 1)
               PretextingInfoCard(
                 color: kPretextPurple,
@@ -257,7 +251,6 @@ class _PretextingLesson2State extends State<PretextingLesson2> {
 
             if (_revealed >= 1) const SizedBox(height: 10),
 
-            // Reveal 2: Urgency
             if (_revealed >= 2)
               PretextingInfoCard(
                 color: kPretextCyan,
@@ -268,7 +261,6 @@ class _PretextingLesson2State extends State<PretextingLesson2> {
 
             if (_revealed >= 2) const SizedBox(height: 10),
 
-            // Reveal 3: They know a bit about you
             if (_revealed >= 3) ...[
               PretextingInfoCard(
                 color: Colors.orange,
@@ -293,7 +285,7 @@ class _PretextingLesson2State extends State<PretextingLesson2> {
       );
 }
 
-// ─── Lesson 3: Who Do They Pretend To Be? ────────────────────────────────────
+// ----- lesson 3 -----
 class PretextingLesson3 extends StatefulWidget {
   final VoidCallback onNext;
   const PretextingLesson3({super.key, required this.onNext});
@@ -332,7 +324,6 @@ class _PretextingLesson3State extends State<PretextingLesson3> {
                     fontSize: 13, color: Colors.white38)),
             const SizedBox(height: 16),
 
-            // Reveal 1: Fake IT Support
             if (_revealed >= 1)
               PretextingFakeIDCard(
                 emoji: '🧑‍💻',
@@ -344,7 +335,6 @@ class _PretextingLesson3State extends State<PretextingLesson3> {
 
             if (_revealed >= 1) const SizedBox(height: 12),
 
-            // Reveal 2: Fake Police
             if (_revealed >= 2)
               PretextingFakeIDCard(
                 emoji: '👮',
@@ -357,7 +347,6 @@ class _PretextingLesson3State extends State<PretextingLesson3> {
             if (_revealed >= 2) const SizedBox(height: 12),
 
 
-            // Reveal 3: Fake Competition
             if (_revealed >= 3)
               PretextingFakeIDCard(
                 emoji: '🏆',
@@ -369,7 +358,6 @@ class _PretextingLesson3State extends State<PretextingLesson3> {
 
             if (_revealed >= 3) const SizedBox(height: 12),
 
-            // Reveal 4: Fake Friend
             if (_revealed >= 4) ...[
               PretextingFakeIDCard(
                 emoji: '👫',
@@ -395,7 +383,7 @@ class _PretextingLesson3State extends State<PretextingLesson3> {
       );
 }
 
-// ─── Lesson 4: Sneaky Online Tricks ──────────────────────────────────────────
+// ----- lesson 4 -----
 class PretextingLesson4 extends StatefulWidget {
   final VoidCallback onNext;
   const PretextingLesson4({super.key, required this.onNext});
@@ -434,7 +422,6 @@ class _PretextingLesson4State extends State<PretextingLesson4> {
                     fontSize: 13, color: Colors.white38)),
             const SizedBox(height: 16),
 
-            // Reveal 1: Fake social media profile
             if (_revealed >= 1)
               PretextingCard(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -496,7 +483,6 @@ class _PretextingLesson4State extends State<PretextingLesson4> {
 
             if (_revealed >= 1) const SizedBox(height: 14),
 
-            // Reveal 2: Fake email (bad one)
             if (_revealed >= 2) ...[
               Text('📧 Fake Emails That Look Official',
                   style: GoogleFonts.fredoka(
@@ -513,8 +499,6 @@ class _PretextingLesson4State extends State<PretextingLesson4> {
               const SizedBox(height: 8),
             ],
 
-
-            // Reveal 3: Real email comparison
             if (_revealed >= 3) ...[
               PretextingEmailMockup(
                 from: 'itsupport@westfieldacademy.co.uk',
@@ -525,7 +509,6 @@ class _PretextingLesson4State extends State<PretextingLesson4> {
               const SizedBox(height: 14),
             ],
 
-            // Reveal 4: How to check
             if (_revealed >= 4) ...[
               Container(
                 padding: const EdgeInsets.all(16),
@@ -605,7 +588,7 @@ class _CheckRow extends StatelessWidget {
       );
 }
 
-// ─── Lesson 5: Trust Your Gut! ───────────────────────────────────────────────
+// ----- lesson 5 -----
 class PretextingLesson5 extends StatefulWidget {
   final VoidCallback onNext;
   const PretextingLesson5({super.key, required this.onNext});
@@ -664,7 +647,6 @@ class _PretextingLesson5State extends State<PretextingLesson5> {
                   fontSize: 14, color: Colors.white54, height: 1.4)),
           const SizedBox(height: 16),
 
-          // Intro card
           PretextingCard(
             child: Column(children: [
               const Text('🤨', style: TextStyle(fontSize: 48)),
@@ -716,7 +698,7 @@ class _PretextingLesson5State extends State<PretextingLesson5> {
       );
 }
 
-// ─── Lesson 6: The PAUSE Rule ─────────────────────────────────────────────────
+// ----- lesson 6 -----
 class PretextingLesson6 extends StatefulWidget {
   final VoidCallback onNext;
   const PretextingLesson6({super.key, required this.onNext});
@@ -763,7 +745,6 @@ class _PretextingLesson6State extends State<PretextingLesson6> {
                     fontSize: 13, color: Colors.white38)),
             const SizedBox(height: 16),
 
-            // Intro banner
             PretextingCard(
               child: Column(children: [
                 const Text('🛑', style: TextStyle(fontSize: 48)),
@@ -784,7 +765,6 @@ class _PretextingLesson6State extends State<PretextingLesson6> {
 
             const SizedBox(height: 16),
 
-            // Tap-to-reveal PAUSE steps
             for (int i = 0; i < _steps.length; i++) ...[
               if (_revealed > i) ...[
                 _PauseStepCard(

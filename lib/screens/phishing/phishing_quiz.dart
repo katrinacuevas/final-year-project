@@ -1,5 +1,9 @@
+// ========================================================================
 // phishing_quiz.dart
-// 5-question multiple choice quiz for the Phishing Detective course.
+// ------------------------------------------------------------------------
+// 5-question multiple choice quiz for the phishing lesson
+// cat gives feedback after each answer
+// ========================================================================
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -113,7 +117,7 @@ class _PhishingQuizStepState extends State<PhishingQuizStep> {
                         color: answered && isCorrect ? kPhishingGreen : kPhishingAccent.withValues(alpha: 0.7))))),
                   const SizedBox(width: 12),
                   Expanded(child: Text(e.value, style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w600, color: tc))),
-                  if (trailing != null) trailing,
+                  ?trailing,
                 ]),
               ),
             ),
