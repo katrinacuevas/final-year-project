@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:final_year_project/services/user_service.dart';
 import 'package:flutter/material.dart';
@@ -16,64 +15,96 @@ class UsernameScreen extends StatefulWidget {
 }
 
 class _UsernameScreenState extends State<UsernameScreen> with TickerProviderStateMixin {
+  // controller for the username text field 
   final TextEditingController _ctrl = TextEditingController();
+
+  // animation controller and animation for the glowing border/button effect 
   late AnimationController _glowCtrl;
   late Animation<double> _glowAnim;
-  bool _checking = false;
-  bool _navigating = false;
-  bool _hasText = false;
-  bool? _isAvailable;
+
+  // state flags to track loading, navigation, input and username availability 
+  bool _checking = false; // true while checking username availability
+  bool _navigating = false; // true while transitioning to the next screen (avatar)
+  bool _hasText = false; // true when the text field is not empty 
+  bool? _isAvailable; // null = unknown, true = available, false = taken
+
+  // debounce timer to delay availability checks while the user is still typing
   Timer? _debounce;
 
+  // pre-defined username suggestions 
   final List<String> _suggestions = [
     'ShadowAgent7', 'CipherCat', 'PixelPro',
-    'NeonDetective', 'CovertFox', 'MysticProbe',
+    'NeonDetective', 'MischeviousFox', 'MysticHero',
   ];
 
   @override
   void initState() {
     super.initState();
+    // looping glow animation that pulses 
     _glowCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
     _glowAnim = Tween<double>(begin: 0.4, end: 1.0).animate(CurvedAnimation(parent: _glowCtrl, curve: Curves.easeInOut));
+    // listen for changes in the text field to trigger availability checks
     _ctrl.addListener(_onTextChanged);
   }
 
+  // called on every key stroke, resets availability state and starts a debounce 
+  // availability check so the backend is not spammed on every character 
   void _onTextChanged() {
     final text = _ctrl.text.trim();
-    setState(() { _hasText = text.isNotEmpty; _isAvailable = null; });
+    setState(() { 
+      _hasText = text.isNotEmpty; 
+      _isAvailable = null; // reset while re-checking
+    });
+
     _debounce?.cancel();
     if (text.isEmpty) return;
+
     setState(() => _checking = true);
+    
+    // only check availability once the user pauses typing for 600ms
     _debounce = Timer(const Duration(milliseconds: 600), () async {
       try {
         final taken = await UserService.instance.isUsernameTaken(text);
         if (!mounted) return;
+        // ignore the result if the user has already changed the text 
         if (_ctrl.text.trim() != text) return;
-        setState(() { _checking = false; _isAvailable = !taken; });
+        setState(() {
+          _checking = false;
+          _isAvailable = !taken;
+        });
+        if (!taken) {
+          SoundService.playCatHappy();
+        } else {
+          SoundService.playCatIncorrect();
+        }
       } catch (_) {
+        // on error silently reset 
         if (!mounted) return;
-        setState(() { _checking = false; _isAvailable = null; });
+        setState(() { 
+          _checking = false; 
+          _isAvailable = null; 
+        });
       }
     });
   }
 
-  bool _looksUnsafe(String text) {
-    final lower = text.toLowerCase();
-    final realNames = ['john', 'emma', 'jack', 'oliver', 'harry', 'sophia', 'charlie'];
-    return realNames.any((e) => lower.contains(e)) || RegExp(r'19|20|201').hasMatch(lower);
-  }
-
+  // begin mission button tap, play a click sound
+  // navigate to avatar_screen with a slide transition
   Future<void> _next() async {
-    if (_checking || _navigating) return;
-    if (_isAvailable == false) return;
+    if (_checking || _navigating) return; // prevent double-taps 
+    if (_isAvailable == false) return; // block if username is taken 
+
     SoundService.playClick();
     setState(() => _navigating = true);
+
+    // delay to let the loading indicator render befire pushing the route
     await Future.delayed(const Duration(milliseconds: 400));
     if (!mounted) return;
     Navigator.push(context, PageRouteBuilder(
       transitionDuration: const Duration(milliseconds: 500),
-      pageBuilder: (_, __, ___) => AvatarScreen(username: _ctrl.text.trim()),
-      transitionsBuilder: (_, animation, __, child) => SlideTransition(
+      pageBuilder: (_, _, _) => AvatarScreen(username: _ctrl.text.trim()),
+      // slide in from the right 
+      transitionsBuilder: (_, animation, _, child) => SlideTransition(
         position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
             .animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
         child: child,
@@ -81,19 +112,19 @@ class _UsernameScreenState extends State<UsernameScreen> with TickerProviderStat
     ));
   }
 
+  // return the appropriate message for the cat mascot based on current input state 
   String get _mascotMessage {
     if (!_hasText) return "Hi! I'm Byte 🐱\nEvery great detective needs a secret codename!";
     if (_checking) return "Running identity check through HQ database...";
-    if (_looksUnsafe(_ctrl.text.trim())) return "⚠️ Never use your real name!\nPick a cool codename instead!";
     if (_isAvailable == true) return "Identity confirmed! That codename is all yours! 🕵️";
     if (_isAvailable == false) return "Another agent has that name!\nTry a different codename!";
     return "Looking good, agent! Hit go when you're ready!";
   }
 
+  // return a mood for the cat mascot based on current input state 
   CatMood get _mascotMood {
     if (!_hasText) return CatMood.happy;
     if (_checking) return CatMood.thinking;
-    if (_looksUnsafe(_ctrl.text.trim())) return CatMood.sad;
     if (_isAvailable == true) return CatMood.excited;
     if (_isAvailable == false) return CatMood.sad;
     return CatMood.cheeky;
@@ -101,7 +132,10 @@ class _UsernameScreenState extends State<UsernameScreen> with TickerProviderStat
 
   @override
   void dispose() {
-    _ctrl.dispose(); _glowCtrl.dispose(); _debounce?.cancel();
+    // clean up controllers and timers to prevent memory leaks 
+    _ctrl.dispose(); 
+    _glowCtrl.dispose(); 
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -113,8 +147,10 @@ class _UsernameScreenState extends State<UsernameScreen> with TickerProviderStat
         Positioned.fill(child: CustomPaint(painter: _GridPainter())),
         SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             child: Column(children: [
+              // ----- step indicator badge -----
               Row(children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -132,29 +168,33 @@ class _UsernameScreenState extends State<UsernameScreen> with TickerProviderStat
                   ]),
                 ),
               ]),
-              const SizedBox(height: 24),
+              const SizedBox(height: 30),
 
+              // ----- cat mascot -----
+              // swap message and mood based on input state
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 350),
                 child: CatMascot(
-                  key: ValueKey(_mascotMessage),
+                  key: ValueKey(_mascotMessage), // key forces rebuild on message change 
                   message: _mascotMessage,
                   accentColor: const Color(0xFF00D1FF),
                   mood: _mascotMood,
-                  size: 90,
+                  size: 200,
                 ),
               ),
 
-              const SizedBox(height: 24),
-              Text('CREATE YOUR\nSECRET CODENAME',
+              // ----- screen title -----
+              const SizedBox(height: 3),
+              Text('CREATE YOUR SECRET CODENAME',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.fredoka(fontSize: 32, color: Colors.white, fontWeight: FontWeight.w700, height: 1.1),
+                style: GoogleFonts.fredoka(fontSize: 24, color: Colors.white, fontWeight: FontWeight.w700, height: 1.1),
               ).animate().fade().slideY(begin: 0.2),
-              const SizedBox(height: 10),
+              const SizedBox(height: 6),
+              // ----- safety tip typewrite animation -----
               SizedBox(
-                height: 44,
+                height: 34,
                 child: DefaultTextStyle(
-                  style: GoogleFonts.fredoka(fontSize: 17, color: const Color(0xFF00D1FF), fontWeight: FontWeight.w600),
+                  style: GoogleFonts.fredoka(fontSize: 14, color: const Color(0xFF00D1FF), fontWeight: FontWeight.w600),
                   child: AnimatedTextKit(
                     repeatForever: true,
                     animatedTexts: [
@@ -165,92 +205,138 @@ class _UsernameScreenState extends State<UsernameScreen> with TickerProviderStat
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
+              // ----- input card with animated glow border -----
               AnimatedBuilder(
                 animation: _glowAnim,
                 builder: (_, child) => Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(28),
+                    borderRadius: BorderRadius.circular(24),
                     boxShadow: [BoxShadow(color: const Color(0xFF00D1FF).withValues(alpha: 0.15 * _glowAnim.value), blurRadius: 24, spreadRadius: 2)],
                   ),
                   child: child,
                 ),
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF161B2E), borderRadius: BorderRadius.circular(28),
+                    color: const Color(0xFF161B2E), borderRadius: BorderRadius.circular(24),
                     border: Border.all(color: const Color(0xFF00D1FF).withValues(alpha: 0.2), width: 1.5),
                   ),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text('YOUR CODENAME',
-                      style: GoogleFonts.fredoka(color: const Color(0xFF00D1FF), fontSize: 12, letterSpacing: 1.5, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 10),
+                      style: GoogleFonts.fredoka(color: const Color(0xFF00D1FF), fontSize: 11, letterSpacing: 1.5, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    // ----- text field -----
+                    // border colour reflects availability state
                     TextField(
                       controller: _ctrl,
                       autofocus: true,
-                      style: GoogleFonts.fredoka(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w600),
+                      style: GoogleFonts.fredoka(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
                       decoration: InputDecoration(
                         filled: true, fillColor: const Color(0xFF0D1117),
                         hintText: 'e.g. ShadowAgent7',
-                        hintStyle: GoogleFonts.fredoka(color: Colors.white24, fontSize: 20),
-                        prefixIcon: const Icon(Icons.manage_accounts_rounded, color: Color(0xFF00D1FF), size: 22),
+                        hintStyle: GoogleFonts.fredoka(color: Colors.white24, fontSize: 18),
+                        prefixIcon: const Icon(Icons.manage_accounts_rounded, color: Color(0xFF00D1FF), size: 20),
+                        // suffix icon shows a spinner, tick or cross depending on state
                         suffixIcon: _checking
                             ? const Padding(padding: EdgeInsets.all(12),
-                                child: SizedBox(width: 20, height: 20,
+                                child: SizedBox(width: 18, height: 18,
                                   child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00D1FF))))
                             : _isAvailable == true
                                 ? const Icon(Icons.verified_user_rounded, color: Color(0xFF00E676))
                                 : _isAvailable == false
                                     ? const Icon(Icons.block_rounded, color: Color(0xFFFF6B6B))
                                     : null,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                        // enabled border changes colour based on availability result 
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide(
-                            color: _hasText ? (_isAvailable == true ? const Color(0xFF00E676) : _isAvailable == false ? const Color(0xFFFF6B6B) : const Color(0xFF00D1FF)) : Colors.transparent,
-                            width: 2)),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18),
+                            color: _hasText 
+                              ? (_isAvailable == true 
+                                ? const Color(0xFF00E676) 
+                                : _isAvailable == false 
+                                  ? const Color(0xFFFF6B6B) 
+                                  : const Color(0xFF00D1FF)) 
+                              : Colors.transparent,
+                            width: 2
+                          )),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide(
-                            color: _isAvailable == true ? const Color(0xFF00E676) : _isAvailable == false ? const Color(0xFFFF6B6B) : const Color(0xFF00D1FF),
-                            width: 2)),
+                            color: _isAvailable == true 
+                              ? const Color(0xFF00E676) 
+                              : _isAvailable == false 
+                                ? const Color(0xFFFF6B6B) 
+                                : const Color(0xFF00D1FF),
+                            width: 2
+                          )),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12
+                        ),
                       ),
-                      onSubmitted: (_) => _next(),
+                      onSubmitted: (_) => _next(), // allow submit via keyboard
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 12),
+                    // ----- suggestion usernames -----
+                    // tapping gills the text field
                     Text('SUGGESTED CODENAMES',
                       style: GoogleFonts.fredoka(color: Colors.white38, fontSize: 11, letterSpacing: 1.2)),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8, runSpacing: 8,
-                      children: _suggestions.map((e) => GestureDetector(
-                        onTap: () {
-                          SoundService.playClick();
-                          _ctrl.text = e;
-                          _ctrl.selection = TextSelection.fromPosition(TextPosition(offset: e.length));
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF00D1FF).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: const Color(0xFF00D1FF).withValues(alpha: 0.3)),
+                    const SizedBox(height: 8),
+                    // render username suggestions in a 2-row x 3-column grid 
+                    Column(
+                      children: [
+                        for (int row = 0; row < 2; row++) ...[
+                          if (row > 0) const SizedBox(height: 6),
+                          Row(
+                            children: List.generate(3, (col) {
+                              final e = _suggestions[row * 3 + col];
+                              return Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: col > 0 ? 6 : 0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      SoundService.playClick();
+                                      // fill field and move cursor to end
+                                      _ctrl.text = e;
+                                      _ctrl.selection = TextSelection.fromPosition(TextPosition(offset: e.length));
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 7),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF00D1FF).withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(30),
+                                        border: Border.all(color: const Color(0xFF00D1FF).withValues(alpha: 0.3)),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Text(e,
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.fredoka(color: const Color(0xFF00D1FF), fontWeight: FontWeight.w600, fontSize: 12.5)),
+                                      ),
+                                    // staggered scale-in animation 
+                                  ).animate().scale(delay: Duration(milliseconds: (row * 3 + col) * 60)),
+                                ),
+                              );
+                            }),
                           ),
-                          child: Text(e, style: GoogleFonts.fredoka(color: const Color(0xFF00D1FF), fontWeight: FontWeight.w600, fontSize: 13)),
-                        ),
-                      ).animate().scale(delay: Duration(milliseconds: Random().nextInt(400)))).toList(),
+                        ],
+                      ],
                     ),
                   ]),
                 ),
               ).animate().fade().slideY(begin: 0.3),
-              const SizedBox(height: 28),
+              const SizedBox(height: 14),
 
+              // ----- begin mission button -----
+              // glow when the user can proceed
               SizedBox(
                 width: double.infinity,
                 child: AnimatedBuilder(
                   animation: _glowAnim,
                   builder: (_, child) => Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(26),
+                      borderRadius: BorderRadius.circular(22),
+                      // only show the glow when the button is active 
                       boxShadow: _hasText && _isAvailable != false
                           ? [BoxShadow(color: const Color(0xFF00D1FF).withValues(alpha: 0.4 * _glowAnim.value), blurRadius: 20, spreadRadius: 1)]
                           : [],
@@ -258,27 +344,29 @@ class _UsernameScreenState extends State<UsernameScreen> with TickerProviderStat
                     child: child,
                   ),
                   child: ElevatedButton(
+                    // disbaled when there is no text, username is taken, or navigating
                     onPressed: _hasText && _isAvailable != false && !_navigating ? _next : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF00D1FF),
                       disabledBackgroundColor: const Color(0xFF00D1FF).withValues(alpha: 0.3),
                       foregroundColor: const Color(0xFF0D1117),
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
                       elevation: 0,
                     ),
+                    // show spinner while navigating otherwise show label and icon 
                     child: _navigating
                         ? const SizedBox(width: 22, height: 22,
                             child: CircularProgressIndicator(color: Color(0xFF0D1117), strokeWidth: 2.5))
                         : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            const Icon(Icons.rocket_launch_rounded, size: 20),
-                            const SizedBox(width: 10),
-                            Text('Begin Mission →', style: GoogleFonts.fredoka(fontSize: 22, fontWeight: FontWeight.w700)),
+                            const Icon(Icons.rocket_launch_rounded, size: 18),
+                            const SizedBox(width: 8),
+                            Text('Begin Mission →', style: GoogleFonts.fredoka(fontSize: 20, fontWeight: FontWeight.w700)),
                           ]),
                   ),
                 ),
               ).animate().fade().scale(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 8),
             ]),
           ),
         ),
@@ -287,6 +375,7 @@ class _UsernameScreenState extends State<UsernameScreen> with TickerProviderStat
   }
 }
 
+// cyan grid over dark background 
 class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

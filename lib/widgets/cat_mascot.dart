@@ -33,27 +33,19 @@ class CatMascot extends StatefulWidget {
 }
 
 class _CatMascotState extends State<CatMascot> with TickerProviderStateMixin {
-  late AnimationController _bounceCtrl;
-  late Animation<double> _bounceAnim;
   late AnimationController _lottieCtrl;
 
   @override
   void initState() {
     super.initState();
-    _bounceCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800))
-      ..repeat(reverse: true);
-    _bounceAnim = Tween<double>(begin: -5, end: 5).animate(
-      CurvedAnimation(parent: _bounceCtrl, curve: Curves.easeInOut),
-    );
     _lottieCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 4500), // ← change speed here
+      duration: const Duration(milliseconds: 4500),
     )..repeat();
   }
 
   @override
   void dispose() {
-    _bounceCtrl.dispose();
     _lottieCtrl.dispose();
     super.dispose();
   }
@@ -75,20 +67,13 @@ class _CatMascotState extends State<CatMascot> with TickerProviderStateMixin {
         ],
         GestureDetector(
           onTap: widget.onTap,
-          child: AnimatedBuilder(
-            animation: _bounceAnim,
-            builder: (_, child) => Transform.translate(
-              offset: Offset(0, _bounceAnim.value),
-              child: child,
-            ),
-            child: SizedBox(
-              width: widget.size,
-              height: widget.size,
-              child: Lottie.asset(
-                'assets/animations/cat.json',
-                controller: _lottieCtrl,
-                fit: BoxFit.contain,
-              ),
+          child: SizedBox(
+            width: widget.size,
+            height: widget.size,
+            child: Lottie.asset(
+              'assets/animations/cat.json',
+              controller: _lottieCtrl,
+              fit: BoxFit.contain,
             ),
           ),
         ).animate().scale(curve: Curves.elasticOut, duration: 600.ms),
