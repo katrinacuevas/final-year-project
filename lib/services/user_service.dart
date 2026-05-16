@@ -1,9 +1,19 @@
+// ========================================================================
+// user_service.dart
+// ------------------------------------------------------------------------
+// manages user authentication, profile data, XP progression and lesson
+// progress using Firebase Authentication and Cloud Firestore 
+// ========================================================================
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+// ----- xp level thresholds -----
 const List<int> kXpThresholds = [0, 100, 300, 500, 700, 900, 1100];
 
+// ----- level calculator -----
+// return the user level based on xp amount 
 int levelFromXp(int xp) {
   for (int i = kXpThresholds.length - 1; i >= 0; i--) {
     if (xp >= kXpThresholds[i]) {
@@ -13,6 +23,8 @@ int levelFromXp(int xp) {
   return 0;
 }
 
+// ----- xp progress calculator -----
+// return progress percentage within the current level 
 double xpProgressInLevel(int xp) {
   final level = levelFromXp(xp);
   final currentFloor = kXpThresholds[level];
@@ -22,12 +34,16 @@ double xpProgressInLevel(int xp) {
   return ((xp - currentFloor) / (nextCeiling - currentFloor)).clamp(0.0, 1.0);
 }
 
+// ----- xp remaining calculator -----
+// returns how much xp is needed for next level
 int xpToNextLevel(int xp) {
   final level = levelFromXp(xp);
   if (level + 1 >= kXpThresholds.length) return 0;
   return kXpThresholds[level + 1] - xp;
 }
 
+// ==================
+// user profile model 
 class UserProfile {
   final String uid;
   final String username;

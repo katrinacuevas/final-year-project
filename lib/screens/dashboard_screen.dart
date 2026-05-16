@@ -1,3 +1,10 @@
+// ========================================================================
+// dashboard_screen.dart 
+// ------------------------------------------------------------------------
+// displays the main dashboard screen of the app 
+// shows the welcome card, daily challenge and active learning tasks 
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
@@ -21,8 +28,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     refresh();
   }
 
+  // ----- refresh progress -----
   Future<void> refresh() async {
     await UserService.instance.loadAllProgress();
+    // rebuild screen with updated progress
     if (mounted) setState(() {});
   }
 
@@ -54,18 +63,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
               child: ListenableBuilder(
+                // rebuild dashboard when user data changes 
                 listenable: UserService.instance,
                 builder: (context, child) {
+                  // ----- fetch lesson progress -----
                   final passwordProgress = UserService.instance.getProgress('password_power');
                   final phishingProgress = UserService.instance.getProgress('phishing_detective');
 
                   return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    // ----- welcome card -----
                     animateIn(const WelcomeCard(), 0),
                     const SizedBox(height: 14),
 
-
+                    // daily challenge card 
                     animateIn(const DailyChallengeCard(), 2),
                     const SizedBox(height: 24),
+                    // ----- learning tasks heading -----
                     animateIn(
                       Row(children: [
                         const Icon(Icons.bolt_rounded, color: Color(0xFF00D1FF), size: 16),
@@ -77,14 +90,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       3,
                     ),
                     const SizedBox(height: 12),
+                    // ----- password lesson card -----
                     animateIn(
                       LearningTaskCard(
                         emoji: '🔐',
                         accentColor: const Color(0xFFFFC857),
                         title: 'Password Power',
                         subtitle: 'Learn to create a strong password!',
+                        // live progress values 
                         progress: passwordProgress?.stepsCompleted ?? 0,
                         totalLessons: passwordProgress?.totalSteps ?? 6,
+                        // open lesson screen
                         onTap: () async {
                           SoundService.playClick();
                           await Navigator.push(context, PageRouteBuilder(
@@ -93,20 +109,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             transitionsBuilder: (context, animation, secondaryAnimation, child) =>
                                 FadeTransition(opacity: animation, child: child),
                           ));
+                          // refresh progress after returning 
                           refresh();
                         },
                       ),
                       4,
                     ),
                     const SizedBox(height: 12),
+                    // ----- phishing lesson card -----
                     animateIn(
                       LearningTaskCard(
                         emoji: '🎣',
                         accentColor: const Color(0xFF4FC3F7),
                         title: 'Phishing Detective',
                         subtitle: 'Become an expert at spotting fake messages!',
+                        // live progress values 
                         progress: phishingProgress?.stepsCompleted ?? 0,
                         totalLessons: phishingProgress?.totalSteps ?? 6,
+                        // open lesson screen
                         onTap: () async {
                           SoundService.playClick();
                           await Navigator.push(context, PageRouteBuilder(

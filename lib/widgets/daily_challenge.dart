@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
 import '../services/sound_service.dart';
-import '../screens/daily_screen.dart';
+import '../screens/daily/daily_challenge_screen.dart';
 
 class DailyChallengeCard extends StatefulWidget {
   const DailyChallengeCard({super.key});

@@ -3,89 +3,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:final_year_project/services/user_service.dart';
-import '../services/sound_service.dart';
-
-// ─── Challenge 1: Spot the Fake (Phishing) ───────────────────────────────────
-
-class _Message {
-  final String sender, body;
-  const _Message(this.sender, this.body);
-}
-
-const _spotReal = _Message('Roblox', 'Hi! Your 100 Robux from the developer reward have been added. Thanks for playing!');
-const _spotFake = _Message('R0blox-Fr33', '🚨 YOUR ACCOUNT WILL BE DELETED IN 1 HOUR! Click NOW to save it → free-r0bux.xyz');
-const _spotFakeIsB = true; // B is the fake one
-const _spotHint = '"R0blox-Fr33" uses zeros instead of letters — a classic fake name trick! Real Roblox never threatens to delete your account or sends you to random websites.';
-
-// ─── Challenge 2: What Would You Do? (Baiting) ───────────────────────────────
-
-class _ChatMsg { final String from, body; const _ChatMsg(this.from, this.body); }
-class _ChatChoice {
-  final String emoji, label, feedback;
-  final bool best;
-  const _ChatChoice({required this.emoji, required this.label, required this.feedback, required this.best});
-}
-
-const _chatMsgs = [
-  _ChatMsg('GamePrize_Bot', '🎉 CONGRATS! You\'ve been randomly selected to WIN a FREE gaming PC!'),
-  _ChatMsg('GamePrize_Bot', 'Just send us your full name, home address and school — we\'ll deliver it tomorrow! 📦'),
-];
-
-const _chatChoices = [
-  _ChatChoice(
-    emoji: '📨', label: 'Send my details — I want the prize!',
-    feedback: 'Careful! Real competitions never contact you out of nowhere asking for your home address. This is a baiting trap designed to get your personal info. Never share your address online!',
-    best: false,
-  ),
-  _ChatChoice(
-    emoji: '🛡️', label: 'Close it and tell a trusted adult',
-    feedback: 'Brilliant! You can\'t win something you never entered. Closing it and telling a parent or teacher is always the safest move. You spotted the bait! 🎣',
-    best: true,
-  ),
-  _ChatChoice(
-    emoji: '🤔', label: 'Ask them to prove the prize is real',
-    feedback: 'Good instinct to be suspicious! But scammers can seem very convincing. The safest thing is always to close it and tell an adult rather than chatting with them.',
-    best: false,
-  ),
-];
-
-// ─── Challenge 3: Safe or Risky? (Pretexting) ────────────────────────────────
-
-class _Scenario {
-  final String emoji, text;
-  final bool risky;
-  final String feedback;
-  const _Scenario({required this.emoji, required this.text, required this.risky, required this.feedback});
-}
-
-const _scenarios = [
-  _Scenario(
-    emoji: '🎮',
-    text: 'Someone in a game chat says "I\'m from Roblox support. Give me your password and I\'ll add 1,000 Robux to your account."',
-    risky: true,
-    feedback: 'RISKY! Real support staff NEVER ask for your password — they don\'t need it. This is pretexting: pretending to be support to steal your account!',
-  ),
-  _Scenario(
-    emoji: '📱',
-    text: 'Your mum texts you from her usual number saying she\'ll be 10 minutes late picking you up from school.',
-    risky: false,
-    feedback: 'SAFE! A normal message from a known, trusted person using their real number. Nothing suspicious here!',
-  ),
-  _Scenario(
-    emoji: '🏫',
-    text: 'You get a message saying "Hi, I\'m your new teacher. I need your home address for school records — reply here."',
-    risky: true,
-    feedback: 'RISKY! Schools never collect home addresses by text message. Someone is pretending to be a teacher to find out where you live!',
-  ),
-  _Scenario(
-    emoji: '🎮',
-    text: 'Your friend Jake sends you a message asking if you want to play Minecraft after school, like you do every week.',
-    risky: false,
-    feedback: 'SAFE! A normal message from someone you know well, about something you regularly do together. No red flags!',
-  ),
-];
-
-// ─── Screen ───────────────────────────────────────────────────────────────────
+import '../../services/sound_service.dart';
+import 'daily_challenge_data.dart';
+import 'daily_challenge_widgets.dart';
 
 class DailyChallengeScreen extends StatefulWidget {
   const DailyChallengeScreen({super.key});
@@ -97,7 +17,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   int _step = 0; // 0=ch1, 1=ch2, 2=ch3, 3=done
 
   // Ch1 state
-  bool? _spotPickedB; // true=picked B, false=picked A
+  bool? _spotPickedB;
   bool _spotAnswered = false;
 
   // Ch2 state
@@ -241,9 +161,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
 
   Widget _buildCh1() {
     const accent = Color(0xFF4FC3F7);
-    final bool? pickedFake = _spotAnswered
-        ? (_spotPickedB == _spotFakeIsB)
-        : null;
+    final bool? pickedFake = _spotAnswered ? (_spotPickedB == spotFakeIsB) : null;
 
     return Stack(children: [
       SingleChildScrollView(
@@ -254,7 +172,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
           Text('MESSAGE A', style: GoogleFonts.fredoka(color: Colors.white38, fontSize: 11, letterSpacing: 1.5)),
           const SizedBox(height: 8),
           _messageCard(
-            msg: _spotReal,
+            msg: spotReal,
             picked: _spotAnswered && _spotPickedB == false,
             isFake: false,
             answered: _spotAnswered,
@@ -268,7 +186,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
           Text('MESSAGE B', style: GoogleFonts.fredoka(color: Colors.white38, fontSize: 11, letterSpacing: 1.5)),
           const SizedBox(height: 8),
           _messageCard(
-            msg: _spotFake,
+            msg: spotFake,
             picked: _spotAnswered && _spotPickedB == true,
             isFake: true,
             answered: _spotAnswered,
@@ -286,7 +204,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
           child: _feedbackPanel(
             correct: pickedFake == true,
             accent: accent,
-            explanation: _spotHint,
+            explanation: spotHint,
             buttonLabel: 'Next Challenge →',
             onNext: _advance,
           ).animate().slideY(begin: 0.3, end: 0, duration: 300.ms).fadeIn(),
@@ -295,7 +213,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   }
 
   Widget _messageCard({
-    required _Message msg,
+    required ChallengeMessage msg,
     required bool picked,
     required bool isFake,
     required bool answered,
@@ -325,10 +243,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
           Row(children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: Colors.white10,
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(8)),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 const Text('📧', style: TextStyle(fontSize: 13)),
                 const SizedBox(width: 6),
@@ -368,7 +283,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _challengeHeader('💬', 'What Would You Do?', 'A message pops up while you\'re gaming. Read it carefully — then pick what you\'d do!', accent),
           const SizedBox(height: 20),
-          // Chat bubble UI
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -405,7 +319,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                 ),
               ]),
               const SizedBox(height: 14),
-              ..._chatMsgs.asMap().entries.map((e) => Padding(
+              ...chatMsgs.asMap().entries.map((e) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Align(
                   alignment: Alignment.centerLeft,
@@ -430,7 +344,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
               style: GoogleFonts.fredoka(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
             const SizedBox(height: 12),
           ],
-          ..._chatChoices.asMap().entries.map((e) {
+          ...chatChoices.asMap().entries.map((e) {
             final i = e.key;
             final c = e.value;
             final picked = _chatPick == i;
@@ -440,7 +354,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
             if (answered && picked) {
               if (c.best) { bg = const Color(0xFF00E676).withValues(alpha: 0.1); border = const Color(0xFF00E676).withValues(alpha: 0.6); tc = const Color(0xFF00E676); }
               else { bg = const Color(0xFFFF5252).withValues(alpha: 0.1); border = const Color(0xFFFF5252).withValues(alpha: 0.6); tc = const Color(0xFFFF5252); }
-            } else if (answered && c.best && !(_chatChoices[_chatPick!].best)) {
+            } else if (answered && c.best && !chatChoices[_chatPick!].best) {
               bg = const Color(0xFF00E676).withValues(alpha: 0.05); border = const Color(0xFF00E676).withValues(alpha: 0.3); tc = const Color(0xFF00E676).withValues(alpha: 0.6);
             }
             return Padding(
@@ -477,9 +391,9 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
         Positioned(
           bottom: 0, left: 0, right: 0,
           child: _feedbackPanel(
-            correct: _chatChoices[_chatPick!].best,
+            correct: chatChoices[_chatPick!].best,
             accent: accent,
-            explanation: _chatChoices[_chatPick!].feedback,
+            explanation: chatChoices[_chatPick!].feedback,
             buttonLabel: 'Last Challenge →',
             onNext: _advance,
           ).animate().slideY(begin: 0.3, end: 0, duration: 300.ms).fadeIn(),
@@ -491,19 +405,17 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
 
   Widget _buildCh3() {
     const accent = Color(0xFFBA68C8);
-    final scenario = _scenarios[_sortIdx];
-    final done = _sortIdx >= _scenarios.length;
+    final scenario = scenarios[_sortIdx];
+    final done = _sortIdx >= scenarios.length;
 
-    if (done) {
-      return _buildSortComplete(accent);
-    }
+    if (done) return _buildSortComplete(accent);
 
     return Stack(children: [
       SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 220),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _challengeHeader('🛡️', 'Safe or Risky?',
-            'Read each situation and decide: is it safe or risky? ${_sortIdx + 1} of ${_scenarios.length}', accent),
+            'Read each situation and decide: is it safe or risky? ${_sortIdx + 1} of ${scenarios.length}', accent),
           const SizedBox(height: 20),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
@@ -526,16 +438,14 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          if (!_sortAnswered) ...[
+          if (!_sortAnswered)
             Row(children: [
               Expanded(child: _sortButton('✅ SAFE', false, const Color(0xFF00E676), accent)),
               const SizedBox(width: 12),
               Expanded(child: _sortButton('⚠️ RISKY', true, const Color(0xFFFF5252), accent)),
             ]),
-          ],
-          // Progress dots
           const SizedBox(height: 20),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(_scenarios.length, (i) => Container(
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(scenarios.length, (i) => Container(
             margin: const EdgeInsets.symmetric(horizontal: 4),
             width: i == _sortIdx ? 20 : 8, height: 8,
             decoration: BoxDecoration(
@@ -552,9 +462,9 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
             correct: _sortCorrect!,
             accent: accent,
             explanation: scenario.feedback,
-            buttonLabel: _sortIdx < _scenarios.length - 1 ? 'Next Scenario →' : 'See Results! 🎉',
+            buttonLabel: _sortIdx < scenarios.length - 1 ? 'Next Scenario →' : 'See Results! 🎉',
             onNext: () {
-              if (_sortIdx < _scenarios.length - 1) {
+              if (_sortIdx < scenarios.length - 1) {
                 setState(() { _sortIdx++; _sortAnswered = false; _sortCorrect = null; });
               } else {
                 _advance();
@@ -568,7 +478,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   Widget _sortButton(String label, bool isRisky, Color color, Color accent) {
     return GestureDetector(
       onTap: () {
-        final correct = isRisky == _scenarios[_sortIdx].risky;
+        final correct = isRisky == scenarios[_sortIdx].risky;
         if (correct) { SoundService.playCatHappy(); setState(() { _sortScore++; _totalScore++; }); }
         else { SoundService.playCatIncorrect(); }
         setState(() { _sortAnswered = true; _sortCorrect = correct; });
@@ -592,7 +502,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Text(_sortScore >= 3 ? '🏆' : '💪', style: const TextStyle(fontSize: 64)),
         const SizedBox(height: 12),
-        Text('$_sortScore / ${_scenarios.length} correct!',
+        Text('$_sortScore / ${scenarios.length} correct!',
           style: GoogleFonts.fredoka(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700)),
         const SizedBox(height: 24),
         SizedBox(width: double.infinity, child: ElevatedButton(
@@ -611,94 +521,92 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   // ── Complete screen ──────────────────────────────────────────────────────────
 
   Widget _buildComplete() {
-    final total = 1 + 1 + _scenarios.length; // max possible
+    final total = 1 + 1 + scenarios.length;
     final stars = _totalScore >= total - 1 ? 3 : _totalScore >= total ~/ 2 + 1 ? 2 : 1;
     final perfect = stars == 3;
 
-    return Stack(
-      children: [
+    return Stack(children: [
       SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(children: [
-        const SizedBox(height: 20),
-        if (perfect)
-          Lottie.asset('assets/animations/trophy.json', width: 120, height: 120, repeat: false)
-        else
-          Text(stars == 2 ? '🌟' : '💪', style: const TextStyle(fontSize: 80))
-              .animate().scale(curve: Curves.elasticOut, duration: 800.ms),
-        const SizedBox(height: 16),
-        Text(perfect ? 'Perfect! You\'re a cyber hero!' : stars == 2 ? 'Great job, agent!' : 'Good effort today!',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.fredoka(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 8),
-        Text('You spotted fakes, dodged baits, and sorted risky from safe.',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.fredoka(color: Colors.white54, fontSize: 14, height: 1.5)),
-        const SizedBox(height: 28),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: const Color(0xFF161B2E),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFFFC857).withValues(alpha: 0.3)),
-          ),
-          child: Column(children: [
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Text('✨', style: TextStyle(fontSize: 28)),
-              const SizedBox(width: 8),
-              Text('+75 XP', style: GoogleFonts.fredoka(color: const Color(0xFFFFC857), fontSize: 28, fontWeight: FontWeight.w700)),
-            ]),
-            const SizedBox(height: 14),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(3, (i) =>
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text(i < stars ? '⭐' : '☆', style: const TextStyle(fontSize: 34)),
-              ))),
-            const SizedBox(height: 8),
-            Text(perfect ? '3 Stars — Amazing detective work!' : '$stars Stars — Keep it up!',
-              style: GoogleFonts.fredoka(color: Colors.white70, fontSize: 14)),
-          ]),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFF161B2E),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white12),
-          ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('What you practised today:', style: GoogleFonts.fredoka(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 10),
-            _practisedRow('🎣', 'Spotting fake sender names & urgency tricks'),
-            _practisedRow('💬', 'Recognising baiting messages with fake prizes'),
-            _practisedRow('🛡️', 'Telling safe messages from pretexting traps'),
-          ]),
-        ),
-        const SizedBox(height: 28),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () { SoundService.playClick(); Navigator.pop(context); },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFFC857),
-              foregroundColor: const Color(0xFF0D1117),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-              elevation: 0,
+        padding: const EdgeInsets.all(24),
+        child: Column(children: [
+          const SizedBox(height: 20),
+          if (perfect)
+            Lottie.asset('assets/animations/trophy.json', width: 120, height: 120, repeat: false)
+          else
+            Text(stars == 2 ? '🌟' : '💪', style: const TextStyle(fontSize: 80))
+                .animate().scale(curve: Curves.elasticOut, duration: 800.ms),
+          const SizedBox(height: 16),
+          Text(perfect ? 'Perfect! You\'re a cyber hero!' : stars == 2 ? 'Great job, agent!' : 'Good effort today!',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.fredoka(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          Text('You spotted fakes, dodged baits, and sorted risky from safe.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.fredoka(color: Colors.white54, fontSize: 14, height: 1.5)),
+          const SizedBox(height: 28),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF161B2E),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFFFC857).withValues(alpha: 0.3)),
             ),
-            child: Text('Back to Dashboard 🏠',
-              style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700)),
+            child: Column(children: [
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                const Text('✨', style: TextStyle(fontSize: 28)),
+                const SizedBox(width: 8),
+                Text('+75 XP', style: GoogleFonts.fredoka(color: const Color(0xFFFFC857), fontSize: 28, fontWeight: FontWeight.w700)),
+              ]),
+              const SizedBox(height: 14),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(3, (i) =>
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(i < stars ? '⭐' : '☆', style: const TextStyle(fontSize: 34)),
+                ))),
+              const SizedBox(height: 8),
+              Text(perfect ? '3 Stars — Amazing detective work!' : '$stars Stars — Keep it up!',
+                style: GoogleFonts.fredoka(color: Colors.white70, fontSize: 14)),
+            ]),
           ),
-        ),
-      ]),
-    ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF161B2E),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white12),
+            ),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('What you practised today:', style: GoogleFonts.fredoka(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 10),
+              _practisedRow('🎣', 'Spotting fake sender names & urgency tricks'),
+              _practisedRow('💬', 'Recognising baiting messages with fake prizes'),
+              _practisedRow('🛡️', 'Telling safe messages from pretexting traps'),
+            ]),
+          ),
+          const SizedBox(height: 28),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () { SoundService.playClick(); Navigator.pop(context); },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFFC857),
+                foregroundColor: const Color(0xFF0D1117),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                elevation: 0,
+              ),
+              child: Text('Back to Dashboard 🏠',
+                style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700)),
+            ),
+          ),
+        ]),
+      ),
       if (perfect)
         IgnorePointer(
           child: Lottie.asset('assets/animations/confetti.json', repeat: false, fit: BoxFit.cover),
         ),
-    ],
-    );
+    ]);
   }
 
   Widget _practisedRow(String icon, String text) => Padding(
@@ -744,7 +652,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
     final btnColor = correct ? const Color(0xFF00E676) : accent;
     final btnFg = correct ? const Color(0xFF0D1117) : Colors.white;
 
-    return _DailyCatPanel(
+    return DailyCatPanel(
       message: catMsg,
       accentColor: accent,
       button: SizedBox(
@@ -761,70 +669,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
           child: Text(buttonLabel,
             style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.w700)),
         ),
-      ),
-    );
-  }
-}
-
-// ─── Reusable cat feedback panel for daily challenges ─────────────────────────
-
-class _DailyCatPanel extends StatefulWidget {
-  final Widget button;
-  final String message;
-  final Color accentColor;
-  const _DailyCatPanel({required this.button, required this.message, required this.accentColor});
-  @override
-  State<_DailyCatPanel> createState() => _DailyCatPanelState();
-}
-
-class _DailyCatPanelState extends State<_DailyCatPanel> with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 4500))..repeat();
-  }
-  @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF161B2E),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
-      child: SizedBox(
-        height: 180,
-        child: Stack(clipBehavior: Clip.none, children: [
-          Positioned(left: 0, right: 0, bottom: 0, child: widget.button),
-          Positioned(
-            left: -18, bottom: 15,
-            child: ClipRect(
-              child: SizedBox(
-                width: 160, height: 160,
-                child: Lottie.asset('assets/animations/cat.json', controller: _ctrl, fit: BoxFit.contain),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 130, bottom: 80,
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 210),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1A1848),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16), topRight: Radius.circular(16),
-                  bottomLeft: Radius.circular(4), bottomRight: Radius.circular(16)),
-                border: Border.all(color: widget.accentColor.withValues(alpha: 0.5), width: 1.5),
-              ),
-              child: Text(widget.message,
-                style: GoogleFonts.fredoka(fontSize: 13, color: Colors.white, height: 1.45, fontWeight: FontWeight.w500)),
-            ),
-          ),
-        ]),
       ),
     );
   }
