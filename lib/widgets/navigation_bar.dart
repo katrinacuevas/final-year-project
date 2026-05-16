@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/courses_screen.dart';
-import '../screens/achievements_screen.dart';
+import '../screens/achievements/achievements_screen.dart';
 import '../screens/profile_screen.dart';
 import '../services/sound_service.dart';
 import '../services/user_service.dart';
