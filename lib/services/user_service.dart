@@ -42,8 +42,13 @@ int xpToNextLevel(int xp) {
   return kXpThresholds[level + 1] - xp;
 }
 
-// ==================
+// ====================================
 // user profile model 
+// ------------------------------------
+// stores user account information, 
+// avatar details and xp progression
+// ====================================
+
 class UserProfile {
   final String uid;
   final String username;
@@ -65,6 +70,7 @@ class UserProfile {
     this.level = 0,
   });
 
+  // create a user profile object from firestore data 
   factory UserProfile.fromMap(String uid, Map<String, dynamic> map) {
     final xp = (map['xp'] as int?) ?? 0;
     return UserProfile(
@@ -79,6 +85,7 @@ class UserProfile {
     );
   }
 
+  // converts user profile into firestore map format 
   Map<String, dynamic> toMap() => {
         'username': username,
         'avatarIndex': avatarIndex,
@@ -90,6 +97,8 @@ class UserProfile {
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
+  // xp updater 
+  // return a new profile object with updated xp and level 
   UserProfile withXp(int newXp) => UserProfile(
         uid: uid,
         username: username,
@@ -101,6 +110,13 @@ class UserProfile {
         level: levelFromXp(newXp),
       );
 }
+
+// ====================================
+// lesson progress model 
+// ------------------------------------
+// stores lesson completion progress
+// and star ratings 
+// ====================================
 
 class LessonProgress {
   final String lessonId;
@@ -117,9 +133,11 @@ class LessonProgress {
     required this.completed,
   });
 
+  // return lesson completion percentage 
   double get percentage =>
       totalSteps == 0 ? 0 : stepsCompleted / totalSteps;
 
+  // create lesson progress object from firestore data
   factory LessonProgress.fromMap(Map<String, dynamic> map) {
     return LessonProgress(
       lessonId: map['lessonId'] as String,
@@ -140,6 +158,14 @@ class LessonProgress {
       };
 }
 
+// ====================================
+// user service 
+// ------------------------------------
+// service responsible for authenticaton 
+// profile handling, xp rewards and 
+// lesson progress management 
+// ====================================
+
 class UserService with ChangeNotifier {
   UserService._();
   static final UserService instance = UserService._();
@@ -152,6 +178,7 @@ class UserService with ChangeNotifier {
   Map<String, LessonProgress> _progressCache = {};
   final Set<String> _awardedLessons = {};
 
+  // public getters
   UserProfile? get profile => _profile;
   String? get uid => _uid;
   bool get hasProfile => _profile != null;
@@ -167,13 +194,17 @@ class UserService with ChangeNotifier {
   
   Map<String, LessonProgress> get progressCache => _progressCache;
 
+  // pending achievement notification 
   String? _pendingCatNudge;
+  // notification getter
+  // returns and clears pending cat notification
   String? takePendingCatNudge() {
     final msg = _pendingCatNudge;
     _pendingCatNudge = null;
     return msg;
   }
 
+  // signs user in anonymously and loads profile/progress
   Future<void> init() async {
     if (_auth.currentUser == null) {
       await _auth.signInAnonymously();
@@ -183,6 +214,7 @@ class UserService with ChangeNotifier {
     await loadAllProgress();
   }
 
+  // fetch user profile from firestore 
   Future<void> _loadProfile() async {
     if (_uid == null) return;
     try {
@@ -194,6 +226,7 @@ class UserService with ChangeNotifier {
     } catch (_) {}
   }
 
+  // username validator 
   Future<bool> isUsernameTaken(String username) async {
     try {
       final result = await _db
@@ -210,6 +243,7 @@ class UserService with ChangeNotifier {
     }
   }
 
+  // save user profile 
   Future<void> saveProfile(UserProfile profile) async {
     if (_uid == null) return;
     final taken = await isUsernameTaken(profile.username);
@@ -219,8 +253,10 @@ class UserService with ChangeNotifier {
     notifyListeners();
   }
 
+  // refresh profile
   Future<void> refreshProfile() async => await _loadProfile();
 
+  // add xp reward 
   Future<({int newXp, int newLevel, bool levelledUp})?> addXp(
     String lessonId,
     int amount, {
@@ -244,12 +280,14 @@ class UserService with ChangeNotifier {
     final newXp = _profile!.xp + amount;
     final newLevel = levelFromXp(newXp);
 
+    // update xp and level in firestore 
     await _db.collection('users').doc(_uid).set({
       'xp': FieldValue.increment(amount),
       'level': newLevel,
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 
+    // mark lesson xp as awarded 
     await _db
         .collection('users')
         .doc(_uid)
@@ -257,8 +295,10 @@ class UserService with ChangeNotifier {
         .doc(lessonId)
         .set({'awardedAt': FieldValue.serverTimestamp()});
 
+    // update local profile cache 
     _profile = _profile!.withXp(newXp);
     _awardedLessons.add(lessonId);
+    // achievement notifiction
     _pendingCatNudge = '🏆 You just earned +$amount XP! Check the leaderboard — you might have moved up the rankings! 👀';
     notifyListeners();
 
@@ -269,8 +309,10 @@ class UserService with ChangeNotifier {
     );
   }
 
+  // progress getter 
   LessonProgress? getProgress(String lessonId) => _progressCache[lessonId];
 
+  // save lesson progress
   Future<void> saveProgress(LessonProgress progress) async {
     if (_uid == null) return;
     await _db
@@ -283,6 +325,7 @@ class UserService with ChangeNotifier {
     notifyListeners();
   }
 
+  // load all progress
   Future<void> loadAllProgress() async {
     if (_uid == null) return;
     try {
