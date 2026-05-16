@@ -1,3 +1,11 @@
+// ========================================================================
+// courses_screen.dart
+// ------------------------------------------------------------------------
+// displys the full list of available lessons 
+// each course is shown as a course card with a progress bar, start/continue
+// button and an expandable step-by-step list 
+// ========================================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:final_year_project/services/user_service.dart';
@@ -7,6 +15,9 @@ import 'phishing/phishing_screen.dart';
 import 'pretexting/pretexting_screen.dart';
 import 'password/password_screen.dart';
 
+// ----- course data -----
+// list of all available courses
+// lesson content, step count, accent colour and step titles 
 const List<Map<String, dynamic>> coursesMeta = [
   {
     'lessonId': 'password_power',
@@ -89,20 +100,24 @@ class CoursesScreen extends StatefulWidget {
 }
 
 class _CoursesScreenState extends State<CoursesScreen> {
-  bool loading = true;
+  bool loading = true; // true while progress data is loading 
 
   @override
   void initState() {
     super.initState();
-    refresh();
+    refresh(); // load progress on screen open 
   }
 
+  // ----- refresh progress ----- 
+  // reloads all lesson progress from user service 
   Future<void> refresh() async {
     if (mounted) setState(() => loading = true);
     await UserService.instance.loadAllProgress();
     if (mounted) setState(() => loading = false);
   }
 
+  // ----- screen router -----
+  // map a lessonid to its corresponding lesson screen widget 
   Widget screenFor(String lessonId) {
     switch (lessonId) {
       case 'password_power':    return const PasswordPowerScreen();
@@ -113,6 +128,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
     }
   }
 
+  // ----- staggered animation -----
   Widget animateIn(Widget child, int index) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
@@ -134,9 +150,11 @@ class _CoursesScreenState extends State<CoursesScreen> {
         Positioned.fill(child: CustomPaint(painter: CoursesGridPainter())),
         SafeArea(
           child: loading
+              // ----- loading state -----
               ? Center(child: CircularProgressIndicator(
                   color: const Color(0xFF00D1FF),
                   backgroundColor: const Color(0xFF00D1FF).withValues(alpha: 0.1)))
+              // ----- course list -----
               : RefreshIndicator(
                   onRefresh: refresh,
                   color: const Color(0xFF00D1FF),
@@ -145,6 +163,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
                     padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
                     itemCount: coursesMeta.length + 1,
                     itemBuilder: (context, index) {
+                      // ----- header -----
                       if (index == 0) {
                         return animateIn(
                           Padding(
@@ -163,6 +182,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
                         );
                       }
 
+                      // ----- course card ----- 
                       final courseIndex = index - 1;
                       return animateIn(
                         Padding(
@@ -171,12 +191,14 @@ class _CoursesScreenState extends State<CoursesScreen> {
                             course: coursesMeta[courseIndex],
                             onStart: (lessonId) async {
                               SoundService.playClick();
+                              // push the lesson screen with a fade transition 
                               await Navigator.push(context, PageRouteBuilder(
                                 transitionDuration: const Duration(milliseconds: 500),
                                 pageBuilder: (context, animation, secondaryAnimation) => screenFor(lessonId),
                                 transitionsBuilder: (context, animation, secondaryAnimation, child) =>
                                     FadeTransition(opacity: animation, child: child),
                               ));
+                              // refresh progress after returning from the lesson 
                               refresh();
                             },
                           ),
@@ -192,39 +214,48 @@ class _CoursesScreenState extends State<CoursesScreen> {
   }
 }
 
+// ----- course card -----
+// expandable card showing course info, porgress bar 
 class CourseCard extends StatefulWidget {
   final Map<String, dynamic> course;
-  final Function(String lessonId) onStart;
+  final Function(String lessonId) onStart; // called when the action button is tapped 
   const CourseCard({super.key, required this.course, required this.onStart});
   @override
   State<CourseCard> createState() => _CourseCardState();
 }
 
 class _CourseCardState extends State<CourseCard> {
-  bool expanded = false;
-  double scale = 1.0;
+  bool expanded = false; // controls whetehr the step list is visible 
+  double scale = 1.0; // press scale animation
 
   @override
   Widget build(BuildContext context) {
     final String lessonId = widget.course['lessonId'] as String;
     final List<String> steps = List<String>.from(widget.course['steps']);
     final Color accent = widget.course['accentColor'] as Color;
+
+    // fetch live progress from user service
     final progressData = UserService.instance.getProgress(lessonId);
     final int progressCount = progressData?.stepsCompleted ?? 0;
     final int totalSteps = progressData?.totalSteps ?? widget.course['totalSteps'] as int;
+
+
     final double progressFraction = totalSteps > 0 ? (progressCount / totalSteps).clamp(0.0, 1.0) : 0.0;
     final bool isCompleted = progressCount >= totalSteps && totalSteps > 0;
     final bool isStarted = progressCount > 0;
 
     return GestureDetector(
+      // track press state for scale animation
       onTapDown: (details) => setState(() => scale = 0.97),
       onTapUp: (details) => setState(() => scale = 1.0),
       onTapCancel: () => setState(() => scale = 1.0),
-      onTap: () { SoundService.playClick(); setState(() => expanded = !expanded); },
+      onTap: () { SoundService.playClick(); setState(() => expanded = !expanded); // toggle step list 
+      },
       child: AnimatedScale(
         scale: scale,
         duration: const Duration(milliseconds: 150),
         child: Opacity(
+          // completed courses dimmed
           opacity: isCompleted ? 0.75 : 1.0,
           child: Container(
             padding: const EdgeInsets.all(20),
@@ -236,6 +267,7 @@ class _CourseCardState extends State<CourseCard> {
                 width: 1.5),
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // ----- card header -----
               Row(children: [
                 Container(
                   width: 64, height: 64,
@@ -278,6 +310,8 @@ class _CourseCardState extends State<CourseCard> {
                 ])),
               ]),
               const SizedBox(height: 16),
+              
+              // ----- progress row -----
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 Text('$progressCount / $totalSteps lessons',
                   style: GoogleFonts.fredoka(fontSize: 12, fontWeight: FontWeight.w600,
@@ -287,6 +321,8 @@ class _CourseCardState extends State<CourseCard> {
                     color: isCompleted ? const Color(0xFF00E676) : accent)),
               ]),
               const SizedBox(height: 8),
+
+              // ----- progress bar -----
               TweenAnimationBuilder<double>(
                 duration: const Duration(milliseconds: 1000),
                 curve: Curves.easeOutCubic,
@@ -301,6 +337,7 @@ class _CourseCardState extends State<CourseCard> {
               ),
               const SizedBox(height: 16),
 
+              // ----- action button -----
               if (!isCompleted)
                 SizedBox(
                   width: double.infinity,
@@ -337,6 +374,7 @@ class _CourseCardState extends State<CourseCard> {
                   ),
                 ),
 
+              // ----- expandable step list -----
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,

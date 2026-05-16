@@ -1,3 +1,10 @@
+// ========================================================================
+// splash_screen.dart 
+// ------------------------------------------------------------------------
+// display the animated splash screen when the app launches 
+// automatically route the user to onboarding or the main app 
+// ========================================================================
+
 import 'dart:async';
 import 'package:final_year_project/services/user_service.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +22,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
+  // ----- animation controllers -----
   late AnimationController ctrl;
   late Animation<double> logoScale;
   late Animation<double> logoFade;
@@ -27,11 +35,13 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
+    // ----- main animation controller -----
     ctrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2200),
     );
 
+    // ----- logo scale animatoon -----
     logoScale = Tween<double>(begin: 0.4, end: 1.0).animate(
       CurvedAnimation(
         parent: ctrl,
@@ -39,6 +49,7 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
+    // ----- logo fade animation -----
     logoFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: ctrl,
@@ -46,6 +57,7 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
+    // ----- glow pulse animation -----
     glowPulse = Tween<double>(begin: 0.3, end: 1.0).animate(
       CurvedAnimation(
         parent: ctrl,
@@ -53,6 +65,7 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
+    // ----- title fade animation -----
     textFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: ctrl,
@@ -60,6 +73,7 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
+    // ----- title slide animation -----
     textSlide = Tween<Offset>(
       begin: const Offset(0, 0.4),
       end: Offset.zero,
@@ -70,6 +84,7 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
+    // ----- loading dots fade animation -----
     dotsFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: ctrl,
@@ -77,17 +92,24 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
+    // start all animations 
     ctrl.forward();
 
+    // ----- delayed navigation -----
     Timer(const Duration(milliseconds: 3200), () {
       if (!mounted) return;
+
+      // check if user already completed profile setup 
       final destination = UserService.instance.hasProfile
           ? const MainNavigationScreen()
           : const UsernameScreen();
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 600),
+
+          // destination screen
           pageBuilder: (context, animation, secondaryAnimation) => destination,
+          // fade screen transition
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
               FadeTransition(opacity: animation, child: child),
         ),

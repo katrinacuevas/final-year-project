@@ -1,9 +1,19 @@
+// ========================================================================
+// welcome_screen.dart
+// ------------------------------------------------------------------------
+// displys the animatin completion screen after onboarding 
+// automatically navigate the user to the main screen (home / dashboard)  
+// after a short delay
+// ========================================================================
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/navigation_bar.dart';
 
+// ----- welcome flash screen -----
+// temporary transition screen shown before entering the main app 
 class WelcomeFlash extends StatefulWidget {
   const WelcomeFlash({super.key});
 
@@ -20,15 +30,18 @@ class _WelcomeFlashState extends State<WelcomeFlash>
   void initState() {
     super.initState();
 
+    // ----- glow animation controller -----
     ctrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
+    // ----- glow pulse animation -----
     glowPulse = Tween<double>(begin: 0.4, end: 1.0).animate(
       CurvedAnimation(parent: ctrl, curve: Curves.easeInOut),
     );
 
+    // ----- delayed navigation -----
     Timer(const Duration(milliseconds: 2400), () {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
@@ -45,6 +58,7 @@ class _WelcomeFlashState extends State<WelcomeFlash>
 
   @override
   void dispose() {
+    // dispose animation controller to prevent memory leaks 
     ctrl.dispose();
     super.dispose();
   }
@@ -52,9 +66,11 @@ class _WelcomeFlashState extends State<WelcomeFlash>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // ----- screen background -----
       backgroundColor: const Color(0xFF0D1117),
       body: Stack(
         children: [
+          // ----- background -----
           Positioned.fill(child: CustomPaint(painter: WelcomeGridPainter())),
           SafeArea(
             child: Center(
@@ -79,6 +95,7 @@ class _WelcomeFlashState extends State<WelcomeFlash>
                         ),
                         child: child,
                       ),
+                      // ----- icon container -----
                       child: Container(
                         width: 110,
                         height: 110,
@@ -100,6 +117,7 @@ class _WelcomeFlashState extends State<WelcomeFlash>
                           duration: const Duration(milliseconds: 800),
                         ),
                     const SizedBox(height: 32),
+                    // ----- welcome heading -----
                     Text(
                       "YOU'RE ALL SET,\nAGENT!",
                       textAlign: TextAlign.center,
