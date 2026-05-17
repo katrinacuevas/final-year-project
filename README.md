@@ -40,6 +40,17 @@ flutter devices # list available devices
 flutter run -d <device-id> # run on a specific device
 ```
 ------------------------------------------------------
+## File Structure
+
+| Path | Description |
+|------|-------------|
+| `assets/` | animations (Lottie JSON) and sound effects |
+| `lib/screens/` | all lesson screens (password, phishing, baiting) |
+| `lib/services/` | firebase, user data, and sound services |
+| `lib/widgets/` | shared widgets (cat mascot, nav bar, XP award) |
+| `lib/firebase_options.dart` | firebase configuration |
+| `lib/main.dart` | app main entry point |
+------------------------------------------------------
 ## Common Commands
 
 | Command | Description |
@@ -49,3 +60,4 @@ flutter run -d <device-id> # run on a specific device
 | `flutter test` | Run tests |
 | `flutter clean` | Clear build cache |
 | `flutter pub get` | Install dependencies |
+
