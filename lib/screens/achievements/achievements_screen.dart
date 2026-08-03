@@ -31,7 +31,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
   String selectedFilter = 'All'; // active filter chip on the progress tab
   bool loading = true; // true while progress data is loading
   bool leaderboardLoading = true; // true while leaderboard is loading 
-  bool _leaderboardGreetingShown = false; // ensures the cat greeting fires only once 
+  static bool _leaderboardGreetingShown = false; // ensures the cat greeting fires only once
   List<LeaderboardEntry> leaderboardEntries = [];
 
   @override
