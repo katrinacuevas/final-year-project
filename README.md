@@ -3,6 +3,9 @@
 A Flutter mobile application with Firebase integration to teach children about social engineering 
 (phishing, baiting and pretexting)
 
+## Tech Stack 
+Flutter · Dart · Firebase (Auth, Firestore) · Lottie
+
 ------------------------------------------------------
 ## Prerequisites
 
